@@ -1,0 +1,10 @@
+.footerLink {
+    text-decoration: none;
+    font-size: 16;
+    color: #666;
+}
+
+.footerLink:hover {
+    color: white;
+    transition: 0.2s all linear;
+}
