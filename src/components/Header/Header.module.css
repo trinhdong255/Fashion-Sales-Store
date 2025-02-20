@@ -1,0 +1,17 @@
+.headerTop {
+    background-color: var(--header-background-color);
+    border-bottom: 1px solid black;
+}
+
+.headerNavigationMenu {
+    padding: 100px;
+}
+
+.headerMenuItem {
+    color: var(--text-color);
+    background-color: white;
+}
+
+.headerMenuItem:hover {
+    transition: 0.2s all linear;
+}
