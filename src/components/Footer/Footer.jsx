@@ -42,30 +42,23 @@ const Footer = () => {
     },
     {
       title: "Theo dõi",
-      links: ["Facebook", "LinkedIn", "Instagram", "Twitter"],
+      links: ["Facebook", "LinkedIn", "Instagram", "X"]
     },
   ];
 
   return (
-    <Stack sx={{ backgroundColor: "#333", height: "543px" }}>
+    <Stack className={styles.footer}>
       <Container maxWidth="lg">
-        <Grid container spacing={2} style={{ paddingTop: 32 }}>
+        <Grid container spacing={2}>
           {footerData.map((value, index) => (
-            <Grid item xs={6} sm={6} md={3} key={index}>
-              <h3
-                style={{
-                  fontSize: 20,
-                  fontWeight: 400,
-                  color: "white",
-                  padding: 0,
-                }}
-              >
-                {value.title}
-              </h3>
+            <Grid item xs={6} sm={6} md={3} key={index} sx={{ pb: 12 }}>
+              <h3 className={styles.footerTitle}>{value.title}</h3>
               <ul style={{ listStyleType: "none", paddingTop: 32 }}>
                 {value.links.map((valueLink, linkIndex) => (
                   <li style={{ paddingBottom: 16 }} key={linkIndex}>
-                    <a className={styles.footerLink} href="#">{valueLink}</a>
+                    <a className={styles.footerLink} href="#">
+                      {value.icons && value.icons[linkIndex]} {valueLink}
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -73,6 +66,19 @@ const Footer = () => {
           ))}
         </Grid>
       </Container>
+
+      <span
+        style={{
+          textAlign: "center",
+          fontSize: 16,
+          color: "white",
+          paddingTop: 40,
+          paddingBottom: 16,
+          borderTop: "1px solid #575655",
+        }}
+      >
+        Copyright @2025 by Fashion Store. All Rights Reserved.
+      </span>
     </Stack>
   );
 };

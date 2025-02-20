@@ -12,6 +12,8 @@ import {
   hexToRgb,
   IconButton,
   InputAdornment,
+  Menu,
+  MenuItem,
   TextField,
 } from "@mui/material";
 import Badge, { badgeClasses } from "@mui/material/Badge";
@@ -23,95 +25,132 @@ import MenuIcon from "@mui/icons-material/Menu";
 import HelpIcon from "@mui/icons-material/Help";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import InfoIcon from "@mui/icons-material/Info";
+import styles from "./Header.module.css";
 
 const Header = () => {
+  const listProducts = [
+    {
+      name: "ÁO THUN",
+    },
+    {
+      name: "ÁO SƠ MI",
+    },
+    {
+      name: "ÁO KHOÁC",
+    },
+    {
+      name: "QUẦN DÀI",
+    },
+    {
+      name: "QUẦN SHORTS",
+    },
+    {
+      name: "PHỤ KIỆN",
+    },
+  ];
+
   const outerTheme = useTheme();
-  const [value, setValue] = useState();
+  const [value, setValue] = useState(0);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
-    <Stack backgroundColor={"#f9f9f9"} >
-      <Container maxWidth="lg">
-        <Stack
-          display={"flex"}
-          direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-        >
-          <h1>FASHION STORE</h1>
-          <ThemeProvider theme={customTheme(outerTheme)}>
-            <TextField
-              id="outlined-basic"
-              label="Tìm kiếm sản phẩm..."
-              size="small"
-              variant="outlined"
-              sx={{
-                width: 400,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 100,
-                },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton edge="end">
-                      <SearchIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </ThemeProvider>
-
-          <Stack direction={"row"}>
-            <IconButton aria-label="shopping cart" style={{ marginRight: 20 }}>
-              <ShoppingCartOutlinedIcon fontSize="large" />
-              <CartBadge badgeContent={2} color="primary" overlap="circular" />
-            </IconButton>
-
-            <Stack
-              direction={"row"}
-              spacing={2}
-              display={"flex"}
-              alignItems={"center"}
-            >
-              <Button
+    <>
+      <Stack className={styles.headerTop}>
+        <Container maxWidth="lg">
+          <Stack
+            display={"flex"}
+            direction={"row"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
+            <h1>FASHION STORE</h1>
+            <ThemeProvider theme={customTheme(outerTheme)}>
+              <TextField
+                id="outlined-basic"
+                label="Tìm kiếm sản phẩm..."
+                size="small"
                 variant="outlined"
                 sx={{
-                  color: "black",
-                  borderColor: "#d9d9d9",
-                  borderRadius: 5,
-                  width: 125,
-                  height: 40,
-                  "&:hover": {
-                    backgroundColor: hexToRgb("#d9d9d9", 0.2),
+                  width: 400,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 100,
                   },
                 }}
-              >
-                Đăng nhập
-              </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  color: "white",
-                  backgroundColor: "black",
-                  borderRadius: 5,
-                  width: 125,
-                  height: 40,
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton edge="end">
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
+              />
+            </ThemeProvider>
+
+            <Stack direction={"row"}>
+              <IconButton
+                aria-label="shopping cart"
+                style={{ marginRight: 20 }}
               >
-                Đăng ký
-              </Button>
+                <ShoppingCartOutlinedIcon fontSize="large" />
+                <CartBadge
+                  badgeContent={2}
+                  color="primary"
+                  overlap="circular"
+                />
+              </IconButton>
+
+              <Stack
+                direction={"row"}
+                spacing={2}
+                display={"flex"}
+                alignItems={"center"}
+              >
+                <Button
+                  variant="outlined"
+                  sx={{
+                    color: "black",
+                    borderColor: "#d9d9d9",
+                    borderRadius: 5,
+                    width: 125,
+                    height: 40,
+                    "&:hover": {
+                      backgroundColor: hexToRgb("#d9d9d9"),
+                    },
+                  }}
+                >
+                  Đăng nhập
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{
+                    color: "white",
+                    backgroundColor: "black",
+                    borderRadius: 5,
+                    width: 125,
+                    height: 40,
+                  }}
+                >
+                  Đăng ký
+                </Button>
+              </Stack>
             </Stack>
           </Stack>
-        </Stack>
-      </Container>
+        </Container>
+      </Stack>
 
-      <Stack
-        direction={"row"}
-        display={"flex"}
-        justifyContent={"center"}
-        alignItems={"center"}
-      >
+      <Stack>
         <Box sx={{ width: "100%" }}>
           <BottomNavigation
             sx={{ height: 100 }}
@@ -122,44 +161,93 @@ const Header = () => {
             }}
           >
             <BottomNavigationAction
-              sx={{ "& .MuiBottomNavigationAction-label": { pt: 0.5 } }}
+              sx={{
+                transition: "background-color 0.3s ease",
+                "&:hover": { backgroundColor: "#333", color: "white" },
+                "&.Mui-selected": {
+                  color: "white",
+                  backgroundColor: "#333",
+                },
+                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+              }}
               label="Trang chủ"
               icon={<HomeOutlinedIcon />}
               component={Link}
               to="/"
             />
             <BottomNavigationAction
-              sx={{ "& .MuiBottomNavigationAction-label": { pt: 0.5 } }}
+              sx={{
+                transition: "background-color 0.3s ease",
+                "&:hover": { backgroundColor: "#333", color: "white" },
+                "&.Mui-selected": {
+                  color: "white",
+                  backgroundColor: "#333",
+                },
+                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+              }}
               label="Danh mục sản phẩm"
+              onClick={handleMenuOpen}
               icon={<MenuIcon />}
               component={Link}
               to="/listProduct"
             />
             <BottomNavigationAction
-              sx={{ "& .MuiBottomNavigationAction-label": { pt: 0.5 } }}
+              sx={{
+                transition: "background-color 0.3s ease",
+                "&:hover": { backgroundColor: "#333", color: "white" },
+                "&.Mui-selected": {
+                  color: "white",
+                  backgroundColor: "#333",
+                },
+                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+              }}
               label="Hỗ trợ"
               icon={<HelpIcon />}
               component={Link}
               to="/support"
             />
             <BottomNavigationAction
-              sx={{ "& .MuiBottomNavigationAction-label": { pt: 0.5 } }}
+              sx={{
+                transition: "background-color 0.3s ease",
+                "&:hover": { backgroundColor: "#333", color: "white" },
+                "&.Mui-selected": {
+                  color: "white",
+                  backgroundColor: "#333",
+                },
+                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+              }}
               label="Liên hệ "
               icon={<ContactsIcon />}
               component={Link}
               to="/contact"
             />
             <BottomNavigationAction
-              sx={{ "& .MuiBottomNavigationAction-label": { pt: 0.5 } }}
+              sx={{
+                transition: "background-color 0.3s ease",
+                "&:hover": { backgroundColor: "#333", color: "white" },
+                "&.Mui-selected": {
+                  color: "white",
+                  backgroundColor: "#333",
+                },
+                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+              }}
               label="Về chúng tôi"
               icon={<InfoIcon />}
               component={Link}
               to="/about"
             />
           </BottomNavigation>
+
+          <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+            {listProducts.map((listProduct, index) => (
+              <MenuItem key={index} sx={{padding: 2}} onClick={handleMenuClose}>
+                {listProduct.name}
+              </MenuItem>
+            ))}
+          </Menu>
         </Box>
       </Stack>
-    </Stack>
+    </>
   );
 };
 
@@ -204,7 +292,7 @@ const CartBadge = styled(Badge)`
     top: -12px;
     right: -6px;
     background-color: black;
-    color: #fff;
+    color: white;
   }
 `;
 
