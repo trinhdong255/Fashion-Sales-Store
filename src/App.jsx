@@ -1,28 +1,36 @@
 import { Route, Routes } from "react-router-dom";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
 import HomePage from "./pages/HomePage/HomePage";
 import Contact from "./pages/ContactPage/ContactPage";
-import { Container } from "@mui/material";
 import ListProductsPage from "./pages/ListProductsPage/ListProductsPage";
 import Support from "./pages/SupportPage/SupportPage";
 import About from "./pages/AboutPage/AboutPage";
+import Login from "./pages/LoginPage/LoginPage";
+import SignUp from "./pages/SignUpPage/SignUpPage";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import MainLayout from "./layouts/MainLayout/MainLayout";
+import LoginLayout from "./layouts/LoginLayout/LoginLayout";
 
 function App() {
   return (
-    <>
-      <Header />
-      <Container maxWidth="lg">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/listProduct" element={<ListProductsPage />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </Container>
-      <Footer />
-    </>
+    <Routes>
+      {/* Route dependencies component Header and Footer */}
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="listProduct" element={<ListProductsPage />} />
+        <Route path="support" element={<Support />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="about" element={<About />} />
+      </Route>
+
+      {/* Route Login */}
+      <Route path="/login" element={<LoginLayout />}>
+        <Route index element={<Login />} />
+        <Route path="forgotPassword" element={<ForgotPassword />} />
+      </Route>
+
+      {/* Route not dependencies component Header and Footer */}
+      <Route path="/signUp" element={<SignUp />} />
+    </Routes>
   );
 }
 
