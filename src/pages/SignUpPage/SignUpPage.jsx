@@ -1,12 +1,24 @@
-import { Button, Grid, Stack, TextField } from "@mui/material";
+import {
+  Button,
+  createTheme,
+  Grid,
+  Stack,
+  TextField,
+  ThemeProvider,
+  useTheme,
+} from "@mui/material";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import { Link } from "react-router-dom";
 import styles from "./SignUpPage.module.css";
 
 const SignUp = () => {
+  const outerTheme = useTheme();
+
   return (
     <Stack
       sx={{
         backgroundColor: "#DEF0FF",
-        height: "150vh",
+        height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -16,7 +28,7 @@ const SignUp = () => {
         sx={{
           backgroundColor: "white",
           width: 800,
-          height: 950,
+          height: 810,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -26,7 +38,7 @@ const SignUp = () => {
             <h2
               style={{
                 textAlign: "center",
-                margin: "46px 0 20px 0",
+                margin: "40px 0 10px 0",
                 fontWeight: "inherit",
               }}
             >
@@ -37,39 +49,70 @@ const SignUp = () => {
                 <label className={styles.labelInput} htmlFor="firstName">
                   Tên của bạn
                 </label>
-                <TextField id="firstName" label="Tên của bạn" variant="outlined" />
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="firstName"
+                    label="Tên của bạn"
+                    variant="outlined"
+                  />
+                </ThemeProvider>
               </Stack>
+
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="lastName">
                   Họ của bạn
                 </label>
-                <TextField id="password" label="Mật khẩu" variant="outlined" />
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="lastName"
+                    label="Họ của bạn"
+                    variant="outlined"
+                  />
+                </ThemeProvider>
               </Stack>
+
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="email">
                   Email
                 </label>
-                <TextField id="email" label="Email" variant="outlined" />
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField id="email" label="Email" variant="outlined" />
+                </ThemeProvider>
               </Stack>
+
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="password">
                   Mật khẩu
                 </label>
-                <TextField id="password" label="Mật khẩu" variant="outlined" />
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="password"
+                    label="Mật khẩu"
+                    variant="outlined"
+                  />
+                </ThemeProvider>
               </Stack>
+
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="verifyOTP">
                   Xác thực OTP
                 </label>
-                <TextField id="verifyOTP" label="Xác thực OTP" variant="outlined" />
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="verifyOTP"
+                    label="Xác thực OTP"
+                    variant="outlined"
+                  />
+                </ThemeProvider>
               </Stack>
+
               <Button
                 variant="contained"
                 sx={{
                   backgroundColor: "black",
                   color: "white",
-                  padding: "10px 24px",
-                  marginTop: "30px",
+                  padding: "4px 24px",
+                  marginTop: "20px",
                   fontSize: "1.2rem",
                   fontWeight: "regular",
                   "&:hover": {
@@ -82,23 +125,26 @@ const SignUp = () => {
             </Stack>
 
             <Stack sx={{ display: "flex", alignItems: "center" }}>
-              <div style={{ margin: "30px 0" }}>
+              <div style={{ margin: "34px 0" }}>
                 <span>
                   Bạn đã có tài khoản?
-                  <a className={styles.linkFooter} href="#">
-                  Đăng nhập
-                  </a>
+                  <Link className={styles.linkFooter} to="/login">
+                    Đăng nhập
+                  </Link>
                 </span>
               </div>
             </Stack>
           </Grid>
+
+          
           <Grid item lg={6} md={6}>
             <img
               style={{
                 width: "100%",
-                height: 950,
+                height: 810,
                 backgroundSize: "cover",
-                borderRadius: 4,
+                borderTopRightRadius: 16,
+                borderBottomRightRadius: 16,
               }}
               src="/src/assets/images/background-login.jpg"
             />
@@ -108,5 +154,41 @@ const SignUp = () => {
     </Stack>
   );
 };
+
+const customTheme = (outerTheme) =>
+  createTheme({
+    palette: {
+      mode: outerTheme.palette.mode,
+    },
+    components: {
+      MuiTextField: {
+        styleOverrides: {
+          root: {
+            "--TextField-brandBorderColor": "#E0E3E7",
+            "--TextField-brandBorderHoverColor": "#B2BAC2",
+            "--TextField-brandBorderFocusedColor": "#6F7E8C",
+            "& label.Mui-focused": {
+              color: "var(--TextField-brandBorderFocusedColor)",
+            },
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          notchedOutline: {
+            borderColor: "var(--TextField-brandBorderColor)",
+          },
+          root: {
+            [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
+              borderColor: "var(--TextField-brandBorderHoverColor)",
+            },
+            [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
+              borderColor: "var(--TextField-brandBorderFocusedColor)",
+            },
+          },
+        },
+      },
+    },
+  });
 
 export default SignUp;
