@@ -18,7 +18,7 @@ const SignUp = () => {
     <Stack
       sx={{
         backgroundColor: "#DEF0FF",
-        height: "100vh",
+        height: "120vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -28,7 +28,7 @@ const SignUp = () => {
         sx={{
           backgroundColor: "white",
           width: 800,
-          height: 810,
+          height: 800,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -46,26 +46,26 @@ const SignUp = () => {
             </h2>
             <Stack sx={{ padding: "0px 36px" }}>
               <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="firstName">
-                  Tên của bạn
+                <label className={styles.labelInput} htmlFor="fullName">
+                  Họ và tên
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
                   <TextField
-                    id="firstName"
-                    label="Tên của bạn"
+                    id="fullName"
+                    label="Họ và tên"
                     variant="outlined"
                   />
                 </ThemeProvider>
               </Stack>
 
               <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="lastName">
-                  Họ của bạn
+                <label className={styles.labelInput} htmlFor="phone">
+                  Số điện thoại
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
                   <TextField
-                    id="lastName"
-                    label="Họ của bạn"
+                    id="phone"
+                    label="Số điện thoại"
                     variant="outlined"
                   />
                 </ThemeProvider>
@@ -136,17 +136,16 @@ const SignUp = () => {
             </Stack>
           </Grid>
 
-          
           <Grid item lg={6} md={6}>
             <img
               style={{
                 width: "100%",
-                height: 810,
+                height: 800,
                 backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
               }}
-              src="/src/assets/images/background-login.jpg"
+              src="/src/assets/images/backgroundFashions/background-login.jpg"
             />
           </Grid>
         </Grid>
