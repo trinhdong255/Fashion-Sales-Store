@@ -10,9 +10,19 @@ import {
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import styles from "./ForgotPassword.module.css";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 const ForgotPassword = () => {
   const outerTheme = useTheme();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    console.log("Dữ liệu form:", data);
+  };
 
   return (
     <Stack
@@ -38,20 +48,38 @@ const ForgotPassword = () => {
             <h2
               style={{
                 textAlign: "center",
-                margin: "46px 0 20px 0",
+                margin: "0 0 20px 0",
                 fontWeight: "inherit",
               }}
             >
-              THIẾT LẬP LẠI MẬT KHẨU
+              QUÊN MẬT KHẨU
             </h2>
-            <Stack sx={{ padding: "0px 36px" }}>
+            <Stack
+              sx={{ padding: "0px 36px" }}
+              component={"form"}
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="email">
                   Email
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
-                  <TextField id="email" label="Email" variant="outlined" />
+                  <TextField
+                    id="email"
+                    label="Email"
+                    variant="outlined"
+                    {...register("email", {
+                      required: "Email không được để trống",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Email không hợp lệ",
+                      },
+                    })}
+                  />
                 </ThemeProvider>
+                {errors.email && (
+                  <p className={styles.errorMessage}>{errors.email.message}</p>
+                )}
               </Stack>
               <Button
                 variant="contained"
@@ -66,6 +94,7 @@ const ForgotPassword = () => {
                     backgroundColor: "#333",
                   },
                 }}
+                type="submit"
               >
                 XÁC NHẬN EMAIL
               </Button>
@@ -85,8 +114,9 @@ const ForgotPassword = () => {
                 backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
+                objectFit: "cover",
               }}
-              src="/src/assets/images/background-login.jpg"
+              src="/src/assets/images/backgroundFashions/background-login.jpg"
             />
           </Grid>
         </Grid>
@@ -119,6 +149,7 @@ const customTheme = (outerTheme) =>
             borderColor: "var(--TextField-brandBorderColor)",
           },
           root: {
+            fontSize: "1.2rem",
             [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
               borderColor: "var(--TextField-brandBorderHoverColor)",
             },

@@ -1,18 +1,65 @@
 import {
   Button,
   createTheme,
+  FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
   Stack,
   TextField,
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import OutlinedInput, {
+  outlinedInputClasses,
+} from "@mui/material/OutlinedInput";
 import { Link } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import styles from "./SignUpPage.module.css";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 const SignUp = () => {
   const outerTheme = useTheme();
+  const [showPassword, setShowPassword] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const startOtpCountdown = () => {
+    setOtpTimer(30);
+    setIsResendDisabled(true);
+
+    const interval = setInterval(() => {
+      setOtpTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsResendDisabled(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const onSubmit = (data) => {
+    console.log("Form data:", data);
+  };
 
   return (
     <Stack
@@ -27,8 +74,8 @@ const SignUp = () => {
       <Stack
         sx={{
           backgroundColor: "white",
-          width: 800,
-          height: 800,
+          width: 1000,
+          height: 880,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -38,13 +85,17 @@ const SignUp = () => {
             <h2
               style={{
                 textAlign: "center",
-                margin: "40px 0 10px 0",
+                margin: "24px 0 10px 0",
                 fontWeight: "inherit",
               }}
             >
               TẠO TÀI KHOẢN
             </h2>
-            <Stack sx={{ padding: "0px 36px" }}>
+            <Stack
+              sx={{ padding: "0px 36px" }}
+              component={"form"}
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="fullName">
                   Họ và tên
@@ -54,20 +105,20 @@ const SignUp = () => {
                     id="fullName"
                     label="Họ và tên"
                     variant="outlined"
+                    {...register("fullName", {
+                      required: "Họ và tên không được để trống",
+                      pattern: {
+                        value: /^[A-Za-zÀ-Ỹà-ỹ0-9]+$/, // Chỉ cho phép chữ cái và số, không có khoảng trắng
+                        message:
+                          "Chỉ được sử dụng chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt",
+                      },
+                    })}
                   />
-                </ThemeProvider>
-              </Stack>
-
-              <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="phone">
-                  Số điện thoại
-                </label>
-                <ThemeProvider theme={customTheme(outerTheme)}>
-                  <TextField
-                    id="phone"
-                    label="Số điện thoại"
-                    variant="outlined"
-                  />
+                  {errors.fullName && (
+                    <p className={styles.errorMessage}>
+                      {errors.fullName.message}
+                    </p>
+                  )}
                 </ThemeProvider>
               </Stack>
 
@@ -76,7 +127,23 @@ const SignUp = () => {
                   Email
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
-                  <TextField id="email" label="Email" variant="outlined" />
+                  <TextField
+                    id="email"
+                    label="Email"
+                    variant="outlined"
+                    {...register("email", {
+                      required: "Email không được để trống",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Email không hợp lệ",
+                      },
+                    })}
+                  />
+                  {errors.email && (
+                    <p className={styles.errorMessage}>
+                      {errors.email.message}
+                    </p>
+                  )}
                 </ThemeProvider>
               </Stack>
 
@@ -85,12 +152,46 @@ const SignUp = () => {
                   Mật khẩu
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
-                  <TextField
-                    id="password"
-                    label="Mật khẩu"
-                    variant="outlined"
-                  />
+                  <FormControl sx={{ width: "100%" }} variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Password
+                    </InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-password"
+                      type={showPassword ? "text" : "password"}
+                      {...register("password", {
+                        required: "Mật khẩu không được để trống",
+                        minLength: {
+                          value: 6,
+                          message: "Mật khẩu phải có ít nhất 6 ký tự",
+                        },
+                      })}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showPassword
+                                ? "hide the password"
+                                : "display the password"
+                            }
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            onMouseUp={handleMouseUpPassword}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Password"
+                    />
+                  </FormControl>
                 </ThemeProvider>
+                {errors.password && (
+                  <p className={styles.errorMessage}>
+                    {errors.password.message}
+                  </p>
+                )}
               </Stack>
 
               <Stack className={styles.formLabelInput}>
@@ -102,8 +203,34 @@ const SignUp = () => {
                     id="verifyOTP"
                     label="Xác thực OTP"
                     variant="outlined"
+                    {...register("verifyOTP", {
+                      required: "OTP không được để trống",
+                      minLength: {
+                        value: 6,
+                        message: "OTP phải có ít nhất 6 ký tự",
+                      },
+                    })}
                   />
+                  {errors.verifyOTP && (
+                    <p className={styles.errorMessage}>
+                      {errors.verifyOTP.message}
+                    </p>
+                  )}
                 </ThemeProvider>
+                <Button
+                  variant="contained"
+                  onClick={startOtpCountdown}
+                  disabled={isResendDisabled}
+                  sx={{
+                    width: "max-content",
+                    mt: "14px",
+                    backgroundColor: "black",
+                  }}
+                >
+                  {isResendDisabled
+                    ? `Gửi lại OTP (${otpTimer}s)`
+                    : "Gửi lại OTP"}
+                </Button>
               </Stack>
 
               <Button
@@ -119,6 +246,7 @@ const SignUp = () => {
                     backgroundColor: "#333",
                   },
                 }}
+                type="submit"
               >
                 ĐĂNG KÝ
               </Button>
@@ -140,10 +268,11 @@ const SignUp = () => {
             <img
               style={{
                 width: "100%",
-                height: 800,
+                height: 880,
                 backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
+                objectFit: "cover",
               }}
               src="/src/assets/images/backgroundFashions/background-login.jpg"
             />
@@ -172,17 +301,26 @@ const customTheme = (outerTheme) =>
           },
         },
       },
+      MuiFormControl: {
+        styleOverrides: {
+          root: {
+            "--OutlinedInput-brandBorderColor": "#E0E3E7",
+            "--OutlinedInput-brandBorderHoverColor": "#B2BAC2",
+            "--OutlinedInput-brandBorderFocusedColor": "#6F7E8C",
+            "& label.Mui-focused": {
+              color: "var(--OutlinedInput-brandBorderFocusedColor)",
+            },
+          },
+        },
+      },
       MuiOutlinedInput: {
         styleOverrides: {
-          notchedOutline: {
-            borderColor: "var(--TextField-brandBorderColor)",
-          },
           root: {
             [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--TextField-brandBorderHoverColor)",
+              borderColor: "var(--OutlinedInput-brandBorderHoverColor)",
             },
             [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--TextField-brandBorderFocusedColor)",
+              borderColor: "var(--OutlinedInput-brandBorderFocusedColor)",
             },
           },
         },
