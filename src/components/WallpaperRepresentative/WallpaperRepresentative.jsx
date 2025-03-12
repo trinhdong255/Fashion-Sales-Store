@@ -1,7 +1,7 @@
-import PropTypes from "prop-types"
+import PropTypes from "prop-types";
 import { Stack } from "@mui/material";
 
-const WallpaperRepresentative = ({titleHeader}) => {
+const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
   return (
     <Stack position={"relative"}>
       <img
@@ -26,8 +26,10 @@ const WallpaperRepresentative = ({titleHeader}) => {
             margin: 0,
           }}
         >
-        {titleHeader}
+          {titleHeader}
         </h1>
+
+        {searchSupport}
       </Stack>
     </Stack>
   );
@@ -35,7 +37,8 @@ const WallpaperRepresentative = ({titleHeader}) => {
 
 // Checking datatype is correct or not
 WallpaperRepresentative.propTypes = {
-    titleHeader: PropTypes.string.isRequired,
-  };
+  titleHeader: PropTypes.string.isRequired,
+  searchSupport: PropTypes.element,
+};
 
 export default WallpaperRepresentative;
