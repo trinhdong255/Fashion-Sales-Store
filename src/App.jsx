@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage/HomePage";
+import Home from "./pages/HomePage/HomePage";
 import Contact from "./pages/ContactPage/ContactPage";
-import ListProductsPage from "./pages/ListProductsPage/ListProductsPage";
 import Support from "./pages/SupportPage/SupportPage";
 import About from "./pages/AboutPage/AboutPage";
 import Login from "./pages/LoginPage/LoginPage";
@@ -15,8 +14,7 @@ function App() {
     <Routes>
       {/* Route dependencies component Header and Footer */}
       <Route path="/" element={<MainLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="listProduct" element={<ListProductsPage />} />
+        <Route index element={<Home />} />
         <Route path="support" element={<Support />} />
         <Route path="contact" element={<Contact />} />
         <Route path="about" element={<About />} />
