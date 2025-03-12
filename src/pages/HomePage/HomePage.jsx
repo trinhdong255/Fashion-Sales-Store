@@ -1,4 +1,14 @@
-import { Card, CardMedia, Container, Grid, Stack } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Container,
+  Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,6 +24,7 @@ import "swiper/css/navigation";
 
 // Import styles module css
 import styles from "./HomePage.module.css";
+import { useEffect, useState } from "react";
 
 const slides = [
   "/src/assets/images/backgroundFashions/backgroundHomePage.jpg",
@@ -31,12 +42,55 @@ const categories = [
   { src: "/src/assets/images/categories/Accessories.jpg", title: "PHỤ KIỆN" },
 ];
 
+const url = "https://dummyjson.com/products";
+
 const Home = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // Use AbortController to cancel request if component is unmounted.
+    // If you call API and component is unmounted before fetch is complete, error may occur "memory leak"
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const fetchData = async () => {
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal,
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        setProducts(data.products);
+      } catch (error) {
+        if (error.name === "AbortError") {
+          console.log("Fetch request aborted!");
+        } else {
+          console.error("Fetch error:", error.message);
+        }
+      }
+    };
+
+    fetchData();
+
+    // Cleanup function
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   return (
     <>
       <Swiper
+        slidesPerView={1}
         spaceBetween={30}
         centeredSlides={true}
+        loop={true}
         autoplay={{
           delay: 5000,
           disableOnInteraction: true,
@@ -62,7 +116,7 @@ const Home = () => {
       </Swiper>
 
       <Container maxWidth="lg">
-        <Grid container spacing={8}>
+        <Grid container spacing={12}>
           {categories.map((item, index) => (
             <Grid
               sx={{
@@ -88,17 +142,215 @@ const Home = () => {
                     alt={item.title}
                   />
                   <Stack className={styles.contentImg}>
-                    <h3
+                    <h2
                       style={{ fontSize: 32, fontWeight: 500, color: "white" }}
                     >
                       {item.title}
-                    </h3>
+                    </h2>
                   </Stack>
                 </Stack>
               </Link>
             </Grid>
           ))}
         </Grid>
+
+        <Stack className={styles.topSellingProducts}>
+          <h3>SẢN PHẨM BÁN CHẠY</h3>
+          <nav className={styles.navigationTopSellingProducts}>
+            <ul>
+              {categories.map((item, index) => (
+                <li key={index}>
+                  <Link to="#">{item.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </Stack>
+
+        <Swiper
+          slidesPerView={3}
+          spaceBetween={30}
+          centeredSlides={true}
+          loop={true}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: true,
+          }}
+          navigation={true}
+          modules={[Autoplay, Pagination, Navigation]}
+          style={{
+            margin: "50px 0",
+          }}
+        >
+          {products.map((product) => (
+            <SwiperSlide key={product.id}>
+              <Card>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={product.thumbnail}
+                    alt={product.title}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h6" component="div">
+                      {product.title}
+                    </Typography>
+                    <Typography gutterBottom variant="body2" component="div">
+                      Rating: {product.rating}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      variant="body1"
+                      component="div"
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                          textDecoration: "line-through",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        ${product.price}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.2rem",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        ${product.price}
+                      </Typography>
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <Stack alignItems={"center"}>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              color: "white",
+              backgroundColor: "var(--footer-background-color)",
+              fontSize: "1rem",
+              marginBottom: "100px",
+              padding: "12px 24px",
+            }}
+          >
+            XEM THÊM
+          </Button>
+        </Stack>
+
+        <Stack className={styles.topSellingProducts}>
+          <h3>SẢN PHẨM MỚI NHẤT</h3>
+          <nav className={styles.navigationTopSellingProducts}>
+            <ul>
+              {categories.map((item, index) => (
+                <li key={index}>
+                  <Link to="#">{item.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </Stack>
+
+        <Swiper
+          slidesPerView={3}
+          spaceBetween={30}
+          centeredSlides={true}
+          loop={true}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: true,
+          }}
+          navigation={true}
+          modules={[Autoplay, Pagination, Navigation]}
+          style={{
+            margin: "50px 0",
+          }}
+        >
+          {products.map((product) => (
+            <SwiperSlide key={product.id}>
+              <Card>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={product.thumbnail}
+                    alt={product.title}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h6" component="div">
+                      {product.title}
+                    </Typography>
+                    <Typography gutterBottom variant="body2" component="div">
+                      Rating: {product.rating}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      variant="body1"
+                      component="div"
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                          textDecoration: "line-through",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        ${product.price}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.2rem",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        ${product.price}
+                      </Typography>
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <Stack alignItems={"center"}>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              color: "white",
+              backgroundColor: "var(--footer-background-color)",
+              fontSize: "1rem",
+              marginBottom: "100px",
+              padding: "12px 24px",
+            }}
+          >
+            XEM THÊM
+          </Button>
+        </Stack>
       </Container>
     </>
   );
