@@ -35,7 +35,7 @@ const About = () => {
         <Grid container sx={{ m: "80px 0" }} alignItems={"center"}>
           <Grid item lg={8}>
             {contents.map((content, index) => (
-              <Stack sx={{ marginRight: 12 }} key={index}>
+              <Stack sx={{ marginRight: 8 }} key={index}>
                 <h2 style={{ fontSize: "2rem", fontWeight: "500" }}>
                   {content.titleAboutUs}
                 </h2>
@@ -68,8 +68,8 @@ const About = () => {
 
           <Grid item lg={8}>
             {contents.map((content, index) => (
-              <Stack sx={{ marginLeft: 12 }} key={index}>
-                <h2 style={{ fontSize: "2rem", fontWeight: "500" }}>
+              <Stack sx={{ marginLeft: 8 }} key={index}>
+                <h2 style={{ fontSize: "2rem", fontWeight: "500", margin: 0 }}>
                   {content.titleMissionUs}
                 </h2>
                 <p className={styles.content}>{content.firstLineMissionUs}</p>
