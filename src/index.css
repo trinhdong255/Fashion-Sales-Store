@@ -25,17 +25,16 @@
 
 /* === Component CSS === */
 :root {
-  --font-family: 'Montserrat', sans-serif;
   --header-background-color: #f9f9f9;
-  --border-color: "#d9d9d9";
+  --text-color: #888;
   --footer-background-color: #333;
   --header-link-color: #666;
 }
 
 body {
   font-family: 'Roboto', sans-serif;
-  font-size: 16;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.8;
   min-height: 100vh;
 }
 
