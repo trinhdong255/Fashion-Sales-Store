@@ -27,31 +27,30 @@ import ContactsIcon from "@mui/icons-material/Contacts";
 import InfoIcon from "@mui/icons-material/Info";
 import styles from "./Header.module.css";
 
-const Header = () => {
-  const listProducts = [
-    {
-      name: "ÁO THUN",
-    },
-    {
-      name: "ÁO SƠ MI",
-    },
-    {
-      name: "ÁO KHOÁC",
-    },
-    {
-      name: "QUẦN DÀI",
-    },
-    {
-      name: "QUẦN SHORTS",
-    },
-    {
-      name: "PHỤ KIỆN",
-    },
-  ];
+const listProducts = [
+  {
+    name: "ÁO THUN",
+  },
+  {
+    name: "ÁO SƠ MI",
+  },
+  {
+    name: "ÁO KHOÁC",
+  },
+  {
+    name: "QUẦN DÀI",
+  },
+  {
+    name: "QUẦN SHORTS",
+  },
+  {
+    name: "PHỤ KIỆN",
+  },
+];
 
+const Header = () => {
   const outerTheme = useTheme();
   const [value, setValue] = useState(0);
-
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -129,6 +128,8 @@ const Header = () => {
                       backgroundColor: hexToRgb("#d9d9d9"),
                     },
                   }}
+                  component={Link}
+                  to="/login"
                 >
                   Đăng nhập
                 </Button>
@@ -140,7 +141,12 @@ const Header = () => {
                     borderRadius: 5,
                     width: 125,
                     height: 40,
+                    "&:hover": {
+                      backgroundColor: hexToRgb("#333"),
+                    },
                   }}
+                  component={Link}
+                  to="/signUp"
                 >
                   Đăng ký
                 </Button>
@@ -188,8 +194,6 @@ const Header = () => {
               label="Danh mục sản phẩm"
               onClick={handleMenuOpen}
               icon={<MenuIcon />}
-              component={Link}
-              to="/listProduct"
             />
             <BottomNavigationAction
               sx={{
@@ -240,7 +244,13 @@ const Header = () => {
 
           <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
             {listProducts.map((listProduct, index) => (
-              <MenuItem key={index} sx={{padding: 2}} onClick={handleMenuClose}>
+              <MenuItem
+                key={index}
+                sx={{ padding: 2 }}
+                onClick={handleMenuClose}
+                component={Link}
+                to="/listProducts"
+              >
                 {listProduct.name}
               </MenuItem>
             ))}
