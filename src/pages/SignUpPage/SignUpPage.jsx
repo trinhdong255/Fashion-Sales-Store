@@ -14,7 +14,7 @@ import {
 import OutlinedInput, {
   outlinedInputClasses,
 } from "@mui/material/OutlinedInput";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import styles from "./SignUpPage.module.css";
 import { useState } from "react";
@@ -23,8 +23,8 @@ import { useForm } from "react-hook-form";
 const SignUp = () => {
   const outerTheme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
-  const [otpTimer, setOtpTimer] = useState(0);
-  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -41,31 +41,16 @@ const SignUp = () => {
     event.preventDefault();
   };
 
-  const startOtpCountdown = () => {
-    setOtpTimer(30);
-    setIsResendDisabled(true);
-
-    const interval = setInterval(() => {
-      setOtpTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsResendDisabled(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
   const onSubmit = (data) => {
     console.log("Form data:", data);
+    navigate("/verifyAccount");
   };
 
   return (
     <Stack
       sx={{
         backgroundColor: "#DEF0FF",
-        height: "120vh",
+        height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -74,8 +59,8 @@ const SignUp = () => {
       <Stack
         sx={{
           backgroundColor: "white",
-          width: 1000,
-          height: 880,
+          width: 800,
+          height: 750,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -85,7 +70,7 @@ const SignUp = () => {
             <h2
               style={{
                 textAlign: "center",
-                margin: "24px 0 10px 0",
+                margin: "46px 0 20px 0",
                 fontWeight: "inherit",
               }}
             >
@@ -108,9 +93,9 @@ const SignUp = () => {
                     {...register("fullName", {
                       required: "Họ và tên không được để trống",
                       pattern: {
-                        value: /^[A-Za-zÀ-Ỹà-ỹ0-9]+$/, // Chỉ cho phép chữ cái và số, không có khoảng trắng
+                        value: /^[A-Za-zÀ-Ỹà-ỹ0-9]+(?: [A-Za-zÀ-Ỹà-ỹ0-9]+)*$/,
                         message:
-                          "Chỉ được sử dụng chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt",
+                          "Chỉ được sử dụng chữ cái, số và một khoảng trắng giữa các từ, không có ký tự đặc biệt",
                       },
                     })}
                   />
@@ -194,51 +179,12 @@ const SignUp = () => {
                 )}
               </Stack>
 
-              <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="verifyOTP">
-                  Xác thực OTP
-                </label>
-                <ThemeProvider theme={customTheme(outerTheme)}>
-                  <TextField
-                    id="verifyOTP"
-                    label="Xác thực OTP"
-                    variant="outlined"
-                    {...register("verifyOTP", {
-                      required: "OTP không được để trống",
-                      minLength: {
-                        value: 6,
-                        message: "OTP phải có ít nhất 6 ký tự",
-                      },
-                    })}
-                  />
-                  {errors.verifyOTP && (
-                    <p className={styles.errorMessage}>
-                      {errors.verifyOTP.message}
-                    </p>
-                  )}
-                </ThemeProvider>
-                <Button
-                  variant="contained"
-                  onClick={startOtpCountdown}
-                  disabled={isResendDisabled}
-                  sx={{
-                    width: "max-content",
-                    mt: "14px",
-                    backgroundColor: "black",
-                  }}
-                >
-                  {isResendDisabled
-                    ? `Gửi lại OTP (${otpTimer}s)`
-                    : "Gửi lại OTP"}
-                </Button>
-              </Stack>
-
               <Button
                 variant="contained"
                 sx={{
                   backgroundColor: "black",
                   color: "white",
-                  padding: "4px 24px",
+                  padding: "10px 24px",
                   marginTop: "20px",
                   fontSize: "1.2rem",
                   fontWeight: "regular",
@@ -268,7 +214,7 @@ const SignUp = () => {
             <img
               style={{
                 width: "100%",
-                height: 880,
+                height: 750,
                 backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
