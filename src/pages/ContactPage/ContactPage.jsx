@@ -62,42 +62,6 @@ const Contact = () => {
               justifyContent={"flex-start"}
               sx={{ margin: "80px 0" }}
             >
-              {/* <h2 style={{ fontSize: "2rem", fontWeight: "500" }}>
-                CONTACT INFO
-              </h2> */}
-              {renderHeadTitle("THÔNG TIN LIÊN HỆ")}
-              {contactInfos.map((contactInfo, index) => (
-                <Stack key={index}>
-                  <Stack
-                    flexDirection={"row"}
-                    alignItems={"center"}
-                    justifyContent={"flex-start"}
-                  >
-                    {contactInfo.icon}
-                    <h3
-                      style={{
-                        fontSize: "1.3rem",
-                        fontWeight: "400",
-                        marginLeft: 16,
-                      }}
-                    >
-                      {contactInfo.title}
-                    </h3>
-                  </Stack>
-                  <p
-                    style={{
-                      color: "var(--text-color)",
-                      padding: "14px 0",
-                    }}
-                  >
-                    {contactInfo.description}
-                  </p>
-                </Stack>
-              ))}
-
-              {/* <h2 style={{ fontSize: "2rem", fontWeight: "500" }}>
-                SEND US YOUR MESSAGE
-              </h2> */}
               {renderHeadTitle("GỬI TIN NHẮN CHO CHÚNG TÔI")}
               {sendMessages.map((sendMessage, index) => (
                 <Stack
@@ -140,7 +104,46 @@ const Contact = () => {
             </Stack>
           </Grid>
           <Grid item lg={6} md={6}>
-            {/* <APIProvider apiKey={API_KEY}>
+            <Stack
+              direction="column"
+              spacing={2}
+              alignItems={"flex-start"}
+              sx={{ margin: "80px 0 0 80px" }}
+            >
+              {renderHeadTitle("THÔNG TIN LIÊN HỆ")}
+              {contactInfos.map((contactInfo, index) => (
+                <Stack key={index}>
+                  <Stack
+                    flexDirection={"row"}
+                    alignItems={"center"}
+                    justifyContent={"flex-start"}
+                  >
+                    {contactInfo.icon}
+                    <h3
+                      style={{
+                        fontSize: "1.3rem",
+                        fontWeight: "400",
+                        marginLeft: 16,
+                      }}
+                    >
+                      {contactInfo.title}
+                    </h3>
+                  </Stack>
+                  <p
+                    style={{
+                      color: "var(--text-color)",
+                      padding: "14px 0",
+                    }}
+                  >
+                    {contactInfo.description}
+                  </p>
+                </Stack>
+              ))}
+            </Stack>
+          </Grid>
+        </Grid>
+
+        {/* <APIProvider apiKey={API_KEY}>
               <Map
                 style={{ width: "100vw", height: "100vh" }}
                 defaultCenter={{ lat: 22.54992, lng: 0 }}
@@ -149,8 +152,6 @@ const Contact = () => {
                 disableDefaultUI={true}
               />
             </APIProvider> */}
-          </Grid>
-        </Grid>
       </Container>
     </>
   );
