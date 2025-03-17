@@ -8,6 +8,9 @@ import SignUp from "./pages/SignUpPage/SignUpPage";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import MainLayout from "./layouts/MainLayout/MainLayout";
 import LoginLayout from "./layouts/LoginLayout/LoginLayout";
+import ListProductsLayout from "./layouts/ListProductsLayout/ListProductsLayout";
+import ListProducts from "./pages/ListProductsPage/ListProductsPage";
+import VerifyAccount from "./pages/VerifyAccount/VerifyAccount";
 
 function App() {
   return (
@@ -26,8 +29,14 @@ function App() {
         <Route path="forgotPassword" element={<ForgotPassword />} />
       </Route>
 
-      {/* Route not dependencies component Header and Footer */}
+      {/* Route SignUp and VerifyAccount */}
       <Route path="/signUp" element={<SignUp />} />
+      <Route path="/verifyAccount" element={<VerifyAccount />} />
+
+      {/* Route List Products */}
+      <Route path="/listProducts" element={<ListProductsLayout />}>
+        <Route index element={<ListProducts />} />
+      </Route>
     </Routes>
   );
 }
