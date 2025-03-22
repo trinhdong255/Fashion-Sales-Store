@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Stack from "@mui/material/Stack";
-import { styled } from "@mui/material/styles";
+import { alpha, styled } from "@mui/material/styles";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import {
   BottomNavigation,
   BottomNavigationAction,
-  Box,
   Button,
   Container,
   hexToRgb,
@@ -53,6 +52,7 @@ const Header = () => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -63,7 +63,7 @@ const Header = () => {
   };
 
   return (
-    <>
+    <div className={styles.stickyHeader}>
       <Stack className={styles.headerTop}>
         <Container maxWidth="lg">
           <Stack
@@ -72,7 +72,17 @@ const Header = () => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <h1>FASHION STORE</h1>
+            <Link
+              to="/"
+              style={{
+                textDecoration: "none",
+                color: "black",
+                fontSize: 32,
+                fontWeight: "bold",
+              }}
+            >
+              FASHION STORE
+            </Link>
             <ThemeProvider theme={customTheme(outerTheme)}>
               <TextField
                 id="outlined-basic"
@@ -125,11 +135,10 @@ const Header = () => {
                     width: 125,
                     height: 40,
                     "&:hover": {
-                      backgroundColor: hexToRgb("#d9d9d9"),
+                      backgroundColor: alpha("#d9d9d9", 0.5),
                     },
                   }}
-                  component={Link}
-                  to="/login"
+                  onClick={() => navigate("/login")}
                 >
                   Đăng nhập
                 </Button>
@@ -156,108 +165,105 @@ const Header = () => {
         </Container>
       </Stack>
 
-      <Stack>
-        <Box sx={{ width: "100%" }}>
-          <BottomNavigation
-            sx={{ height: 100 }}
-            showLabels
-            value={value}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
-          >
-            <BottomNavigationAction
-              sx={{
-                transition: "background-color 0.3s ease",
-                "&:hover": { backgroundColor: "#333", color: "white" },
-                "&.Mui-selected": {
-                  color: "white",
-                  backgroundColor: "#333",
-                },
-                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
-              }}
-              label="Trang chủ"
-              icon={<HomeOutlinedIcon />}
-              component={Link}
-              to="/"
-            />
-            <BottomNavigationAction
-              sx={{
-                transition: "background-color 0.3s ease",
-                "&:hover": { backgroundColor: "#333", color: "white" },
-                "&.Mui-selected": {
-                  color: "white",
-                  backgroundColor: "#333",
-                },
-                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
-              }}
-              label="Danh mục sản phẩm"
-              onClick={handleMenuOpen}
-              icon={<MenuIcon />}
-            />
-            <BottomNavigationAction
-              sx={{
-                transition: "background-color 0.3s ease",
-                "&:hover": { backgroundColor: "#333", color: "white" },
-                "&.Mui-selected": {
-                  color: "white",
-                  backgroundColor: "#333",
-                },
-                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
-              }}
-              label="Hỗ trợ"
-              icon={<HelpIcon />}
-              component={Link}
-              to="/support"
-            />
-            <BottomNavigationAction
-              sx={{
-                transition: "background-color 0.3s ease",
-                "&:hover": { backgroundColor: "#333", color: "white" },
-                "&.Mui-selected": {
-                  color: "white",
-                  backgroundColor: "#333",
-                },
-                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
-              }}
-              label="Liên hệ "
-              icon={<ContactsIcon />}
-              component={Link}
-              to="/contact"
-            />
-            <BottomNavigationAction
-              sx={{
-                transition: "background-color 0.3s ease",
-                "&:hover": { backgroundColor: "#333", color: "white" },
-                "&.Mui-selected": {
-                  color: "white",
-                  backgroundColor: "#333",
-                },
-                "& .MuiBottomNavigationAction-label": { pt: 0.5 },
-              }}
-              label="Về chúng tôi"
-              icon={<InfoIcon />}
-              component={Link}
-              to="/about"
-            />
-          </BottomNavigation>
+      <BottomNavigation
+        sx={{
+          height: 60,
+          backgroundColor: "var(--header-background-color)",
+        }}
+        showLabels
+        value={value}
+        onChange={(event, newValue) => {
+          setValue(newValue);
+        }}
+      >
+        <BottomNavigationAction
+          sx={{
+            transition: "background-color 0.3s ease",
+            "&:hover": { backgroundColor: "#333", color: "white" },
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#333",
+            },
+            "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+          }}
+          label="Trang chủ"
+          icon={<HomeOutlinedIcon />}
+          onClick={() => navigate("/")}
+        />
+        <BottomNavigationAction
+          sx={{
+            transition: "background-color 0.3s ease",
+            "&:hover": { backgroundColor: "#333", color: "white" },
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#333",
+            },
+            "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+          }}
+          label="Danh mục sản phẩm"
+          onClick={handleMenuOpen}
+          icon={<MenuIcon />}
+        />
+        <BottomNavigationAction
+          sx={{
+            transition: "background-color 0.3s ease",
+            "&:hover": { backgroundColor: "#333", color: "white" },
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#333",
+            },
+            "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+          }}
+          label="Hỗ trợ"
+          icon={<HelpIcon />}
+          component={Link}
+          to="/support"
+        />
+        <BottomNavigationAction
+          sx={{
+            transition: "background-color 0.3s ease",
+            "&:hover": { backgroundColor: "#333", color: "white" },
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#333",
+            },
+            "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+          }}
+          label="Liên hệ "
+          icon={<ContactsIcon />}
+          component={Link}
+          to="/contact"
+        />
+        <BottomNavigationAction
+          sx={{
+            transition: "background-color 0.3s ease",
+            "&:hover": { backgroundColor: "#333", color: "white" },
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#333",
+            },
+            "& .MuiBottomNavigationAction-label": { pt: 0.5 },
+          }}
+          label="Về chúng tôi"
+          icon={<InfoIcon />}
+          onClick={() => navigate("/about")}
+        />
+      </BottomNavigation>
 
-          <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-            {listProducts.map((listProduct, index) => (
-              <MenuItem
-                key={index}
-                sx={{ padding: 2 }}
-                onClick={handleMenuClose}
-                component={Link}
-                to="/listProducts"
-              >
-                {listProduct.name}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-      </Stack>
-    </>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+        {listProducts.map((listProduct, index) => (
+          <MenuItem
+            key={index}
+            sx={{ padding: 2 }}
+            onClick={handleMenuClose}
+            component={Link}
+            to="/listProducts"
+          >
+            {listProduct.name}
+          </MenuItem>
+        ))}
+      </Menu>
+    </div>
   );
 };
 
@@ -271,7 +277,7 @@ const customTheme = (outerTheme) =>
         styleOverrides: {
           root: {
             "--TextField-brandBorderColor": "#E0E3E7",
-            "--TextField-brandBorderHoverColor": "#B2BAC2",
+            "--TextField-brandBorderHoverColor": "#D9D9D9",
             "--TextField-brandBorderFocusedColor": "#6F7E8C",
             "& label.Mui-focused": {
               color: "var(--TextField-brandBorderFocusedColor)",
