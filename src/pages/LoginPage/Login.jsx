@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import { Link } from "react-router-dom";
-import styles from "./LoginPage.module.css";
+import styles from "./Login.module.css";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import OutlinedInput from "@mui/material/OutlinedInput";

@@ -15,7 +15,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 // import required modules
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 // Import Swiper styles
 import "swiper/css";
@@ -23,7 +23,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 // Import styles module css
-import styles from "./HomePage.module.css";
+import styles from "./Home.module.css";
 import { useEffect, useState } from "react";
 
 const slides = [
@@ -42,10 +42,11 @@ const categories = [
   { src: "/src/assets/images/categories/Accessories.jpg", title: "PHỤ KIỆN" },
 ];
 
-const url = "https://dummyjson.com/products";
+const API_URL = "https://dummyjson.com/products";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Use AbortController to cancel request if component is unmounted.
@@ -54,7 +55,7 @@ const Home = () => {
     const signal = controller.signal;
     const fetchData = async () => {
       try {
-        const response = await fetch(url, {
+        const response = await fetch(API_URL, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -84,13 +85,16 @@ const Home = () => {
     };
   }, []);
 
+  const handleClick = () => {
+    navigate("/listProducts");
+  };
+
   return (
     <>
       <Swiper
         slidesPerView={1}
         spaceBetween={30}
         centeredSlides={true}
-        loop={true}
         autoplay={{
           delay: 5000,
           disableOnInteraction: true,
@@ -134,7 +138,7 @@ const Home = () => {
               xs={12}
               key={index}
             >
-              <Link>
+              <Link to="/listProducts">
                 <Stack className={styles.wrapperImg}>
                   <img
                     className={styles.mediaImg}
@@ -168,10 +172,11 @@ const Home = () => {
         </Stack>
 
         <Swiper
+          loop={slides.length > 3}
           slidesPerView={3}
+          slidesPerGroup={1}
           spaceBetween={30}
           centeredSlides={true}
-          loop={true}
           autoplay={{
             delay: 3000,
             disableOnInteraction: true,
@@ -184,7 +189,7 @@ const Home = () => {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id}>
-              <Card>
+              <Card onClick={() => navigate(`/detailProducts/${product.id}`)}>
                 <CardActionArea>
                   <CardMedia
                     component="img"
@@ -248,6 +253,7 @@ const Home = () => {
               marginBottom: "100px",
               padding: "12px 24px",
             }}
+            onClick={handleClick}
           >
             XEM THÊM
           </Button>
@@ -267,10 +273,11 @@ const Home = () => {
         </Stack>
 
         <Swiper
+          loop={slides.length > 3}
           slidesPerView={3}
+          slidesPerGroup={1}
           spaceBetween={30}
           centeredSlides={true}
-          loop={true}
           autoplay={{
             delay: 3000,
             disableOnInteraction: true,
@@ -283,7 +290,7 @@ const Home = () => {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id}>
-              <Card>
+              <Card onClick={() => navigate(`/detailProducts/${product.id}`)}>
                 <CardActionArea>
                   <CardMedia
                     component="img"
@@ -347,6 +354,7 @@ const Home = () => {
               marginBottom: "100px",
               padding: "12px 24px",
             }}
+            onClick={handleClick}
           >
             XEM THÊM
           </Button>
