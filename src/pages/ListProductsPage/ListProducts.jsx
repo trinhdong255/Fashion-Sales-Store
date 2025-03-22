@@ -1,4 +1,5 @@
 import {
+  alpha,
   Button,
   Card,
   CardActionArea,
@@ -6,10 +7,10 @@ import {
   CardMedia,
   Container,
   Grid,
-  hexToRgb,
   Menu,
   MenuItem,
   Pagination,
+  Skeleton,
   Stack,
   Typography,
 } from "@mui/material";
@@ -17,9 +18,9 @@ import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import WallpaperRepresentative from "../../components/WallpaperRepresentative/WallpaperRepresentative";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import styles from "./ListProductsPage.module.css";
+import styles from "./ListProducts.module.css";
 
 const API_URL = "https://dummyjson.com/products";
 const ITEMS_PER_PAGE = 20;
@@ -55,6 +56,8 @@ const ListProducts = () => {
   //  Using useRef to store value
   const fetchController = useRef(null);
   const [sortOrder, setSortOrder] = useState(null);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,15 +68,7 @@ const ListProducts = () => {
   };
 
   const handleSort = (order) => {
-    setSortOrder(order);
-    if (order) {
-      const sortedProducts = [...products].sort((a, b) => {
-        return order === "asc" ? a.price - b.price : b.price - a.price;
-      });
-      setProducts(sortedProducts);
-    } else {
-      fetchData(); // Load lại dữ liệu gốc nếu không chọn gì
-    }
+    setSortOrder(order); // Chỉ cập nhật sortOrder, không sắp xếp tại đây
     handleClose();
   };
 
@@ -84,6 +79,8 @@ const ListProducts = () => {
   };
 
   const fetchData = useCallback(async () => {
+    setLoading(true); // Set loading to true when starting to fetch data
+
     if (fetchController.current) fetchController.current.abort();
     fetchController.current = new AbortController();
     const signal = fetchController.current.signal;
@@ -98,17 +95,26 @@ const ListProducts = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
 
-      setProducts(data.products);
+      let sortedData = data.products;
+      if (sortOrder) {
+        sortedData = [...sortedData].sort((a, b) => {
+          return sortOrder === "asc" ? a.price - b.price : b.price - a.price;
+        });
+      }
+
+      setProducts(sortedData);
       setTotalPages(Math.ceil(data.total / ITEMS_PER_PAGE));
     } catch (error) {
       if (error.name !== "AbortError") console.error("Fetch error:", error);
+    } finally {
+      setLoading(false); // Set loading to false when data fetching is complete
     }
-  }, [currentPage]);
+  }, [currentPage, sortOrder]); // Thêm sortOrder vào dependency để cập nhật khi đổi trang hoặc sắp xếp
 
   useEffect(() => {
     fetchData();
     return () => fetchController.current?.abort();
-  }, [fetchData]);
+  }, [fetchData]); // fetchData đã có dependency là `sortOrder` và `currentPage`
 
   return (
     <>
@@ -146,7 +152,11 @@ const ListProducts = () => {
               flexDirection={"row"}
               alignItems={"center"}
               justifyContent={"space-around"}
-              sx={{ backgroundColor: "#f9f9f9", width: "100%", height: 108 }}
+              sx={{
+                backgroundColor: "#f9f9f9",
+                width: "100%",
+                height: 108,
+              }}
             >
               <p
                 style={{
@@ -179,7 +189,7 @@ const ListProducts = () => {
                   width: 110,
                   height: 44,
                   "&:hover": {
-                    backgroundColor: hexToRgb("#d9d9d9"),
+                    backgroundColor: alpha("#d9d9d9", 0.5),
                   },
                 }}
               >
@@ -195,8 +205,9 @@ const ListProducts = () => {
                 startIcon={<ArrowForwardIosIcon fontSize="small" />}
                 sx={{
                   color: "black",
+                  width: "20%",
                   "&:hover": {
-                    backgroundColor: hexToRgb("#d9d9d9"),
+                    backgroundColor: alpha("#d9d9d9", 0.5),
                   },
                 }}
               >
@@ -225,67 +236,86 @@ const ListProducts = () => {
             </Stack>
 
             <Grid container spacing={2} columns={10}>
-              {products.map((product) => (
-                <Grid item xl={2} lg={2} key={product.id}>
-                  <Card sx={{ mt: 2 }}>
-                    <CardActionArea>
-                      <CardMedia
-                        component="img"
-                        height="180"
-                        image={product.thumbnail}
-                        alt={product.title}
-                      />
-                      <CardContent>
-                        <Typography
-                          gutterBottom
-                          variant="body1"
-                          component="div"
-                        >
-                          {product.title}
-                        </Typography>
-                        <Typography
-                          gutterBottom
-                          variant="body2"
-                          component="div"
-                        >
-                          Rating: {product.rating}
-                        </Typography>
-                        <Typography
-                          gutterBottom
-                          variant="body1"
-                          component="div"
-                          sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "text.secondary",
-                              textDecoration: "line-through",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            ${product.price}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "text.primary",
-                              fontSize: "1.2rem",
-                              marginLeft: "10px",
-                            }}
-                          >
-                            ${product.price}
-                          </Typography>
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-              ))}
+              {loading
+                ? Array.from(new Array(ITEMS_PER_PAGE)).map((_, index) => (
+                    <Grid item xl={2} lg={2} key={index}>
+                      <Card sx={{ mt: 2 }}>
+                        <Skeleton variant="rectangular" height={180} />
+                        <CardContent>
+                          <Skeleton variant="text" />
+                          <Skeleton variant="text" />
+                          <Skeleton variant="text" />
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))
+                : products.map((product) => (
+                    <Grid
+                      item
+                      xl={2}
+                      lg={2}
+                      onClick={() => navigate(`/detailProducts/${product.id}`)}
+                      key={product.id}
+                    >
+                      <Card sx={{ mt: 2 }}>
+                        <CardActionArea>
+                          <CardMedia
+                            component="img"
+                            height="180"
+                            image={product.thumbnail}
+                            alt={product.title}
+                          />
+                          <CardContent>
+                            <Typography
+                              gutterBottom
+                              variant="body1"
+                              component="div"
+                            >
+                              {product.title}
+                            </Typography>
+                            <Typography
+                              gutterBottom
+                              variant="body2"
+                              component="div"
+                            >
+                              Rating: {product.rating}
+                            </Typography>
+                            <Typography
+                              gutterBottom
+                              variant="body1"
+                              component="div"
+                              sx={{
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "text.secondary",
+                                  textDecoration: "line-through",
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                ${product.price}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "text.primary",
+                                  fontSize: "1.2rem",
+                                  marginLeft: "10px",
+                                }}
+                              >
+                                ${product.price}
+                              </Typography>
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </Grid>
+                  ))}
 
               <Stack
                 flexDirection={"row"}
