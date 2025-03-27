@@ -49,7 +49,7 @@ const Footer = () => {
   return (
     <Stack className={styles.footer}>
       <Container maxWidth="lg">
-        <Grid container spacing={2}>
+        <Grid container spacing={10}>
           {footerData.map((value, index) => (
             <Grid item xs={6} sm={6} md={3} key={index} sx={{ pb: 12 }}>
               <h3 className={styles.footerTitle}>{value.title}</h3>

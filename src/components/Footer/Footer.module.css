@@ -12,7 +12,7 @@
 
 .footerLink {
     text-decoration: none;
-    color: var(--header-link-color);
+    color: var(--footer-link-color);
 }
 
 .footerLink:hover {
