@@ -8,6 +8,6 @@
 
 .headerTop {
     background-color: var(--header-background-color);
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--border-color);
     padding: 10px 0;
 }
