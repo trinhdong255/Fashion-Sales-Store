@@ -13,7 +13,6 @@ import PlaceIcon from "@mui/icons-material/Place";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import WallpaperRepresentative from "../../components/WallpaperRepresentative/WallpaperRepresentative";
 
 const contactInfos = [
@@ -142,16 +141,6 @@ const Contact = () => {
             </Stack>
           </Grid>
         </Grid>
-
-        {/* <APIProvider apiKey={API_KEY}>
-              <Map
-                style={{ width: "100vw", height: "100vh" }}
-                defaultCenter={{ lat: 22.54992, lng: 0 }}
-                defaultZoom={3}
-                gestureHandling={"greedy"}
-                disableDefaultUI={true}
-              />
-            </APIProvider> */}
       </Container>
     </>
   );
