@@ -49,7 +49,7 @@ const SignUp = () => {
   return (
     <Stack
       sx={{
-        backgroundColor: "#DEF0FF",
+        backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
         height: "100vh",
         display: "flex",
         alignItems: "center",
