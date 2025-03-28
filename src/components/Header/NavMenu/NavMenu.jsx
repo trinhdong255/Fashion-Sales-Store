@@ -14,22 +14,14 @@ import { Link } from "react-router-dom";
 
 const listProducts = [
   {
-    name: "ÁO THUN",
-  },
-  {
-    name: "ÁO SƠ MI",
-  },
-  {
-    name: "ÁO KHOÁC",
-  },
-  {
-    name: "QUẦN DÀI",
-  },
-  {
-    name: "QUẦN SHORTS",
-  },
-  {
-    name: "PHỤ KIỆN",
+    name: [
+      "ÁO THUN",
+      "ÁO SƠ MI",
+      "ÁO KHOÁC",
+      "QUẦN DÀI",
+      "QUẦN SHORTS",
+      "PHỤ KIỆN",
+    ],
   },
 ];
 
@@ -37,7 +29,6 @@ const NavMenu = () => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -136,19 +127,26 @@ const NavMenu = () => {
         />
       </BottomNavigation>
 
-      <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-        {listProducts.map((listProduct, index) => (
-          <MenuItem
-            key={index}
-            sx={{ padding: 2 }}
-            onClick={handleMenuClose}
-            component={Link}
-            to="/listProducts"
-          >
-            {listProduct.name}
-          </MenuItem>
-        ))}
-      </Menu>
+      {listProducts.map((listProduct, index) => (
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          key={index}
+        >
+          {listProduct.name.map((listProductName, index) => (
+            <MenuItem
+              sx={{ padding: 2 }}
+              onClick={handleMenuClose}
+              component={Link}
+              to="/listProducts"
+              key={index}
+            >
+              {listProductName}
+            </MenuItem>
+          ))}
+        </Menu>
+      ))}
     </>
   );
 };
