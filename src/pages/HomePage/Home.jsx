@@ -2,7 +2,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import SwiperProducts from "../../components/Common/SwiperProducts/SwiperProducts";
+import SwiperProducts from "/src/components/SwiperProducts/SwiperProducts";
 import { Container, Grid, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import styles from "./Home.module.css";

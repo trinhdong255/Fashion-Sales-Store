@@ -8,44 +8,50 @@ import SignUp from "./pages/SignUpPage/SignUp";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import MainLayout from "./layouts/MainLayout/MainLayout";
 import LoginLayout from "./layouts/LoginLayout/LoginLayout";
-import ListProductsLayout from "./layouts/ListProductsLayout/ListProductsLayout";
-import ListProducts from "./pages/ListProductsPage/ListProducts";
 import VerifyAccount from "./pages/VerifyAccountPage/VerifyAccount";
-import DetailProducts from "./pages/DetailProductsPage/DetailProducts";
+import ProductDetails from "./pages/ProductDetailsPage/ProductDetails";
 import ScrollToTop from "./components/ScrollToTop";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ProductListsLayout from "./layouts/ProductListsLayout/ProductListsLayout";
+import ProductLists from "./pages/ProductListsPage/ProductLists";
 
-function App() {
+const queryClient = new QueryClient();
+
+const App = () => {
   return (
     <>
-      <ScrollToTop />
-      <Routes>
-        {/* Route dependencies component Header and Footer */}
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="support" element={<Support />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="about" element={<About />} />
-        </Route>
+      <QueryClientProvider client={queryClient}>
+        <ScrollToTop />
+        <Routes>
+          {/* Route dependencies component Header and Footer */}
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route path="support" element={<Support />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="about" element={<About />} />
+          </Route>
 
-        {/* Route Login */}
-        <Route path="/login" element={<LoginLayout />}>
-          <Route index element={<Login />} />
-          <Route path="forgotPassword" element={<ForgotPassword />} />
-        </Route>
+          {/* Route Login */}
+          <Route path="/login" element={<LoginLayout />}>
+            <Route index element={<Login />} />
+            <Route path="forgotPassword" element={<ForgotPassword />} />
+          </Route>
 
-        {/* Route SignUp and VerifyAccount */}
-        <Route path="/signUp" element={<SignUp />} />
-        <Route path="/verifyAccount" element={<VerifyAccount />} />
+          {/* Route SignUp and VerifyAccount */}
+          <Route path="/signUp" element={<SignUp />} />
+          <Route path="/verifyAccount" element={<VerifyAccount />} />
 
-        {/* Route List Products */}
-        <Route path="/listProducts" element={<ListProductsLayout />}>
-          <Route index element={<ListProducts />} />
-        </Route>
+          {/* Route List Products */}
 
-        <Route path="/detailProducts/:id" element={<DetailProducts />} />
-      </Routes>
+          <Route path="/listProducts" element={<ProductListsLayout />}>
+            <Route index element={<ProductLists />} />
+          </Route>
+
+          <Route path="/productDetails/:id" element={<ProductDetails />} />
+        </Routes>
+      </QueryClientProvider>
     </>
   );
-}
+};
 
 export default App;
