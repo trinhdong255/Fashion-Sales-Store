@@ -8,15 +8,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import { useState } from "react";
+import styles from "./index.module.css";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import styles from "./VerifyAccount.module.css";
 
-const VerifyAccount = () => {
+const ForgotPassword = () => {
   const outerTheme = useTheme();
-  const [otpTimer, setOtpTimer] = useState(0);
-  const [isResendDisabled, setIsResendDisabled] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -25,22 +22,6 @@ const VerifyAccount = () => {
 
   const onSubmit = (data) => {
     console.log("Dữ liệu form:", data);
-  };
-
-  const startOtpCountdown = () => {
-    setOtpTimer(30);
-    setIsResendDisabled(true);
-
-    const interval = setInterval(() => {
-      setOtpTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsResendDisabled(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   };
 
   return (
@@ -57,74 +38,56 @@ const VerifyAccount = () => {
         sx={{
           backgroundColor: "white",
           width: 800,
-          height: 480,
+          height: 450,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
       >
-        <Grid container>
+        <Grid container sx={{ display: "flex", alignItems: "center" }}>
           <Grid item lg={6} md={6}>
             <h2
               style={{
                 textAlign: "center",
-                margin: "46px 0 20px 0",
+                margin: "0 0 20px 0",
                 fontWeight: "inherit",
               }}
             >
-              XÁC THỰC TÀI KHOẢN
+              QUÊN MẬT KHẨU
             </h2>
-
             <Stack
               sx={{ padding: "0px 36px" }}
               component={"form"}
               onSubmit={handleSubmit(onSubmit)}
             >
               <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="verifyOTP">
-                  Xác thực OTP
+                <label className={styles.labelInput} htmlFor="email">
+                  Email
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
                   <TextField
-                    id="verifyOTP"
-                    label="Xác thực OTP"
+                    id="email"
+                    label="Email"
                     variant="outlined"
-                    {...register("verifyOTP", {
-                      required: "OTP không được để trống",
-                      minLength: {
-                        value: 6,
-                        message: "OTP phải có ít nhất 6 ký tự",
+                    {...register("email", {
+                      required: "Email không được để trống",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Email không hợp lệ",
                       },
                     })}
                   />
-                  {errors.verifyOTP && (
-                    <p className={styles.errorMessage}>
-                      {errors.verifyOTP.message}
-                    </p>
-                  )}
                 </ThemeProvider>
-                <Button
-                  variant="contained"
-                  onClick={startOtpCountdown}
-                  disabled={isResendDisabled}
-                  sx={{
-                    width: "max-content",
-                    margin: "20px 0",
-                    backgroundColor: "black",
-                  }}
-                >
-                  {isResendDisabled
-                    ? `Gửi lại OTP (${otpTimer}s)`
-                    : "Gửi lại OTP"}
-                </Button>
+                {errors.email && (
+                  <p className={styles.errorMessage}>{errors.email.message}</p>
+                )}
               </Stack>
-
               <Button
                 variant="contained"
                 sx={{
                   backgroundColor: "black",
                   color: "white",
                   padding: "10px 24px",
-                  marginTop: "14px",
+                  marginTop: "30px",
                   fontSize: "1.2rem",
                   fontWeight: "regular",
                   "&:hover": {
@@ -133,16 +96,22 @@ const VerifyAccount = () => {
                 }}
                 type="submit"
               >
-                XÁC NHẬN
+                XÁC NHẬN EMAIL
               </Button>
             </Stack>
-          </Grid>
 
+            <Stack sx={{ display: "flex", alignItems: "center" }}>
+              <Link className={styles.linkFooter} to="/login">
+                Trở về đăng nhập
+              </Link>
+            </Stack>
+          </Grid>
           <Grid item lg={6} md={6}>
             <img
               style={{
                 width: "100%",
-                height: 480,
+                height: 450,
+                backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
                 objectFit: "cover",
@@ -174,26 +143,18 @@ const customTheme = (outerTheme) =>
           },
         },
       },
-      MuiFormControl: {
-        styleOverrides: {
-          root: {
-            "--OutlinedInput-brandBorderColor": "#E0E3E7",
-            "--OutlinedInput-brandBorderHoverColor": "#B2BAC2",
-            "--OutlinedInput-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
       MuiOutlinedInput: {
         styleOverrides: {
+          notchedOutline: {
+            borderColor: "var(--TextField-brandBorderColor)",
+          },
           root: {
+            fontSize: "1.2rem",
             [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderHoverColor)",
+              borderColor: "var(--TextField-brandBorderHoverColor)",
             },
             [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderFocusedColor)",
+              borderColor: "var(--TextField-brandBorderFocusedColor)",
             },
           },
         },
@@ -201,4 +162,4 @@ const customTheme = (outerTheme) =>
     },
   });
 
-export default VerifyAccount;
+export default ForgotPassword;

@@ -1,17 +1,18 @@
 import { Container, Grid, Stack } from "@mui/material";
-import Footer from "../../components/Footer/Footer";
-import Header from "../../components/Header/Header";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import ProductImage from "../../components/ProductDetail/ProductImage";
-import ProductTitle from "../../components/ProductDetail/ProductTitle";
-import ProductPrice from "../../components/ProductDetail/ProductPrice";
-import ProductStockKeepingUnit from "../../components/ProductDetail/ProductStockKeepingUnit";
-import ProductBrand from "../../components/ProductDetail/ProductBrand";
-import ProductColorSection from "../../components/ProductDetail/ProductColorSection";
-import ProductQuantitySelection from "../../components/ProductDetail/ProductQuantitySelection";
-import ProductSizeSelection from "../../components/ProductDetail/ProductSizeSelection";
-import ProductActions from "../../components/ProductDetail/ProductActions";
+import ProductImage from "./shared/ProductImage";
+import ProductTitle from "./shared/ProductTitle";
+import ProductPrice from "./shared/ProductPrice";
+import ProductStockKeepingUnit from "./shared/ProductStockKeepingUnit";
+import ProductBrand from "./shared/ProductBrand";
+import ProductColorSection from "./shared/ProductColorSection";
+import ProductQuantitySelection from "./shared/ProductQuantitySelection";
+import ProductSizeSelection from "./shared/ProductSizeSelection";
+import ProductActions from "./shared/ProductActions";
+import axios from "axios";
 
 const API_URL = "https://dummyjson.com/products";
 
@@ -51,16 +52,11 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_URL}/${id}`, { signal });
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log("Product data:", data);
-        setProducts(data);
+        const response = await axios.get(`${API_URL}/${id}`, { signal });
+        setProducts(response.data);
       } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error("Fetch error:", error.message);
+        if (axios.isCancel(error)) {
+          console.log("Request aborted!");
         }
       } finally {
         setLoading(false);
@@ -114,12 +110,18 @@ const ProductDetails = () => {
                 buttonOptionSizes={buttonOptionSizes}
                 handleSelectSize={handleSelectSize}
               />
-              <ProductActions products={products} loading={loading} />
+              <ProductActions
+                products={products}
+                loading={loading}
+                selectedQuantity={quantity}
+                selectedColor={colors}
+                selectedSize={sizes}
+              />
             </Grid>
           </Grid>
         </Stack>
       </Container>
-      <Footer />)
+      <Footer />
     </>
   );
 };

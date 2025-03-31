@@ -1,10 +1,9 @@
 import Stack from "@mui/material/Stack";
-
-import styles from "./Header.module.css";
-import CartButton from "./CartButton/CartButton";
+import styles from "./index.module.css";
+import CartButton from "./CartButton";
 import HeaderSearchBar from "./SearchBar/SearchBar";
-import HeaderAuthButtons from "./AuthButton/AuthButton";
-import NavMenu from "./NavMenu/NavMenu";
+import HeaderAuthButtons from "./AuthButton";
+import NavMenu from "./NavMenu";
 import { Container } from "@mui/material";
 import { Link } from "react-router-dom";
 

@@ -1,11 +1,11 @@
 import { Container, Grid, Stack } from "@mui/material";
-import Footer from "../../components/Footer/Footer";
-import Header from "../../components/Header/Header";
-import WallpaperRepresentative from "../../components/WallpaperRepresentative/WallpaperRepresentative";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 
-import styles from "./ProductLists.module.css";
+import styles from "./index.module.css";
 import { Link } from "react-router-dom";
-import SortProducts from "/src/components/SortProducts/SortProducts";
+import SortProducts from "./shared/SortProducts/SortProducts";
 
 const sectionTitleMenuItems = [
   {

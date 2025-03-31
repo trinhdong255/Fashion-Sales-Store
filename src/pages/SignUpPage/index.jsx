@@ -16,7 +16,7 @@ import OutlinedInput, {
 } from "@mui/material/OutlinedInput";
 import { Link, useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import styles from "./SignUp.module.css";
+import styles from "./index.module.css";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 

@@ -1,7 +1,7 @@
 import { Container, Grid, Stack } from "@mui/material";
-import WallpaperRepresentative from "../../components/WallpaperRepresentative/WallpaperRepresentative";
+import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 
-import styles from "./About.module.css";
+import styles from "./index.module.css";
 
 const contents = [
   {

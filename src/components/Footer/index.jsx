@@ -1,5 +1,5 @@
 import { Container, Grid, Stack } from "@mui/material";
-import styles from "./Footer.module.css";
+import styles from "./index.module.css";
 
 const Footer = () => {
   const footerData = [

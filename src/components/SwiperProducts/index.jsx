@@ -1,7 +1,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { Link, useNavigate } from "react-router";
-import styles from "./SwiperProducts.module.css";
+import styles from "./index.module.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import {

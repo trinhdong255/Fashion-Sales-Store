@@ -9,10 +9,10 @@ import {
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import WallpaperRepresentative from "../../components/WallpaperRepresentative/WallpaperRepresentative";
+import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 import { SimpleTreeView, TreeItem } from "@mui/x-tree-view";
 import SearchIcon from "@mui/icons-material/Search";
-import  "./Support.css";
+import  "./index.css";
 
 const Support = () => {
   const outerTheme = useTheme();
