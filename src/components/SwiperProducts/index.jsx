@@ -118,7 +118,7 @@ const SwiperProducts = () => {
           >
             {products.map((product) => (
               <SwiperSlide key={product.id}>
-                <Card onClick={() => navigate(`/detailProducts/${product.id}`)}>
+                <Card onClick={() => navigate(`/productDetails/${product.id}`)}>
                   <CardActionArea>
                     <CardMedia
                       component="img"

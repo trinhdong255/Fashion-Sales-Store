@@ -1,11 +1,7 @@
 import { Outlet } from "react-router-dom";
 
 const SignUpLayout = () => {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 };
 
 export default SignUpLayout;

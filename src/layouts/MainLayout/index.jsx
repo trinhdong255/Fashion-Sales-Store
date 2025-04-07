@@ -5,7 +5,7 @@ export default function MainLayout() {
   return (
     <>
       <Header />
-      <Outlet /> {/* This will render the child route */}
+      <Outlet /> 
       <Footer />
     </>
   );

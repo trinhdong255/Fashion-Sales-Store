@@ -1,18 +1,25 @@
 import { Route, Routes } from "react-router-dom";
-import Home from "./pages/HomePage/Home";
-import Contact from "./pages/ContactPage/Contact";
-import Support from "./pages/SupportPage/Support";
-import About from "./pages/AboutPage/About";
-import Login from "./pages/LoginPage/Login";
-import SignUp from "./pages/SignUpPage/SignUp";
-import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-import MainLayout from "./layouts/MainLayout/MainLayout";
-import LoginLayout from "./layouts/LoginLayout/LoginLayout";
-import VerifyAccount from "./pages/VerifyAccountPage/VerifyAccount";
-import ProductDetails from "./pages/ProductDetailsPage/ProductDetails";
-import ScrollToTop from "./components/ScrollToTop";
+import Home from "@/pages/HomePage";
+import Contact from "@/pages/ContactPage";
+import Support from "@/pages/SupportPage";
+import About from "@/pages/AboutPage";
+import Login from "@/pages/LoginPage";
+import Register from "@/pages/RegisterPage";
+import ForgotPassword from "@/pages/ForgotPassword";
+import MainLayout from "@/layouts/MainLayout";
+import LoginLayout from "@/layouts/LoginLayout";
+import VerifyAccount from "@/pages/VerifyAccountPage";
+import ProductDetails from "@/pages/ProductDetailsPage";
+import ScrollToTop from "@/components/ScrollToTop";
 import ProductListsLayout from "@/layouts/ProductListsLayout";
-import ProductLists from "@/pages/ProductListsPage/ProductLists";
+import ProductLists from "@/pages/ProductListsPage";
+import ShippingMethod from "@/pages/ShippingMethodPage";
+import OrderConfirmation from "@/pages/OrderConfirmationPage";
+import MyOrders from "@/pages/MyOrdersPage";
+import Profile from "./pages/ProfilePage";
+import ChangePassword from "./pages/ChangePassword";
+import Address from "./pages/AddressPage";
+import AccountInform from "./layouts/AccountInform";
 
 const App = () => {
   return (
@@ -34,16 +41,29 @@ const App = () => {
         </Route>
 
         {/* Route SignUp and VerifyAccount */}
-        <Route path="/signUp" element={<SignUp />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/verifyAccount" element={<VerifyAccount />} />
 
         {/* Route List Products */}
-
         <Route path="/listProducts" element={<ProductListsLayout />}>
           <Route index element={<ProductLists />} />
         </Route>
 
         <Route path="/productDetails/:id" element={<ProductDetails />} />
+        <Route path="/shippingMethod" element={<ShippingMethod />} />
+        <Route path="/orderConfirmation" element={<OrderConfirmation />} />
+
+        {/* Route user */}
+        <Route path="/accountInform" element={<AccountInform />}>
+          <Route path="/accountInform/profile" element={<Profile />} />
+          <Route
+            path="/accountInform/changePassword"
+            element={<ChangePassword />}
+          />
+          <Route path="/accountInform/address" element={<Address />} />
+        </Route>
+
+        <Route path="/myOrders" element={<MyOrders />} />
       </Routes>
     </>
   );

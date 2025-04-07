@@ -20,7 +20,7 @@ import styles from "./index.module.css";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-const SignUp = () => {
+const Register = () => {
   const outerTheme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -48,12 +48,11 @@ const SignUp = () => {
 
   return (
     <Stack
+      alignItems={"center"}
+      justifyContent={"center"}
       sx={{
         backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
         height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
       }}
     >
       <Stack
@@ -274,4 +273,4 @@ const customTheme = (outerTheme) =>
     },
   });
 
-export default SignUp;
+export default Register;

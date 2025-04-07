@@ -1,11 +1,8 @@
 import { Container, Grid, Stack } from "@mui/material";
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
-import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 
 import styles from "./index.module.css";
 import { Link } from "react-router-dom";
-import SortProducts from "./shared/SortProducts/SortProducts";
+import SortProducts from "./shared/SortProducts";
 
 const sectionTitleMenuItems = [
   {
@@ -28,45 +25,39 @@ const sectionTitleMenuItems = [
 
 const ProductLists = () => {
   return (
-    <>
-      <Header />
-      <WallpaperRepresentative titleHeader="Danh sách sản phẩm" />
-      <Container maxWidth="lg">
-        <Grid container>
-          <Grid item xl={2} lg={2}>
-            {sectionTitleMenuItems.map((sectionTitleMenuItem, index) => (
-              <Stack sx={{ mt: "38px" }} key={index}>
-                <h3
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "500",
-                    width: "100%",
-                    margin: 0,
-                  }}
-                >
-                  {sectionTitleMenuItem.title}
-                  <ul className={styles.navigationSelectItems}>
-                    {sectionTitleMenuItem.menuItem.map((menuItem, index) => (
-                      <li key={index}>
-                        <Link className={styles.navigationSelectItems} to="#">
-                          <p>{menuItem}</p>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </h3>
-              </Stack>
-            ))}
-          </Grid>
-
-          <Grid item xl={10} lg={10}>
-            <SortProducts />
-          </Grid>
+    <Container maxWidth="lg">
+      <Grid container>
+        <Grid item xl={2} lg={2}>
+          {sectionTitleMenuItems.map((sectionTitleMenuItem, index) => (
+            <Stack sx={{ mt: "38px" }} key={index}>
+              <h3
+                style={{
+                  fontSize: 18,
+                  fontWeight: "500",
+                  width: "100%",
+                  margin: 0,
+                }}
+              >
+                {sectionTitleMenuItem.title}
+                <ul className={styles.navigationSelectItems}>
+                  {sectionTitleMenuItem.menuItem.map((menuItem, index) => (
+                    <li key={index}>
+                      <Link className={styles.navigationSelectItems} to="#">
+                        <p>{menuItem}</p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </h3>
+            </Stack>
+          ))}
         </Grid>
-      </Container>
 
-      <Footer />
-    </>
+        <Grid item xl={10} lg={10}>
+          <SortProducts />
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 
