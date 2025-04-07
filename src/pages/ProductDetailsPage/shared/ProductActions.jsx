@@ -1,6 +1,8 @@
+import { setOrderData } from "@/features/order/orderSlice";
 import { alpha, Button, Skeleton, Stack } from "@mui/material";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://dummyjson.com/products";
@@ -13,6 +15,7 @@ const ProductActions = ({
   selectedSize,
 }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleBuyNow = async () => {
     if (!products) {
@@ -38,6 +41,7 @@ const ProductActions = ({
     // Thu thập thông tin đơn hàng
     const orderData = {
       productId: products.id,
+      image: products.images,
       name: products.title || products.name,
       price: products.price,
       quantity: selectedQuantity || 1,
@@ -46,21 +50,16 @@ const ProductActions = ({
     };
 
     try {
-      // Gửi yêu cầu đến backend để kiểm tra tính hợp lệ
       const response = await axios.get(`${API_URL}/${products.id}`);
       const productData = response.data;
 
-      // Kiểm tra số lượng tồn kho
       if (productData.stock < orderData.quantity) {
         alert("Sản phẩm đã hết hàng!");
         return;
       }
 
-      // Lưu thông tin đơn hàng vào localStorage
-      localStorage.setItem("orderData", JSON.stringify(orderData));
-
-      // Chuyển hướng đến màn hình chọn phương thức giao hàng
-      navigate("/shipping-method");
+      dispatch(setOrderData(orderData));
+      navigate("/shippingMethod");
     } catch (error) {
       console.error("Error:", error);
       alert("Đã có lỗi xảy ra, vui lòng thử lại!");
