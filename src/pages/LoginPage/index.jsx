@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   createTheme,
@@ -10,6 +11,7 @@ import {
   TextField,
   ThemeProvider,
   useTheme,
+  CircularProgress, // Thêm CircularProgress để hiển thị spinner
 } from "@mui/material";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import { Link } from "react-router-dom";
@@ -18,17 +20,20 @@ import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 const Login = () => {
+  const navigate = useNavigate();
   const outerTheme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Thêm trạng thái loading
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  // Xử lý hiển thị mật khẩu
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (event) => {
@@ -39,18 +44,46 @@ const Login = () => {
     event.preventDefault();
   };
 
-  const onSubmit = (data) => {
-    console.log("Dữ liệu form:", data);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await axios.get("https://dummyjson.com/users");
+      const result = response.data;
+      const users = result.users;
+
+      // Kiểm tra email và mật khẩu với dữ liệu từ dummyjson.com
+      const user = users.find(
+        (u) => u.email === data.email && u.password === data.password
+      );
+
+      if (user) {
+        // Lưu thông tin người dùng vào localStorage
+        const userData = {
+          id: user.id,
+          email: user.email,
+          username: `${user.firstName} ${user.lastName}`,
+          avatar: user.image,
+        };
+        localStorage.setItem("user", JSON.stringify(userData));
+        navigate("/");
+      } else {
+        setError("Email hoặc mật khẩu không đúng");
+      }
+    } catch (error) {
+      setError("Đã có lỗi xảy ra, vui lòng thử lại", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Stack
+      alignItems={"center"}
+      justifyContent={"center"}
       sx={{
         backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
         height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
       }}
     >
       <Stack
@@ -79,6 +112,7 @@ const Login = () => {
               component={"form"}
               onSubmit={handleSubmit(onSubmit)}
             >
+              {error && <p style={{ color: "red" }}>{error}</p>}
               <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="email">
                   Email
@@ -88,6 +122,7 @@ const Login = () => {
                     id="email"
                     label="Email"
                     variant="outlined"
+                    disabled={loading} // Vô hiệu hóa input khi đang loading
                     {...register("email", {
                       required: "Email không được để trống",
                       pattern: {
@@ -111,10 +146,10 @@ const Login = () => {
                     <InputLabel htmlFor="outlined-adornment-password">
                       Password
                     </InputLabel>
-
                     <OutlinedInput
                       id="outlined-adornment-password"
                       type={showPassword ? "text" : "password"}
+                      disabled={loading} // Vô hiệu hóa input khi đang loading
                       {...register("password", {
                         required: "Mật khẩu không được để trống",
                         minLength: {
@@ -134,6 +169,7 @@ const Login = () => {
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
                             edge="end"
+                            disabled={loading} // Vô hiệu hóa icon khi đang loading
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
@@ -164,8 +200,13 @@ const Login = () => {
                   },
                 }}
                 type="submit"
+                disabled={loading} // Vô hiệu hóa nút khi đang loading
               >
-                ĐĂNG NHẬP
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" /> // Hiển thị spinner khi đang loading
+                ) : (
+                  "ĐĂNG NHẬP"
+                )}
               </Button>
             </Stack>
 
@@ -176,7 +217,7 @@ const Login = () => {
 
               <span style={{ margin: "12px 0 0 0" }}>
                 Bạn chưa có tài khoản?
-                <Link className={styles.createAccount} to="/signUp">
+                <Link className={styles.createAccount} to="/register">
                   Tạo tài khoản ngay
                 </Link>
               </span>
