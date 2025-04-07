@@ -1,29 +1,33 @@
+import { Fragment } from "react";
 import { Route, Routes } from "react-router-dom";
-import Home from "@/pages/HomePage";
-import Contact from "@/pages/ContactPage";
-import Support from "@/pages/SupportPage";
-import About from "@/pages/AboutPage";
-import Login from "@/pages/LoginPage";
-import Register from "@/pages/RegisterPage";
-import ForgotPassword from "@/pages/ForgotPassword";
-import MainLayout from "@/layouts/MainLayout";
-import LoginLayout from "@/layouts/LoginLayout";
-import VerifyAccount from "@/pages/VerifyAccountPage";
-import ProductDetails from "@/pages/ProductDetailsPage";
-import ScrollToTop from "@/components/ScrollToTop";
-import ProductListsLayout from "@/layouts/ProductListsLayout";
-import ProductLists from "@/pages/ProductListsPage";
-import ShippingMethod from "@/pages/ShippingMethodPage";
-import OrderConfirmation from "@/pages/OrderConfirmationPage";
-import MyOrders from "@/pages/MyOrdersPage";
-import Profile from "./pages/ProfilePage";
-import ChangePassword from "./pages/ChangePassword";
-import Address from "./pages/AddressPage";
+
 import AccountInform from "./layouts/AccountInform";
+import Address from "./pages/AddressPage";
+import ChangePassword from "./pages/ChangePassword";
+import Profile from "./pages/ProfilePage";
+
+import ScrollToTop from "@/components/ScrollToTop";
+import LoginLayout from "@/layouts/LoginLayout";
+import MainLayout from "@/layouts/MainLayout";
+import ProductListsLayout from "@/layouts/ProductListsLayout";
+import About from "@/pages/AboutPage";
+import Contact from "@/pages/ContactPage";
+import ForgotPassword from "@/pages/ForgotPassword";
+import Home from "@/pages/HomePage";
+import Login from "@/pages/LoginPage";
+import MyOrders from "@/pages/MyOrdersPage";
+import OrderConfirmation from "@/pages/OrderConfirmationPage";
+import ProductDetails from "@/pages/ProductDetailsPage";
+import ProductLists from "@/pages/ProductListsPage";
+import Register from "@/pages/RegisterPage";
+import ShippingMethod from "@/pages/ShippingMethodPage";
+import Support from "@/pages/SupportPage";
+import VerifyAccount from "@/pages/VerifyAccountPage";
+
 
 const App = () => {
   return (
-    <>
+    <Fragment>
       <ScrollToTop />
       <Routes>
         {/* Route dependencies component Header and Footer */}
@@ -65,7 +69,7 @@ const App = () => {
 
         <Route path="/myOrders" element={<MyOrders />} />
       </Routes>
-    </>
+    </Fragment>
   );
 };
 

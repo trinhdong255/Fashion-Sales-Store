@@ -1,6 +1,6 @@
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { alpha, Button, Menu, MenuItem } from "@mui/material";
 import PropTypes from "prop-types";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const SortOptions = ({
   anchorEl,

@@ -1,6 +1,8 @@
-import AccountSideBar from "@/components/AccountSideBar";
 import { Container, Grid, Stack } from "@mui/material";
+
 import ProfileInform from "./shared/ProfileInform";
+
+import AccountSideBar from "@/components/AccountSideBar";
 
 const Profile = () => {
   return (

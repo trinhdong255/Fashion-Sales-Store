@@ -1,9 +1,3 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import { Link, useNavigate } from "react-router";
-import styles from "./index.module.css";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -13,10 +7,17 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+
+import styles from "./index.module.css";
+
+
 import "swiper/css";
 import "swiper/css/navigation";
-
-const API_URL = "https://dummyjson.com/products";
+import { useListProductsQuery } from "@/services/api/product";
 
 const navCategories = [
   {
@@ -46,8 +47,9 @@ const navCategories = [
 ];
 
 const SwiperProducts = () => {
-  const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+
+  const { data: dataProducts } = useListProductsQuery();
 
   const handleClick = () => {
     navigate("/listProducts");
@@ -55,27 +57,6 @@ const SwiperProducts = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    const signal = controller.signal;
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(API_URL, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          signal,
-        });
-        console.log(response.data);
-        setProducts(response.data.products);
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          console.log("Request aborted!");
-        } else {
-          console.error("Fetch error:", error);
-        }
-      }
-    };
-
-    fetchData();
 
     // Cleanup function
     return () => {
@@ -116,7 +97,7 @@ const SwiperProducts = () => {
               margin: "50px 0",
             }}
           >
-            {products.map((product) => (
+            {(dataProducts?.products || []).map((product) => (
               <SwiperSlide key={product.id}>
                 <Card onClick={() => navigate(`/productDetails/${product.id}`)}>
                   <CardActionArea>

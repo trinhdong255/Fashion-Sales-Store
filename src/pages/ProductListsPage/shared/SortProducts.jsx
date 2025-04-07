@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,9 +7,11 @@ import {
   Stack,
 } from "@mui/material";
 import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SortOptions from "./SortOptions";
+
 import ProductCard from "./ProductCard";
+import SortOptions from "./SortOptions";
 
 const API_URL = "https://dummyjson.com/products";
 const ITEMS_PER_PAGE = 20;

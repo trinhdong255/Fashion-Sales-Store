@@ -1,5 +1,5 @@
-import PropTypes from "prop-types";
 import { Stack } from "@mui/material";
+import PropTypes from "prop-types";
 
 const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
   return (

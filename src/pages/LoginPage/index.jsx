@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
   createTheme,
@@ -13,21 +13,26 @@ import {
   useTheme,
   CircularProgress, // Thêm CircularProgress để hiển thị spinner
 } from "@mui/material";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import { Link } from "react-router-dom";
-import styles from "./index.module.css";
+import OutlinedInput, { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+
+import styles from "./index.module.css";
+
+import { useLoginMutation } from "@/services/api/auth";
+import { setUser } from "@/store/redux/user/reducer";
 
 const Login = () => {
-  const navigate = useNavigate();
   const outerTheme = useTheme();
+  const dispatch = useDispatch();
+
+  const [login, { isLoading }] = useLoginMutation();
+
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Thêm trạng thái loading
+
   const {
     register,
     handleSubmit,
@@ -45,35 +50,29 @@ const Login = () => {
   };
 
   const onSubmit = async (data) => {
-    setLoading(true);
     setError("");
+
     try {
-      const response = await axios.get("https://dummyjson.com/users");
-      const result = response.data;
-      const users = result.users;
+      const response = await login({
+        username: data?.email,
+        password: data?.password,
+      }).unwrap();
 
-      // Kiểm tra email và mật khẩu với dữ liệu từ dummyjson.com
-      const user = users.find(
-        (u) => u.email === data.email && u.password === data.password
-      );
-
-      if (user) {
-        // Lưu thông tin người dùng vào localStorage
+      if (response) {
         const userData = {
-          id: user.id,
-          email: user.email,
-          username: `${user.firstName} ${user.lastName}`,
-          avatar: user.image,
+          id: response.id,
+          email: response.email,
+          fullname: `${response.firstName} ${response.lastName}`,
+          avatar: response.image,
+          gender: response.gender,
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
         };
-        localStorage.setItem("user", JSON.stringify(userData));
-        navigate("/");
-      } else {
-        setError("Email hoặc mật khẩu không đúng");
+
+        dispatch(setUser(userData));
       }
     } catch (error) {
-      setError("Đã có lỗi xảy ra, vui lòng thử lại", error);
-    } finally {
-      setLoading(false);
+      console.error("Login failed:", error);
     }
   };
 
@@ -122,13 +121,14 @@ const Login = () => {
                     id="email"
                     label="Email"
                     variant="outlined"
-                    disabled={loading} // Vô hiệu hóa input khi đang loading
+                    disabled={isLoading} // Vô hiệu hóa input khi đang loading
                     {...register("email", {
                       required: "Email không được để trống",
-                      pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Email không hợp lệ",
-                      },
+                      //TODO: Uncomment once have backend
+                      // pattern: {
+                      //   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      //   message: "Email không hợp lệ",
+                      // },
                     })}
                   />
                 </ThemeProvider>
@@ -149,7 +149,7 @@ const Login = () => {
                     <OutlinedInput
                       id="outlined-adornment-password"
                       type={showPassword ? "text" : "password"}
-                      disabled={loading} // Vô hiệu hóa input khi đang loading
+                      disabled={isLoading} // Vô hiệu hóa input khi đang loading
                       {...register("password", {
                         required: "Mật khẩu không được để trống",
                         minLength: {
@@ -169,7 +169,7 @@ const Login = () => {
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
                             edge="end"
-                            disabled={loading} // Vô hiệu hóa icon khi đang loading
+                            disabled={isLoading} // Vô hiệu hóa icon khi đang loading
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
@@ -200,9 +200,9 @@ const Login = () => {
                   },
                 }}
                 type="submit"
-                disabled={loading} // Vô hiệu hóa nút khi đang loading
+                disabled={isLoading} // Vô hiệu hóa nút khi đang loading
               >
-                {loading ? (
+                {isLoading ? (
                   <CircularProgress size={24} color="inherit" /> // Hiển thị spinner khi đang loading
                 ) : (
                   "ĐĂNG NHẬP"

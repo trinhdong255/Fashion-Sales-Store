@@ -1,4 +1,5 @@
 import { Container, Grid, Stack } from "@mui/material";
+
 import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 
 import styles from "./index.module.css";

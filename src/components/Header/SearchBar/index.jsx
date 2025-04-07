@@ -1,8 +1,8 @@
 // SearchBar.js
-import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import SearchIcon from "@mui/icons-material/Search";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
 
 const SearchBar = () => {
   const outerTheme = useTheme();

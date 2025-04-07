@@ -8,9 +8,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import styles from "./index.module.css";
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+
+import styles from "./index.module.css";
+
 
 const ForgotPassword = () => {
   const outerTheme = useTheme();

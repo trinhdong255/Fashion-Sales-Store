@@ -1,6 +1,4 @@
 // HeaderAuthButtons.js
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import {
   Stack,
   Typography,
@@ -11,18 +9,20 @@ import {
   Avatar,
   Divider,
 } from "@mui/material";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+
+import { resetStore } from "@/store";
+import { selectUser } from "@/store/redux/user/reducer";
 
 const AuthButton = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  const storedUser = useSelector(selectUser);
+
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,15 +33,14 @@ const AuthButton = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Xóa thông tin người dùng
-    setUser(null); // Cập nhật trạng thái user ngay lập tức
+    dispatch(resetStore());
     handleMenuClose();
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
     <Stack direction="row" alignItems="center">
-      {user ? (
+      {storedUser ? (
         <>
           <Stack
             direction="row"
@@ -49,8 +48,10 @@ const AuthButton = () => {
             onClick={handleMenuOpen}
             sx={{ cursor: "pointer" }}
           >
-            <Avatar src={user.avatar} alt={user.username} />
-            <Typography sx={{ marginLeft: "5px" }}>{user.username}</Typography>
+            <Avatar src={storedUser.avatar} alt={storedUser.fullname} />
+            <Typography sx={{ marginLeft: "5px" }}>
+              {storedUser.fullname}
+            </Typography>
           </Stack>
 
           <Menu

@@ -1,3 +1,5 @@
+import PaymentsIcon from "@mui/icons-material/Payments";
+import PlaceIcon from "@mui/icons-material/Place";
 import {
   Button,
   FormControlLabel,
@@ -6,12 +8,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import PlaceIcon from "@mui/icons-material/Place";
-import PaymentsIcon from "@mui/icons-material/Payments";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import {
   setAddress,
   setPaymentMethods,
@@ -19,7 +20,7 @@ import {
   setError,
   setConfirmedOrder,
   clearOrderData,
-} from "./orderSlice";
+} from "@/store/redux/order/reducer";
 
 const API_URL = "https://dummyjson.com/users";
 

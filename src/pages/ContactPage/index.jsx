@@ -1,3 +1,6 @@
+import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import PlaceIcon from "@mui/icons-material/Place";
 import {
   Button,
   Container,
@@ -9,10 +12,8 @@ import {
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import PlaceIcon from "@mui/icons-material/Place";
-import PhoneIcon from "@mui/icons-material/Phone";
-import EmailIcon from "@mui/icons-material/Email";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+
 import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 
 const contactInfos = [

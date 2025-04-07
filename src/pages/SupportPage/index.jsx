@@ -1,3 +1,4 @@
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
   Container,
@@ -9,9 +10,9 @@ import {
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 import { SimpleTreeView, TreeItem } from "@mui/x-tree-view";
-import SearchIcon from "@mui/icons-material/Search";
+
+import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 import  "./index.css";
 
 const Support = () => {

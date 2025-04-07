@@ -1,8 +1,9 @@
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import { Container, Stack, Typography } from "@mui/material";
+
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { Container, Stack, Typography } from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import Order from "@/features/order/Order";
+import Order from "@/pages/ShippingMethodPage/shared/Order";
 
 const ShippingMethod = () => {
   return (

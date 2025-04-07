@@ -1,10 +1,11 @@
 // OrderConfirmationPage.js
+import { Typography, Button, Container, Stack } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Typography, Button, Container, Stack } from "@mui/material";
-import { clearConfirmedOrder } from "@/features/order/orderSlice";
-import Header from "@/components/Header";
+
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { clearConfirmedOrder } from "@/store/redux/order/reducer";
 
 const OrderConfirmation = () => {
   const dispatch = useDispatch();

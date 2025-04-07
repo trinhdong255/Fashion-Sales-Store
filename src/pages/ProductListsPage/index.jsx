@@ -1,7 +1,7 @@
 import { Container, Grid, Stack } from "@mui/material";
+import { Link } from "react-router-dom";
 
 import styles from "./index.module.css";
-import { Link } from "react-router-dom";
 import SortProducts from "./shared/SortProducts";
 
 const sectionTitleMenuItems = [

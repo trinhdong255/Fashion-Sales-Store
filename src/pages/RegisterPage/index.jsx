@@ -1,3 +1,4 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
   createTheme,
@@ -14,11 +15,12 @@ import {
 import OutlinedInput, {
   outlinedInputClasses,
 } from "@mui/material/OutlinedInput";
-import { Link, useNavigate } from "react-router-dom";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import styles from "./index.module.css";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+
+import styles from "./index.module.css";
+
 
 const Register = () => {
   const outerTheme = useTheme();

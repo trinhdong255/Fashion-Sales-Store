@@ -1,14 +1,14 @@
+import ContactsIcon from "@mui/icons-material/Contacts";
+import HelpIcon from "@mui/icons-material/Help";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import InfoIcon from "@mui/icons-material/Info";
+import MenuIcon from "@mui/icons-material/Menu";
 import {
   BottomNavigation,
   BottomNavigationAction,
   Menu,
   MenuItem,
 } from "@mui/material";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import MenuIcon from "@mui/icons-material/Menu";
-import HelpIcon from "@mui/icons-material/Help";
-import ContactsIcon from "@mui/icons-material/Contacts";
-import InfoIcon from "@mui/icons-material/Info";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 

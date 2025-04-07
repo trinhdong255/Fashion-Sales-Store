@@ -1,3 +1,6 @@
+import CloseIcon from "@mui/icons-material/Close";
+import LocalMallIcon from "@mui/icons-material/LocalMall";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import {
   Badge,
   badgeClasses,
@@ -7,9 +10,6 @@ import {
   IconButton,
   Stack,
 } from "@mui/material";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import CloseIcon from "@mui/icons-material/Close";
-import LocalMallIcon from "@mui/icons-material/LocalMall";
 import { styled } from "@mui/material/styles";
 import { useState } from "react";
 

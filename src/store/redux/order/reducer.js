@@ -1,4 +1,3 @@
-// orderSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const orderSlice = createSlice({
@@ -50,4 +49,5 @@ export const {
   clearOrderData,
   clearConfirmedOrder,
 } = orderSlice.actions;
+
 export default orderSlice.reducer;

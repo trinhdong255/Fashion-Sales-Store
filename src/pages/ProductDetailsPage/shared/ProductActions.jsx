@@ -1,9 +1,10 @@
-import { setOrderData } from "@/features/order/orderSlice";
 import { alpha, Button, Skeleton, Stack } from "@mui/material";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+import { setOrderData } from "@/store/redux/order/reducer";
 
 const API_URL = "https://dummyjson.com/products";
 

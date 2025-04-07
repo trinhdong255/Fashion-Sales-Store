@@ -1,18 +1,21 @@
 import { Container, Grid, Stack } from "@mui/material";
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import ProductImage from "./shared/ProductImage";
-import ProductTitle from "./shared/ProductTitle";
-import ProductPrice from "./shared/ProductPrice";
-import ProductStockKeepingUnit from "./shared/ProductStockKeepingUnit";
+
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+
+import ProductActions from "./shared/ProductActions";
 import ProductBrand from "./shared/ProductBrand";
 import ProductColorSection from "./shared/ProductColorSection";
+import ProductImage from "./shared/ProductImage";
+import ProductPrice from "./shared/ProductPrice";
 import ProductQuantitySelection from "./shared/ProductQuantitySelection";
 import ProductSizeSelection from "./shared/ProductSizeSelection";
-import ProductActions from "./shared/ProductActions";
-import axios from "axios";
+import ProductStockKeepingUnit from "./shared/ProductStockKeepingUnit";
+import ProductTitle from "./shared/ProductTitle";
+
 
 const API_URL = "https://dummyjson.com/products";
 

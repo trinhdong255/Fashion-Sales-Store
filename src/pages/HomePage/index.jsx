@@ -1,10 +1,13 @@
-import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+
 import "swiper/css";
 import "swiper/css/navigation";
 import SwiperProducts from "../../components/SwiperProducts";
+
 import { Container, Grid, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
+
 import styles from "./index.module.css";
 
 const slides = [

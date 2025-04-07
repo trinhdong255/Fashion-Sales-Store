@@ -1,11 +1,13 @@
-import Stack from "@mui/material/Stack";
-import styles from "./index.module.css";
-import CartButton from "./CartButton";
-import HeaderSearchBar from "./SearchBar";
-import HeaderAuthButtons from "./AuthButton";
-import NavMenu from "./NavMenu";
 import { Container } from "@mui/material";
+import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
+
+import HeaderAuthButtons from "./AuthButton";
+import CartButton from "./CartButton";
+import styles from "./index.module.css";
+import NavMenu from "./NavMenu";
+import HeaderSearchBar from "./SearchBar";
+
 
 const Header = () => {
   return (

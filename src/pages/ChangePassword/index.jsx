@@ -1,5 +1,6 @@
-import AccountSideBar from "@/components/AccountSideBar";
 import { Container, Grid, Stack } from "@mui/material";
+
+import AccountSideBar from "@/components/AccountSideBar";
 
 const ChangePassword = () => {
   return (
