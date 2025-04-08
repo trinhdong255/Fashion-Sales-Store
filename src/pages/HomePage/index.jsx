@@ -5,10 +5,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import SwiperProducts from "../../components/SwiperProducts";
 
-import { Container, Grid, Stack } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Alert, Container, Grid, Snackbar, Stack } from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
 
 import styles from "./index.module.css";
+import { useEffect, useState } from "react";
 
 const slides = [
   "/src/assets/images/backgroundFashions/backgroundHomePage.jpg",
@@ -27,8 +28,47 @@ const categories = [
 ];
 
 const Home = () => {
+  const location = useLocation();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setSnackbar({
+        open: true,
+        message: location.state.message || "",
+        severity: location.state.severity || "success",
+      });
+    }
+    window.history.replaceState({}, document.title);
+  }, [location]);
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   return (
     <>
+      {/* Show message when login successfully */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%", p: "10px 20px" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
       <Swiper
         slidesPerView={1}
         spaceBetween={30}

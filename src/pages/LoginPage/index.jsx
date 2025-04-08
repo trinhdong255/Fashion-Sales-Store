@@ -11,13 +11,17 @@ import {
   TextField,
   ThemeProvider,
   useTheme,
-  CircularProgress, // Thêm CircularProgress để hiển thị spinner
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import OutlinedInput, { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import OutlinedInput, {
+  outlinedInputClasses,
+} from "@mui/material/OutlinedInput";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import styles from "./index.module.css";
 
@@ -26,12 +30,19 @@ import { setUser } from "@/store/redux/user/reducer";
 
 const Login = () => {
   const outerTheme = useTheme();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
 
   const [login, { isLoading }] = useLoginMutation();
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success", // or 'error'
+  });
 
   const {
     register,
@@ -49,7 +60,27 @@ const Login = () => {
     event.preventDefault();
   };
 
-  const onSubmit = async (data) => {
+  const handleShowSnackbar = (success) => {
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: "Đăng nhập thành công",
+        severity: "success",
+      });
+    } else {
+      setSnackbar({
+        open: true,
+        message: "Đăng nhập thất bại !",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const onSubmit = async (data, variant) => {
     setError("");
 
     try {
@@ -70,9 +101,13 @@ const Login = () => {
         };
 
         dispatch(setUser(userData));
+        navigate("/", {
+          state: { message: "Đăng nhập thành công !", severity: "success" },
+        });
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      handleShowSnackbar(false);
+      console.log("Login failed:", error);
     }
   };
 
@@ -203,11 +238,27 @@ const Login = () => {
                 disabled={isLoading} // Vô hiệu hóa nút khi đang loading
               >
                 {isLoading ? (
-                  <CircularProgress size={24} color="inherit" /> // Hiển thị spinner khi đang loading
+                  <CircularProgress size={34} color="inherit" /> // Hiển thị spinner khi đang loading
                 ) : (
                   "ĐĂNG NHẬP"
                 )}
               </Button>
+
+              <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: "right", horizontal: "right" }} // optional
+              >
+                <Alert
+                  onClose={handleCloseSnackbar}
+                  severity={snackbar.severity}
+                  variant="filled"
+                  sx={{ width: "100%", p: "10px 20px" }}
+                >
+                  {snackbar.message}
+                </Alert>
+              </Snackbar>
             </Stack>
 
             <Stack sx={{ display: "flex", alignItems: "center" }}>

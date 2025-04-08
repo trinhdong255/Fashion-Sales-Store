@@ -1,10 +1,12 @@
-import { alpha, Button, Skeleton, Stack } from "@mui/material";
+import { Alert, alpha, Button, Skeleton, Snackbar, Stack } from "@mui/material";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { setOrderData } from "@/store/redux/order/reducer";
+import { useState } from "react";
+import { set } from "react-hook-form";
 
 const API_URL = "https://dummyjson.com/products";
 
@@ -15,27 +17,53 @@ const ProductActions = ({
   selectedColor,
   selectedSize,
 }) => {
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleBuyNow = async () => {
     if (!products) {
-      alert("Không có thông tin sản phẩm!");
+      setSnackbar({
+        open: true,
+        message: "Không có thông tin sản phẩm !",
+        severity: "error",
+      });
       return;
     }
 
     if (!selectedQuantity || selectedQuantity < 1) {
-      alert("Vui lòng chọn số lượng hợp lệ!");
+      setSnackbar({
+        open: true,
+        message: "Vui lòng chọn số lượng hợp lệ !",
+        severity: "error",
+      });
       return;
     }
 
     if (!selectedColor) {
-      alert("Vui lòng chọn màu sắc!");
+      setSnackbar({
+        open: true,
+        message: "Vui lòng chọn màu sắc !",
+        severity: "error",
+      });
       return;
     }
 
     if (!selectedSize) {
-      alert("Vui lòng chọn kích thước!");
+      setSnackbar({
+        open: true,
+        message: "Vui lòng chọn kích thước !",
+        severity: "error",
+      });
       return;
     }
 
@@ -55,7 +83,11 @@ const ProductActions = ({
       const productData = response.data;
 
       if (productData.stock < orderData.quantity) {
-        alert("Sản phẩm đã hết hàng!");
+        setSnackbar({
+          open: true,
+          message: "Sản phẩm đã hết hàng !",
+          severity: "error",
+        });
         return;
       }
 
@@ -63,7 +95,11 @@ const ProductActions = ({
       navigate("/shippingMethod");
     } catch (error) {
       console.error("Error:", error);
-      alert("Đã có lỗi xảy ra, vui lòng thử lại!");
+      setSnackbar({
+        open: true,
+        message: "Đã có lỗi xảy ra, vui lòng thử lại !",
+        severity: "error",
+      });
     }
   };
 
@@ -101,6 +137,22 @@ const ProductActions = ({
           </Button>
         </Stack>
       ) : null}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%", p: "10px 20px" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
