@@ -2,11 +2,10 @@ import { Alert, alpha, Button, Skeleton, Snackbar, Stack } from "@mui/material";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { setOrderData } from "@/store/redux/order/reducer";
 import { useState } from "react";
-import { set } from "react-hook-form";
 
 const API_URL = "https://dummyjson.com/products";
 
@@ -17,7 +16,6 @@ const ProductActions = ({
   selectedColor,
   selectedSize,
 }) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [snackbar, setSnackbar] = useState({
