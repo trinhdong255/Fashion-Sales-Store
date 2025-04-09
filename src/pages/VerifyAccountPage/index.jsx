@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import styles from "./index.module.css";
+import customTheme from "@/components/CustemTheme";
 
 const VerifyAccount = () => {
   const outerTheme = useTheme();
@@ -156,50 +157,5 @@ const VerifyAccount = () => {
     </Stack>
   );
 };
-
-const customTheme = (outerTheme) =>
-  createTheme({
-    palette: {
-      mode: outerTheme.palette.mode,
-    },
-    components: {
-      MuiTextField: {
-        styleOverrides: {
-          root: {
-            "--TextField-brandBorderColor": "#E0E3E7",
-            "--TextField-brandBorderHoverColor": "#B2BAC2",
-            "--TextField-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--TextField-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiFormControl: {
-        styleOverrides: {
-          root: {
-            "--OutlinedInput-brandBorderColor": "#E0E3E7",
-            "--OutlinedInput-brandBorderHoverColor": "#B2BAC2",
-            "--OutlinedInput-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiOutlinedInput: {
-        styleOverrides: {
-          root: {
-            [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderHoverColor)",
-            },
-            [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-    },
-  });
 
 export default VerifyAccount;

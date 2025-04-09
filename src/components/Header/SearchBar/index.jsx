@@ -1,8 +1,13 @@
 // SearchBar.js
+import customTheme from "@/components/CustemTheme";
 import SearchIcon from "@mui/icons-material/Search";
-import { IconButton, InputAdornment, TextField } from "@mui/material";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
+import {
+  IconButton,
+  InputAdornment,
+  TextField,
+  ThemeProvider,
+  useTheme,
+} from "@mui/material";
 
 const SearchBar = () => {
   const outerTheme = useTheme();
@@ -35,41 +40,5 @@ const SearchBar = () => {
     </ThemeProvider>
   );
 };
-
-const customTheme = (outerTheme) =>
-  createTheme({
-    palette: {
-      mode: outerTheme.palette.mode,
-    },
-    components: {
-      MuiTextField: {
-        styleOverrides: {
-          root: {
-            "--TextField-brandBorderColor": "#E0E3E7",
-            "--TextField-brandBorderHoverColor": "#D9D9D9",
-            "--TextField-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--TextField-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiOutlinedInput: {
-        styleOverrides: {
-          notchedOutline: {
-            borderColor: "var(--TextField-brandBorderColor)",
-          },
-          root: {
-            [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--TextField-brandBorderHoverColor)",
-            },
-            [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--TextField-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-    },
-  });
 
 export default SearchBar;

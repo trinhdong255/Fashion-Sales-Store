@@ -1,31 +1,26 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
-  createTheme,
-  FormControl,
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
   Stack,
   TextField,
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import OutlinedInput, {
-  outlinedInputClasses,
-} from "@mui/material/OutlinedInput";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-
 import styles from "./index.module.css";
-
+import customTheme from "@/components/CustemTheme";
+import { useLoginMutation } from "@/services/api/auth";
 
 const Register = () => {
   const outerTheme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [login, { isLoading }] = useLoginMutation();
 
   const {
     register,
@@ -138,21 +133,21 @@ const Register = () => {
                   Mật khẩu
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
-                  <FormControl sx={{ width: "100%" }} variant="outlined">
-                    <InputLabel htmlFor="outlined-adornment-password">
-                      Password
-                    </InputLabel>
-                    <OutlinedInput
-                      id="outlined-adornment-password"
-                      type={showPassword ? "text" : "password"}
-                      {...register("password", {
-                        required: "Mật khẩu không được để trống",
-                        minLength: {
-                          value: 6,
-                          message: "Mật khẩu phải có ít nhất 6 ký tự",
-                        },
-                      })}
-                      endAdornment={
+                  <TextField
+                    id="password"
+                    label="Mật khẩu"
+                    type={showPassword ? "text" : "password"}
+                    variant="outlined"
+                    disabled={isLoading}
+                    {...register("password", {
+                      required: "Mật khẩu không được để trống",
+                      minLength: {
+                        value: 6,
+                        message: "Mật khẩu phải có ít nhất 6 ký tự",
+                      },
+                    })}
+                    InputProps={{
+                      endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
                             aria-label={
@@ -164,14 +159,14 @@ const Register = () => {
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
                             edge="end"
+                            disabled={isLoading}
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
-                      }
-                      label="Password"
-                    />
-                  </FormControl>
+                      ),
+                    }}
+                  />
                 </ThemeProvider>
                 {errors.password && (
                   <p className={styles.errorMessage}>
@@ -229,50 +224,5 @@ const Register = () => {
     </Stack>
   );
 };
-
-const customTheme = (outerTheme) =>
-  createTheme({
-    palette: {
-      mode: outerTheme.palette.mode,
-    },
-    components: {
-      MuiTextField: {
-        styleOverrides: {
-          root: {
-            "--TextField-brandBorderColor": "#E0E3E7",
-            "--TextField-brandBorderHoverColor": "#B2BAC2",
-            "--TextField-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--TextField-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiFormControl: {
-        styleOverrides: {
-          root: {
-            "--OutlinedInput-brandBorderColor": "#E0E3E7",
-            "--OutlinedInput-brandBorderHoverColor": "#B2BAC2",
-            "--OutlinedInput-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiOutlinedInput: {
-        styleOverrides: {
-          root: {
-            [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderHoverColor)",
-            },
-            [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-    },
-  });
 
 export default Register;

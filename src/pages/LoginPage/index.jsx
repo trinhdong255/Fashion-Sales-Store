@@ -1,12 +1,9 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
-  createTheme,
-  FormControl,
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
   Stack,
   TextField,
   ThemeProvider,
@@ -15,24 +12,19 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import OutlinedInput, {
-  outlinedInputClasses,
-} from "@mui/material/OutlinedInput";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-
 import styles from "./index.module.css";
-
 import { useLoginMutation } from "@/services/api/auth";
 import { setUser } from "@/store/redux/user/reducer";
+import customTheme from "@/components/CustemTheme";
 
 const Login = () => {
   const outerTheme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
 
   const [login, { isLoading }] = useLoginMutation();
 
@@ -80,7 +72,7 @@ const Login = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const onSubmit = async (data, variant) => {
+  const onSubmit = async (data) => {
     setError("");
 
     try {
@@ -156,7 +148,7 @@ const Login = () => {
                     id="email"
                     label="Email"
                     variant="outlined"
-                    disabled={isLoading} // Vô hiệu hóa input khi đang loading
+                    disabled={isLoading}
                     {...register("email", {
                       required: "Email không được để trống",
                       //TODO: Uncomment once have backend
@@ -177,22 +169,21 @@ const Login = () => {
                   Mật khẩu
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
-                  <FormControl sx={{ width: "100%" }} variant="outlined">
-                    <InputLabel htmlFor="outlined-adornment-password">
-                      Password
-                    </InputLabel>
-                    <OutlinedInput
-                      id="outlined-adornment-password"
-                      type={showPassword ? "text" : "password"}
-                      disabled={isLoading} // Vô hiệu hóa input khi đang loading
-                      {...register("password", {
-                        required: "Mật khẩu không được để trống",
-                        minLength: {
-                          value: 6,
-                          message: "Mật khẩu phải có ít nhất 6 ký tự",
-                        },
-                      })}
-                      endAdornment={
+                  <TextField
+                    id="password"
+                    label="Mật khẩu"
+                    type={showPassword ? "text" : "password"}
+                    variant="outlined"
+                    disabled={isLoading}
+                    {...register("password", {
+                      required: "Mật khẩu không được để trống",
+                      minLength: {
+                        value: 6,
+                        message: "Mật khẩu phải có ít nhất 6 ký tự",
+                      },
+                    })}
+                    InputProps={{
+                      endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
                             aria-label={
@@ -204,15 +195,14 @@ const Login = () => {
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
                             edge="end"
-                            disabled={isLoading} // Vô hiệu hóa icon khi đang loading
+                            disabled={isLoading}
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
-                      }
-                      label="Password"
-                    />
-                  </FormControl>
+                      ),
+                    }}
+                  />
                 </ThemeProvider>
                 {errors.password && (
                   <p className={styles.errorMessage}>
@@ -235,10 +225,10 @@ const Login = () => {
                   },
                 }}
                 type="submit"
-                disabled={isLoading} // Vô hiệu hóa nút khi đang loading
+                disabled={isLoading}
               >
                 {isLoading ? (
-                  <CircularProgress size={34} color="inherit" /> // Hiển thị spinner khi đang loading
+                  <CircularProgress size={34} color="inherit" />
                 ) : (
                   "ĐĂNG NHẬP"
                 )}
@@ -248,7 +238,7 @@ const Login = () => {
                 open={snackbar.open}
                 autoHideDuration={3000}
                 onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "right", horizontal: "right" }} // optional
+                anchorOrigin={{ vertical: "right", horizontal: "right" }}
               >
                 <Alert
                   onClose={handleCloseSnackbar}
@@ -296,50 +286,5 @@ const Login = () => {
     </Stack>
   );
 };
-
-const customTheme = (outerTheme) =>
-  createTheme({
-    palette: {
-      mode: outerTheme.palette.mode,
-    },
-    components: {
-      MuiTextField: {
-        styleOverrides: {
-          root: {
-            "--TextField-brandBorderColor": "#E0E3E7",
-            "--TextField-brandBorderHoverColor": "#B2BAC2",
-            "--TextField-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--TextField-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiFormControl: {
-        styleOverrides: {
-          root: {
-            "--OutlinedInput-brandBorderColor": "#E0E3E7",
-            "--OutlinedInput-brandBorderHoverColor": "#B2BAC2",
-            "--OutlinedInput-brandBorderFocusedColor": "#6F7E8C",
-            "& label.Mui-focused": {
-              color: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-      MuiOutlinedInput: {
-        styleOverrides: {
-          root: {
-            [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderHoverColor)",
-            },
-            [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: "var(--OutlinedInput-brandBorderFocusedColor)",
-            },
-          },
-        },
-      },
-    },
-  });
 
 export default Login;
