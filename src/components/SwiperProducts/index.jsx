@@ -14,7 +14,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import styles from "./index.module.css";
 
-
 import "swiper/css";
 import "swiper/css/navigation";
 import { useListProductsQuery } from "@/services/api/product";
@@ -158,7 +157,6 @@ const SwiperProducts = () => {
                 variant="contained"
                 size="large"
                 sx={{
-                  color: "white",
                   backgroundColor: "var(--footer-background-color)",
                   fontSize: "1rem",
                   marginBottom: "100px",
