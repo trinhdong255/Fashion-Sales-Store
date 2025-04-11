@@ -1,6 +1,7 @@
 import { Container, Grid, Stack } from "@mui/material";
 
 import AccountSideBar from "@/components/AccountSideBar";
+import ChangePasswordInform from "./shared/ChangePasswordInform";
 
 const ChangePassword = () => {
   return (
@@ -22,6 +23,10 @@ const ChangePassword = () => {
             >
               ĐỔI MẬT KHẨU
             </h1>
+
+            <Stack alignItems={"center"}>
+              <ChangePasswordInform />
+            </Stack>
           </Grid>
         </Grid>
       </Stack>

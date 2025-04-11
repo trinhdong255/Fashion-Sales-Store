@@ -1,6 +1,7 @@
 import { Container, Grid, Stack } from "@mui/material";
 
 import AccountSideBar from "@/components/AccountSideBar";
+import AddressInform from "./shared/AddressInform";
 
 const Address = () => {
   return (
@@ -22,6 +23,10 @@ const Address = () => {
             >
               ĐỊA CHỈ
             </h1>
+
+            <Stack alignItems={"center"}>
+              <AddressInform />
+            </Stack>
           </Grid>
         </Grid>
       </Stack>
