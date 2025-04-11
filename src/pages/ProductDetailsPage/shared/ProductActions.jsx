@@ -1,13 +1,12 @@
 import { Alert, alpha, Button, Skeleton, Snackbar, Stack } from "@mui/material";
-import axios from "axios";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { useAddToCartMutation, useGetCartByUserQuery, useUpdateCartMutation } from "@/services/api/cart";
+import { addToCart as addToCartAction } from "@/store/redux/cart/reducer"; // Import action addToCart
 import { setOrderData } from "@/store/redux/order/reducer";
+import { selectUserId } from "@/store/redux/user/reducer";
 import { useState } from "react";
-
-const API_URL = "https://dummyjson.com/products";
 
 const ProductActions = ({
   products,
@@ -18,6 +17,13 @@ const ProductActions = ({
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const userId = useSelector(selectUserId);
+  const cartItems = useSelector((state) => state.cart?.cartItems || []); // Lấy cartItems từ Redux store
+  const { data: cartData, isLoading: isCartLoading, refetch } = useGetCartByUserQuery(userId, {
+    skip: !userId,
+  });
+  const [addToCartApi] = useAddToCartMutation();
+  const [updateCartApi] = useUpdateCartMutation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -28,44 +34,136 @@ const ProductActions = ({
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const handleBuyNow = async () => {
+  const validateInputs = () => {
     if (!products) {
       setSnackbar({
         open: true,
-        message: "Không có thông tin sản phẩm !",
+        message: "Không có thông tin sản phẩm!",
         severity: "error",
       });
-      return;
+      return false;
     }
 
     if (!selectedQuantity || selectedQuantity < 1) {
       setSnackbar({
         open: true,
-        message: "Vui lòng chọn số lượng hợp lệ !",
+        message: "Vui lòng chọn số lượng hợp lệ!",
         severity: "error",
       });
-      return;
+      return false;
     }
 
     if (!selectedColor) {
       setSnackbar({
         open: true,
-        message: "Vui lòng chọn màu sắc !",
+        message: "Vui lòng chọn màu sắc!",
         severity: "error",
       });
-      return;
+      return false;
     }
 
     if (!selectedSize) {
       setSnackbar({
         open: true,
-        message: "Vui lòng chọn kích thước !",
+        message: "Vui lòng chọn kích thước!",
+        severity: "error",
+      });
+      return false;
+    }
+
+    if (products.stock < selectedQuantity) {
+      setSnackbar({
+        open: true,
+        message: "Sản phẩm đã hết hàng!",
+        severity: "error",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleAddToCart = async () => {
+    if (!userId) {
+      setSnackbar({
+        open: true,
+        message: "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!",
         severity: "error",
       });
       return;
     }
 
-    // Thu thập thông tin đơn hàng
+    if (!validateInputs()) return;
+
+    const cartItem = {
+      productId: products.id,
+      image: products.images[0] || products.thumbnail,
+      name: products.title || products.name,
+      price: products.price,
+      color: selectedColor || "TRẮNG",
+      size: selectedSize || "S",
+    };
+
+    // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+    const existingItem = cartItems.find(
+      (item) =>
+        item.productId === cartItem.productId &&
+        item.color === cartItem.color &&
+        item.size === cartItem.size
+    );
+
+    if (existingItem) {
+      setSnackbar({
+        open: true,
+        message: "Sản phẩm đã có trong giỏ hàng!",
+        severity: "info",
+      });
+      return;
+    }
+
+    try {
+      // Gọi API để giả lập request
+      if (cartData && cartData.carts && cartData.carts.length > 0) {
+        const currentCart = cartData.carts[0];
+        const updatedProducts = [
+          ...currentCart.products,
+          { id: cartItem.productId },
+        ];
+
+        await updateCartApi({
+          id: currentCart.id,
+          cartData: {
+            userId,
+            products: updatedProducts,
+          },
+        }).unwrap();
+      } else {
+        await addToCartApi({
+          userId,
+          products: [{ id: cartItem.productId }],
+        }).unwrap();
+      }
+
+      // Cập nhật cartItems cục bộ bằng action addToCart
+      dispatch(addToCartAction(cartItem));
+
+      setSnackbar({
+        open: true,
+        message: "Đã thêm sản phẩm vào giỏ hàng!",
+        severity: "success",
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "Lỗi khi thêm vào giỏ hàng!",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (!validateInputs()) return;
+
     const orderData = {
       productId: products.id,
       image: products.images,
@@ -76,30 +174,11 @@ const ProductActions = ({
       size: selectedSize || "S",
     };
 
-    try {
-      const response = await axios.get(`${API_URL}/${products.id}`);
-      const productData = response.data;
-
-      if (productData.stock < orderData.quantity) {
-        setSnackbar({
-          open: true,
-          message: "Sản phẩm đã hết hàng !",
-          severity: "error",
-        });
-        return;
-      }
-
-      dispatch(setOrderData(orderData));
-      navigate("/shippingMethod");
-    } catch (error) {
-      console.error("Error:", error);
-      setSnackbar({
-        open: true,
-        message: "Đã có lỗi xảy ra, vui lòng thử lại !",
-        severity: "error",
-      });
-    }
+    dispatch(setOrderData(orderData));
+    navigate("/shippingMethod");
   };
+
+  if (isCartLoading) return <Skeleton variant="rectangular" width={"100%"} height={30} />;
 
   return (
     <>
@@ -117,6 +196,7 @@ const ProductActions = ({
                 backgroundColor: alpha("#d9d9d9", 0.5),
               },
             }}
+            onClick={handleAddToCart}
           >
             Thêm vào giỏ hàng
           </Button>

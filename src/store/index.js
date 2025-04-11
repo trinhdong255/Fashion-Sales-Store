@@ -5,6 +5,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
 import { baseApi } from "@/services/api";
+import cartReducer from "@/store/redux/cart/reducer";
 import orderReducer from "@/store/redux/order/reducer";
 import userReducer from "@/store/redux/user/reducer";
 
@@ -24,6 +25,7 @@ const appReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   order: orderReducer,
   user: userReducer,
+  cart: cartReducer,
 });
 
 // Combine your reducers
