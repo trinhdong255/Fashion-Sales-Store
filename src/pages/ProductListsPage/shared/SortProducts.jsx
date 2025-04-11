@@ -6,25 +6,44 @@ import {
   Skeleton,
   Stack,
 } from "@mui/material";
-import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ProductCard from "./ProductCard";
 import SortOptions from "./SortOptions";
 
-const API_URL = "https://dummyjson.com/products";
+import { useListProductsQuery } from "@/services/api/product";
+
 const ITEMS_PER_PAGE = 20;
 
 const SortProducts = () => {
-  const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState([]);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [sortOrder, setSortOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
+
+  // Tính skip dựa trên currentPage
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  // Gọi API với RTK Query
+  const { data, isLoading } = useListProductsQuery({
+    skip,
+    limit: ITEMS_PER_PAGE,
+  });
+
+  // Lấy danh sách sản phẩm và tổng số trang từ data
+  const products = data?.products || [];
+  const totalPages = data?.total ? Math.ceil(data.total / ITEMS_PER_PAGE) : 0;
+
+  // Sắp xếp sản phẩm ở client-side nếu có sortOrder
+  const sortedProducts = sortOrder
+    ? [...products].sort((a, b) =>
+        sortOrder === "asc" ? a.price - b.price : b.price - a.price
+      )
+    : products;
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -43,52 +62,6 @@ const SortProducts = () => {
     setCurrentPage(value);
     console.log(value);
   };
-
-  const fetchData = useCallback(
-    async (controller) => {
-      setLoading(true);
-      try {
-        const skip = (currentPage - 1) * ITEMS_PER_PAGE;
-        const response = await axios.get(
-          `${API_URL}?limit=${ITEMS_PER_PAGE}&skip=${skip}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            signal: controller.signal,
-          }
-        );
-
-        let sortedData = response.data.products;
-        if (sortOrder) {
-          sortedData.sort((a, b) =>
-            sortOrder === "asc" ? a.price - b.price : b.price - a.price
-          );
-        }
-
-        setProducts(sortedData);
-        setTotalPages(Math.ceil(response.data.total / ITEMS_PER_PAGE));
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          console.log("Request aborted!");
-        } else {
-          console.error("Fetch error:", error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [currentPage, sortOrder]
-  );
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchData(controller);
-
-    return () => {
-      controller.abort();
-    };
-  }, [fetchData]);
 
   return (
     <>
@@ -114,7 +87,7 @@ const SortProducts = () => {
       </Stack>
 
       <Grid container spacing={2} columns={10}>
-        {loading
+        {isLoading
           ? Array.from(new Array(ITEMS_PER_PAGE)).map((_, index) => (
               <Grid item xl={2} lg={2} key={index}>
                 <Card sx={{ mt: 2 }}>
@@ -127,7 +100,7 @@ const SortProducts = () => {
                 </Card>
               </Grid>
             ))
-          : products.map((product) => (
+          : sortedProducts.map((product) => (
               <Grid
                 item
                 xl={2}

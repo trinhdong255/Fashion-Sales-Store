@@ -1,6 +1,11 @@
-import { Container, Grid, Stack } from "@mui/material";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import {
+  CircularProgress,
+  Container,
+  Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Footer from "../../components/Footer";
@@ -15,19 +20,18 @@ import ProductQuantitySelection from "./shared/ProductQuantitySelection";
 import ProductSizeSelection from "./shared/ProductSizeSelection";
 import ProductStockKeepingUnit from "./shared/ProductStockKeepingUnit";
 import ProductTitle from "./shared/ProductTitle";
-
-
-const API_URL = "https://dummyjson.com/products";
+import { useGetProductByIdQuery } from "@/services/api/product";
 
 const buttonOptionSizes = ["S", "M", "L", "XL"];
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const [products, setProducts] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [colors, setColors] = useState("");
   const [sizes, setSizes] = useState("");
+
+  // Gọi API để lấy chi tiết sản phẩm
+  const { data: product, isLoading, error } = useGetProductByIdQuery(id);
 
   const handleIncreaseQuantity = () => {
     setQuantity(quantity + 1);
@@ -47,28 +51,45 @@ const ProductDetails = () => {
     setSizes(size);
   };
 
-  useEffect(() => {
-    console.log("Fetching product...");
-    const controller = new AbortController();
-    const signal = controller.signal;
+  // Xử lý trạng thái loading và lỗi
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <Container maxWidth="lg">
+          <Stack
+            sx={{
+              m: "80px 0",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+            <Typography sx={{ mt: 2 }}>Đang tải sản phẩm...</Typography>
+          </Stack>
+        </Container>
+        <Footer />
+      </>
+    );
+  }
 
-    const fetchProduct = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_URL}/${id}`, { signal });
-        setProducts(response.data);
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          console.log("Request aborted!");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
-    return () => controller.abort();
-  }, [id]);
+  if (error || !product) {
+    return (
+      <>
+        <Header />
+        <Container maxWidth="lg">
+          <Typography align="center" color="error" sx={{ m: "80px 0" }}>
+            {error
+              ? `Lỗi khi tải sản phẩm: ${
+                  error?.data?.message || "Lỗi không xác định"
+                }`
+              : "Sản phẩm không tồn tại"}
+          </Typography>
+        </Container>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -77,45 +98,45 @@ const ProductDetails = () => {
         <Stack sx={{ m: "80px 0" }}>
           <Grid container spacing={4}>
             <Grid item xl={6} lg={6}>
-              <ProductImage products={products} loading={loading} />
+              <ProductImage products={product} loading={isLoading} />
             </Grid>
 
             <Grid item xl={6} lg={6}>
-              <ProductTitle products={products} loading={loading} />
+              <ProductTitle products={product} loading={isLoading} />
 
               <Stack
                 direction={"row"}
                 alignItems={"center"}
                 sx={{ m: "30px 0" }}
               >
-                <ProductPrice products={products} loading={loading} />
+                <ProductPrice products={product} loading={isLoading} />
               </Stack>
 
-              <ProductStockKeepingUnit products={products} loading={loading} />
+              <ProductStockKeepingUnit products={product} loading={isLoading} />
               <ProductBrand />
               <ProductColorSection
-                products={products}
-                loading={loading}
+                products={product}
+                loading={isLoading}
                 colors={colors}
                 handleSelectColor={handleSelectColor}
               />
               <ProductQuantitySelection
-                products={products}
-                loading={loading}
+                products={product}
+                loading={isLoading}
                 quantity={quantity}
                 handleIncreaseQuantity={handleIncreaseQuantity}
                 handleDecreaseQuantity={handleDecreaseQuantity}
               />
               <ProductSizeSelection
-                products={products}
-                loading={loading}
+                products={product}
+                loading={isLoading}
                 sizes={sizes}
                 buttonOptionSizes={buttonOptionSizes}
                 handleSelectSize={handleSelectSize}
               />
               <ProductActions
-                products={products}
-                loading={loading}
+                products={product}
+                loading={isLoading}
                 selectedQuantity={quantity}
                 selectedColor={colors}
                 selectedSize={sizes}
