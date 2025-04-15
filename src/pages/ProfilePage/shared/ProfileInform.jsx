@@ -156,7 +156,7 @@ const ProfileInform = () => {
           </Stack>
 
           <Box sx={{ m: "24px 0 24px 64px" }}>
-            <Stack
+            {/* <Stack
               direction={"row"}
               alignItems={"center"}
               justifyContent={"flex-start"}
@@ -165,6 +165,17 @@ const ProfileInform = () => {
             >
               <Typography variant="h6">Tên đăng nhập: </Typography>
               <Typography variant="body1">{user.username}</Typography>
+            </Stack> */}
+
+            <Stack
+              direction={"row"}
+              alignItems={"center"}
+              justifyContent={"flex-start"}
+              sx={{ m: "40px 0" }}
+              spacing={24}
+            >
+              <Typography variant="h6">Email: </Typography>
+              <Typography variant="body1">{user.email}</Typography>
             </Stack>
 
             <Stack
@@ -182,17 +193,6 @@ const ProfileInform = () => {
                 color="default"
                 sx={{ width: "300px" }}
               />
-            </Stack>
-
-            <Stack
-              direction={"row"}
-              alignItems={"center"}
-              justifyContent={"flex-start"}
-              sx={{ m: "40px 0" }}
-              spacing={24}
-            >
-              <Typography variant="h6">Email: </Typography>
-              <Typography variant="body1">{user.email}</Typography>
             </Stack>
 
             <Stack
