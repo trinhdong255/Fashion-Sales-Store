@@ -1,7 +1,7 @@
+// ProductLists.jsx
 import { Container, Grid, Stack, CircularProgress, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-
+import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import styles from "./index.module.css";
 import SortProducts from "./shared/SortProducts";
 
@@ -25,6 +25,15 @@ const sectionTitleMenuItems = [
 
 const ProductLists = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+
+  // Đọc query parameter từ URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const search = params.get("search") || "";
+    setSearchTerm(search);
+  }, [location.search]);
 
   const handleLoadingChange = (loading) => {
     setIsLoading(loading);
@@ -72,7 +81,10 @@ const ProductLists = () => {
           </Grid>
 
           <Grid item xl={10} lg={10}>
-            <SortProducts onLoadingChange={handleLoadingChange} />
+            <SortProducts
+              searchTerm={searchTerm}
+              onLoadingChange={handleLoadingChange}
+            />
           </Grid>
         </Grid>
       )}

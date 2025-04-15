@@ -1,3 +1,4 @@
+// SortProducts.jsx
 import {
   Card,
   CardContent,
@@ -5,45 +6,60 @@ import {
   Pagination,
   Skeleton,
   Stack,
+  Typography,
+  Button,
 } from "@mui/material";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import ProductCard from "./ProductCard";
 import SortOptions from "./SortOptions";
-
-import { useListProductsQuery } from "@/services/api/product";
+import {
+  useListProductsQuery,
+  useSearchProductsQuery,
+} from "@/services/api/product";
 
 const ITEMS_PER_PAGE = 20;
 
-const SortProducts = () => {
+const SortProducts = ({ searchTerm, onLoadingChange }) => {
   const [currentPage, setCurrentPage] = useState(1);
-
   const [anchorEl, setAnchorEl] = useState(null);
-  const [sortOrder, setSortOrder] = useState(null);
+  const [sortType, setSortType] = useState(null);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
   // Tính skip dựa trên currentPage
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  // Gọi API với RTK Query
-  const { data, isLoading } = useListProductsQuery({
-    skip,
-    limit: ITEMS_PER_PAGE,
-  });
+  // Gọi API dựa trên searchTerm
+  const listQuery = useListProductsQuery(
+    { skip, limit: ITEMS_PER_PAGE },
+    { skip: !!searchTerm }
+  );
+  const searchQuery = useSearchProductsQuery(
+    { q: searchTerm, skip, limit: ITEMS_PER_PAGE },
+    { skip: !searchTerm }
+  );
+
+  // Sử dụng query phù hợp
+  const { data, isLoading, error, refetch } = searchTerm ? searchQuery : listQuery;
+
+  // Sử dụng useEffect để cập nhật trạng thái loading
+  useEffect(() => {
+    onLoadingChange(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   // Lấy danh sách sản phẩm và tổng số trang từ data
   const products = data?.products || [];
   const totalPages = data?.total ? Math.ceil(data.total / ITEMS_PER_PAGE) : 0;
 
-  // Sắp xếp sản phẩm ở client-side nếu có sortOrder
-  const sortedProducts = sortOrder
-    ? [...products].sort((a, b) =>
-        sortOrder === "asc" ? a.price - b.price : b.price - a.price
-      )
-    : products;
+  // Sắp xếp sản phẩm ở client-side dựa trên sortType
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortType === "asc") return a.price - b.price;
+    if (sortType === "desc") return b.price - a.price;
+    if (sortType === "popularity") return b.rating - a.rating;
+    if (sortType === "newest") return b.id - a.id;
+    return 0;
+  });
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -53,15 +69,42 @@ const SortProducts = () => {
     setAnchorEl(null);
   };
 
-  const handleSort = (order) => {
-    setSortOrder(order);
+  const handleSort = (type) => {
+    setSortType(type);
+    setCurrentPage(1);
     handleClose();
   };
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
-    console.log(value);
   };
+
+  const handleRetry = () => {
+    refetch(); // Gọi lại API khi người dùng bấm "Thử lại"
+  };
+
+  if (error) {
+    return (
+      <Stack
+        sx={{
+          height: "100vh",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography color="error">
+          Đã có lỗi xảy ra: {error.message || "Không thể tải sản phẩm"}
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={handleRetry}
+          sx={{ mt: 2 }}
+        >
+          Thử lại
+        </Button>
+      </Stack>
+    );
+  }
 
   return (
     <>
@@ -80,8 +123,7 @@ const SortProducts = () => {
           handleClose={handleClose}
           handleSort={handleSort}
           open={open}
-          sortOrder={sortOrder}
-          setAnchorEl={setAnchorEl}
+          sortType={sortType}
           handleClick={handleClick}
         />
       </Stack>

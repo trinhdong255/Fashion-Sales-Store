@@ -1,3 +1,4 @@
+// SortOptions.jsx
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { alpha, Button, Menu, MenuItem } from "@mui/material";
 import PropTypes from "prop-types";
@@ -7,7 +8,7 @@ const SortOptions = ({
   handleClose,
   handleSort,
   open,
-  sortOrder,
+  sortType,
   handleClick,
 }) => {
   return (
@@ -24,11 +25,17 @@ const SortOptions = ({
       <Button
         variant="contained"
         sx={{
-          backgroundColor: "black",
+          backgroundColor: sortType === "popularity" ? "black" : "white",
+          color: sortType === "popularity" ? "white" : "black",
+          borderColor: "#d9d9d9",
           borderRadius: 5,
           width: 110,
           height: 44,
+          "&:hover": {
+            backgroundColor: sortType === "popularity" ? "black" : alpha("#d9d9d9", 0.5),
+          },
         }}
+        onClick={() => handleSort("popularity")}
       >
         Bán chạy
       </Button>
@@ -36,16 +43,17 @@ const SortOptions = ({
       <Button
         variant="outlined"
         sx={{
-          color: "black",
-          backgroundColor: "white",
+          color: sortType === "newest" ? "white" : "black",
+          backgroundColor: sortType === "newest" ? "black" : "white",
           borderColor: "#d9d9d9",
           borderRadius: 5,
           width: 110,
           height: 44,
           "&:hover": {
-            backgroundColor: alpha("#d9d9d9", 0.5),
+            backgroundColor: sortType === "newest" ? "black" : alpha("#d9d9d9", 0.5),
           },
         }}
+        onClick={() => handleSort("newest")}
       >
         Mới nhất
       </Button>
@@ -65,9 +73,9 @@ const SortOptions = ({
           },
         }}
       >
-        {sortOrder === "asc"
+        {sortType === "asc"
           ? "Giá: Tăng dần"
-          : sortOrder === "desc"
+          : sortType === "desc"
           ? "Giá: Giảm dần"
           : "Sắp xếp theo giá"}
       </Button>
@@ -88,11 +96,11 @@ const SortOptions = ({
 };
 
 SortOptions.propTypes = {
-  anchorEl: PropTypes.string,
+  anchorEl: PropTypes.object,
   handleClose: PropTypes.func,
   handleSort: PropTypes.func,
   open: PropTypes.bool,
-  sortOrder: PropTypes.string,
+  sortType: PropTypes.string,
   handleClick: PropTypes.func,
 };
 
