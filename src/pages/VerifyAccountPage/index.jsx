@@ -1,23 +1,41 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Alert,
   Button,
-  createTheme,
+  CircularProgress,
   Grid,
+  IconButton,
+  InputAdornment,
+  Snackbar,
   Stack,
   TextField,
   ThemeProvider,
   useTheme,
+  Typography,
 } from "@mui/material";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
 import customTheme from "@/components/CustemTheme";
+import { useVerifyOtpMutation } from "@/services/api/auth";
 
 const VerifyAccount = () => {
   const outerTheme = useTheme();
-  const [otpTimer, setOtpTimer] = useState(0);
-  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  // Lấy email từ location.state
+  const email = location.state?.email || "Không có email"; // Nếu không có email, hiển thị thông báo mặc định
+  console.log("Email received in VerifyAccount:", email);
 
   const {
     register,
@@ -25,24 +43,76 @@ const VerifyAccount = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Dữ liệu form:", data);
+  const handleClickShowOtp = () => setShowOtp((show) => !show);
+
+  const handleMouseDownOtp = (event) => {
+    event.preventDefault();
   };
 
-  const startOtpCountdown = () => {
-    setOtpTimer(30);
-    setIsResendDisabled(true);
+  const handleMouseUpOtp = (event) => {
+    event.preventDefault();
+  };
 
-    const interval = setInterval(() => {
-      setOtpTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsResendDisabled(false);
-          return 0;
-        }
-        return prev - 1;
+  const handleShowSnackbar = (success) => {
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: "Xác thực OTP thành công",
+        severity: "success",
       });
-    }, 1000);
+    } else {
+      setSnackbar({
+        open: true,
+        message: "Xác thực OTP thất bại !",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const onSubmit = async (data) => {
+    console.log("Form submitted!");
+    console.log("Sending verify request:", {
+      email,
+      verificationCode: data?.verificationCode,
+    });
+    setError("");
+
+    try {
+      const response = await verifyOtp({
+        email: email,
+        verificationCode: data?.verificationCode,
+      }).unwrap();
+      console.log("Sending verify request:", {
+        email,
+        verificationCode: data?.verificationCode,
+      });
+
+      if (response) {
+        handleShowSnackbar(true);
+        setTimeout(() => {
+          navigate("/login", {
+            state: {
+              message: "Xác thực thành công! Vui lòng đăng nhập.",
+              severity: "success",
+            },
+          });
+        });
+      }
+    } catch (error) {
+      handleShowSnackbar(false);
+      if (error.status === 401) {
+        setError(
+          "OTP không hợp lệ hoặc người dùng chưa được xác thực. Vui lòng thử lại."
+        );
+      } else {
+        setError("Có lỗi xảy ra. Vui lòng thử lại sau.");
+      }
+      console.log("OTP verification failed:", error);
+    }
   };
 
   return (
@@ -52,14 +122,13 @@ const VerifyAccount = () => {
       sx={{
         backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
         height: "100vh",
-        display: "flex",
       }}
     >
       <Stack
         sx={{
           backgroundColor: "white",
           width: 800,
-          height: 480,
+          height: 450,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -75,49 +144,69 @@ const VerifyAccount = () => {
             >
               XÁC THỰC TÀI KHOẢN
             </h2>
-
             <Stack
               sx={{ padding: "0px 36px" }}
               component={"form"}
               onSubmit={handleSubmit(onSubmit)}
             >
+              {/* Hiển thị email dưới dạng text */}
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  Email:
+                </Typography>
+                <Typography variant="body1">{email}</Typography>
+              </Stack>
+
+              {/* Hiển thị lỗi nếu có */}
+              {error && (
+                <Typography color="error" sx={{ mb: 2 }}>
+                  {error}
+                </Typography>
+              )}
+
               <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="verifyOTP">
+                <label className={styles.labelInput} htmlFor="verificationCode">
                   Xác thực OTP
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
                   <TextField
-                    id="verifyOTP"
+                    id="verificationCode"
                     label="Xác thực OTP"
+                    type={showOtp ? "text" : "password"}
                     variant="outlined"
-                    {...register("verifyOTP", {
+                    disabled={isLoading}
+                    {...register("verificationCode", {
                       required: "OTP không được để trống",
-                      minLength: {
-                        value: 6,
-                        message: "OTP phải có ít nhất 6 ký tự",
+                      pattern: {
+                        value: /^[0-9]{6}$/,
+                        message: "OTP phải là 6 chữ số",
                       },
                     })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showOtp ? "hide the OTP" : "display the OTP"
+                            }
+                            onClick={handleClickShowOtp}
+                            onMouseDown={handleMouseDownOtp}
+                            onMouseUp={handleMouseUpOtp}
+                            edge="end"
+                            disabled={isLoading}
+                          >
+                            {showOtp ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
-                  {errors.verifyOTP && (
+                  {errors.verificationCode && (
                     <p className={styles.errorMessage}>
-                      {errors.verifyOTP.message}
+                      {errors.verificationCode.message}
                     </p>
                   )}
                 </ThemeProvider>
-                <Button
-                  variant="contained"
-                  onClick={startOtpCountdown}
-                  disabled={isResendDisabled}
-                  sx={{
-                    width: "max-content",
-                    margin: "20px 0",
-                    backgroundColor: "black",
-                  }}
-                >
-                  {isResendDisabled
-                    ? `Gửi lại OTP (${otpTimer}s)`
-                    : "Gửi lại OTP"}
-                </Button>
               </Stack>
 
               <Button
@@ -134,9 +223,30 @@ const VerifyAccount = () => {
                   },
                 }}
                 type="submit"
+                disabled={isLoading}
               >
-                XÁC NHẬN
+                {isLoading ? (
+                  <CircularProgress size={34} color="inherit" />
+                ) : (
+                  "XÁC NHẬN"
+                )}
               </Button>
+
+              <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: "right", horizontal: "right" }}
+              >
+                <Alert
+                  onClose={handleCloseSnackbar}
+                  severity={snackbar.severity}
+                  variant="filled"
+                  sx={{ width: "100%", p: "10px 20px" }}
+                >
+                  {snackbar.message}
+                </Alert>
+              </Snackbar>
             </Stack>
           </Grid>
 
@@ -144,7 +254,7 @@ const VerifyAccount = () => {
             <img
               style={{
                 width: "100%",
-                height: 480,
+                height: 450,
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
                 objectFit: "cover",

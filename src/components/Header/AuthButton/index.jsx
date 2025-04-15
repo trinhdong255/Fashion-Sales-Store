@@ -21,6 +21,7 @@ const AuthButton = () => {
   const dispatch = useDispatch();
 
   const storedUser = useSelector(selectUser);
+  console.log("storedUser:", storedUser);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -48,9 +49,9 @@ const AuthButton = () => {
             onClick={handleMenuOpen}
             sx={{ cursor: "pointer" }}
           >
-            <Avatar src={storedUser.avatar} alt={storedUser.fullname} />
+            <Avatar src={storedUser.avatarUrl} alt={storedUser.result.email} />
             <Typography sx={{ marginLeft: "5px" }}>
-              {storedUser.fullname}
+              {storedUser.result.email}
             </Typography>
           </Stack>
 

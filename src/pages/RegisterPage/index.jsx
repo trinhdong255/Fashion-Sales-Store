@@ -1,9 +1,12 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Alert,
   Button,
+  CircularProgress,
   Grid,
   IconButton,
   InputAdornment,
+  Snackbar,
   Stack,
   TextField,
   ThemeProvider,
@@ -14,17 +17,25 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
 import customTheme from "@/components/CustemTheme";
-import { useLoginMutation } from "@/services/api/auth";
+import { useRegisterMutation } from "@/services/api/auth";
 
 const Register = () => {
   const outerTheme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const [login, { isLoading }] = useLoginMutation();
+  const [signUp, { isLoading }] = useRegisterMutation();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success", // or 'error'
+  });
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
@@ -38,9 +49,62 @@ const Register = () => {
     event.preventDefault();
   };
 
-  const onSubmit = (data) => {
-    console.log("Form data:", data);
-    navigate("/verifyAccount");
+  const handleClickShowConfirmPassword = () =>
+    setShowConfirmPassword((show) => !show);
+
+  const handleMouseDownConfirmPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpConfirmPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleShowSnackbar = (success) => {
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: "Đăng ký thành công",
+        severity: "success",
+      });
+    } else {
+      setSnackbar({
+        open: true,
+        message: "Đăng ký thất bại !",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const onSubmit = async (data) => {
+    setError("");
+
+    try {
+      const response = await signUp({
+        name: data?.name,
+        email: data?.email,
+        phone: data?.phone,
+        password: data?.password,
+        confirmPassword: data?.password,
+      }).unwrap();
+
+      if (response) {
+        navigate("/verifyAccount", {
+          state: {
+            message: "Đăng ký thành công !",
+            severity: "success",
+            email: data.email, // Đảm bảo email được truyền ở đây
+          },
+        });
+      }
+    } catch (error) {
+      handleShowSnackbar(false);
+      console.log("Register failed:", error);
+    }
   };
 
   return (
@@ -49,14 +113,14 @@ const Register = () => {
       justifyContent={"center"}
       sx={{
         backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
-        height: "100vh",
+        height: "130vh",
       }}
     >
       <Stack
         sx={{
           backgroundColor: "white",
-          width: 800,
-          height: 750,
+          width: 1000,
+          height: 850,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -66,7 +130,7 @@ const Register = () => {
             <h2
               style={{
                 textAlign: "center",
-                margin: "46px 0 20px 0",
+                margin: "46px 0 0 0",
                 fontWeight: "inherit",
               }}
             >
@@ -78,15 +142,17 @@ const Register = () => {
               onSubmit={handleSubmit(onSubmit)}
             >
               <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="fullName">
+                <label className={styles.labelInput} htmlFor="name">
                   Họ và tên
                 </label>
                 <ThemeProvider theme={customTheme(outerTheme)}>
                   <TextField
-                    id="fullName"
+                    id="name"
                     label="Họ và tên"
                     variant="outlined"
-                    {...register("fullName", {
+                    sx={{ mb: 1 }}
+                    disabled={isLoading}
+                    {...register("name", {
                       required: "Họ và tên không được để trống",
                       pattern: {
                         value: /^[A-Za-zÀ-Ỹà-ỹ0-9]+(?: [A-Za-zÀ-Ỹà-ỹ0-9]+)*$/,
@@ -95,10 +161,8 @@ const Register = () => {
                       },
                     })}
                   />
-                  {errors.fullName && (
-                    <p className={styles.errorMessage}>
-                      {errors.fullName.message}
-                    </p>
+                  {errors.name && (
+                    <p className={styles.errorMessage}>{errors.name.message}</p>
                   )}
                 </ThemeProvider>
               </Stack>
@@ -112,6 +176,7 @@ const Register = () => {
                     id="email"
                     label="Email"
                     variant="outlined"
+                    sx={{ mb: 1 }}
                     {...register("email", {
                       required: "Email không được để trống",
                       pattern: {
@@ -129,6 +194,35 @@ const Register = () => {
               </Stack>
 
               <Stack className={styles.formLabelInput}>
+                <label className={styles.labelInput} htmlFor="phone">
+                  Số điện thoại
+                </label>
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="phone"
+                    label="Số điện thoại"
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                    disabled={isLoading}
+                    {...register("phone", {
+                      required: "Số điện thoại không được để trống",
+                      pattern: {
+                        value:
+                          /^0(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-9]|9[0-9])[0-9]{7}$/,
+                        message:
+                          "Số điện thoại phải có 10 số và bắt đầu bằng 0",
+                      },
+                    })}
+                  />
+                  {errors.phone && (
+                    <p className={styles.errorMessage}>
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </ThemeProvider>
+              </Stack>
+
+              <Stack className={styles.formLabelInput}>
                 <label className={styles.labelInput} htmlFor="password">
                   Mật khẩu
                 </label>
@@ -138,6 +232,7 @@ const Register = () => {
                     label="Mật khẩu"
                     type={showPassword ? "text" : "password"}
                     variant="outlined"
+                    sx={{ mb: 1 }}
                     disabled={isLoading}
                     {...register("password", {
                       required: "Mật khẩu không được để trống",
@@ -175,6 +270,57 @@ const Register = () => {
                 )}
               </Stack>
 
+              <Stack className={styles.formLabelInput}>
+                <label className={styles.labelInput} htmlFor="password">
+                  Xác nhận mật khẩu
+                </label>
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="confirmPassword"
+                    label="Xác nhận mật khẩu"
+                    type={showConfirmPassword ? "text" : "password"}
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                    disabled={isLoading}
+                    {...register("confirmPassword", {
+                      required: "Vui lòng xác nhận mật khẩu",
+                      validate: (value) =>
+                        value === watch("password") ||
+                        "Mật khẩu xác nhận không khớp",
+                    })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showConfirmPassword
+                                ? "hide the password"
+                                : "display the password"
+                            }
+                            onClick={handleClickShowConfirmPassword}
+                            onMouseDown={handleMouseDownConfirmPassword}
+                            onMouseUp={handleMouseUpConfirmPassword}
+                            edge="end"
+                            disabled={isLoading}
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </ThemeProvider>
+                {errors.password && (
+                  <p className={styles.errorMessage}>
+                    {errors.password.message}
+                  </p>
+                )}
+              </Stack>
+
               <Button
                 variant="contained"
                 sx={{
@@ -189,9 +335,30 @@ const Register = () => {
                   },
                 }}
                 type="submit"
+                disabled={isLoading}
               >
-                ĐĂNG KÝ
+                {isLoading ? (
+                  <CircularProgress size={34} color="inherit" />
+                ) : (
+                  "ĐĂNG KÝ"
+                )}
               </Button>
+
+              <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: "right", horizontal: "right" }}
+              >
+                <Alert
+                  onClose={handleCloseSnackbar}
+                  severity={snackbar.severity}
+                  variant="filled"
+                  sx={{ width: "100%", p: "10px 20px" }}
+                >
+                  {snackbar.message}
+                </Alert>
+              </Snackbar>
             </Stack>
 
             <Stack sx={{ display: "flex", alignItems: "center" }}>
@@ -210,7 +377,7 @@ const Register = () => {
             <img
               style={{
                 width: "100%",
-                height: 750,
+                height: 850,
                 backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,

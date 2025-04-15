@@ -1,34 +1,35 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Alert,
   Button,
+  CircularProgress,
+  createTheme,
   Grid,
   IconButton,
   InputAdornment,
+  Snackbar,
   Stack,
   TextField,
   ThemeProvider,
+  Typography,
   useTheme,
-  CircularProgress,
-  Snackbar,
-  Alert,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import styles from "./index.module.css";
-import { useLoginMutation } from "@/services/api/auth";
-import { setUser } from "@/store/redux/user/reducer";
-import customTheme from "@/components/CustemTheme";
 
-const Login = () => {
+import styles from "../index.module.css";
+import customTheme from "@/components/CustemTheme";
+import { Fragment, useEffect, useState } from "react";
+import { useForgotPasswordVerifyMutation } from "@/services/api/auth";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+const ForgotPasswordVerify = () => {
   const outerTheme = useTheme();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [login, { isLoading }] = useLoginMutation();
-  const [showPassword, setShowPassword] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
   const location = useLocation();
+  const [forgotPasswordVerify, { isLoading }] =
+    useForgotPasswordVerifyMutation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -41,30 +42,18 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  // Lấy email từ location.state
+  const email = location.state?.email || "Không có email"; // Nếu không có email, hiển thị thông báo mặc định
+  console.log("Email received in VerifyAccount:", email);
 
-  const handleMouseDownPassword = (event) => {
+  const handleClickShowOtp = () => setShowOtp((show) => !show);
+
+  const handleMouseDownOtp = (event) => {
     event.preventDefault();
   };
 
-  const handleMouseUpPassword = (event) => {
+  const handleMouseUpOtp = (event) => {
     event.preventDefault();
-  };
-
-  const handleShowSnackbar = (success) => {
-    if (success) {
-      setSnackbar({
-        open: true,
-        message: "Đăng nhập thành công",
-        severity: "success",
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: "Đăng nhập thất bại !",
-        severity: "error",
-      });
-    }
   };
 
   useEffect(() => {
@@ -78,6 +67,22 @@ const Login = () => {
     window.history.replaceState({}, document.title);
   }, [location]);
 
+  const handleShowSnackbar = (success) => {
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: "Xác thực OTP thành công !",
+        severity: "success",
+      });
+    } else {
+      setSnackbar({
+        open: true,
+        message: "Xác thực OTP thất bại !",
+        severity: "error",
+      });
+    }
+  };
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
@@ -86,31 +91,32 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await login({
-        email: data?.email,
-        password: data?.password,
+      const response = await forgotPasswordVerify({
+        email: email,
+        verificationCode: data?.verificationCode,
       }).unwrap();
 
       if (response) {
-        const userData = {
-          code: response.code,
-          message: response.message,
-          result: {
-            accessToken: response.result.accessToken,
-            refreshToken: response.result.refreshToken,
-            authenticated: response.result.authenticated,
-            email: response.result.email,
+        // Lưu forgotPasswordToken từ response
+        navigate("/login/resetPassword", {
+          state: {
+            message: "Xác thực email thành công !",
+            severity: "success",
+            // Truyền token từ response vào state
+            forgotPasswordToken: response.result.forgotPasswordToken,
           },
-        };
-
-        dispatch(setUser(userData));
-        navigate("/", {
-          state: { message: "Đăng nhập thành công !", severity: "success" },
         });
       }
     } catch (error) {
       handleShowSnackbar(false);
-      console.log("Login failed:", error);
+      if (error.status === 401) {
+        setError(
+          "OTP không hợp lệ hoặc người dùng chưa được xác thực. Vui lòng thử lại."
+        );
+      } else {
+        setError("Có lỗi xảy ra. Vui lòng thử lại sau.");
+      }
+      console.log("OTP verification failed:", error);
     }
   };
 
@@ -144,7 +150,7 @@ const Login = () => {
           sx={{
             backgroundColor: "white",
             width: 800,
-            height: 630,
+            height: 500,
             borderRadius: 4,
             boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
           }}
@@ -158,7 +164,7 @@ const Login = () => {
                   fontWeight: "inherit",
                 }}
               >
-                THÔNG TIN ĐĂNG NHẬP
+                XÁC THỰC TÀI KHOẢN
               </h2>
 
               <Stack
@@ -166,49 +172,41 @@ const Login = () => {
                 component={"form"}
                 onSubmit={handleSubmit(onSubmit)}
               >
-                {error && <p style={{ color: "red" }}>{error}</p>}
-                <Stack className={styles.formLabelInput}>
-                  <label className={styles.labelInput} htmlFor="email">
-                    Email
-                  </label>
-                  <ThemeProvider theme={customTheme(outerTheme)}>
-                    <TextField
-                      id="email"
-                      label="Email"
-                      variant="outlined"
-                      disabled={isLoading}
-                      {...register("email", {
-                        required: "Email không được để trống",
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Email không hợp lệ",
-                        },
-                      })}
-                    />
-                  </ThemeProvider>
-                  {errors.email && (
-                    <p className={styles.errorMessage}>
-                      {errors.email.message}
-                    </p>
-                  )}
+                {/* Hiển thị email dưới dạng text */}
+                <Stack sx={{ mb: 2 }}>
+                  <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                    Email:
+                  </Typography>
+                  <Typography variant="body1">{email}</Typography>
                 </Stack>
 
+                {/* Hiển thị lỗi nếu có */}
+                {error && (
+                  <Typography color="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Typography>
+                )}
+
                 <Stack className={styles.formLabelInput}>
-                  <label className={styles.labelInput} htmlFor="password">
-                    Mật khẩu
+                  <label
+                    className={styles.labelInput}
+                    htmlFor="verificationCode"
+                  >
+                    Xác thực OTP
                   </label>
                   <ThemeProvider theme={customTheme(outerTheme)}>
                     <TextField
-                      id="password"
-                      label="Mật khẩu"
-                      type={showPassword ? "text" : "password"}
+                      id="verificationCode"
+                      label="Xác thực OTP"
+                      type={showOtp ? "text" : "password"}
                       variant="outlined"
+                      sx={{ mb: 1 }}
                       disabled={isLoading}
-                      {...register("password", {
-                        required: "Mật khẩu không được để trống",
-                        minLength: {
-                          value: 6,
-                          message: "Mật khẩu phải có ít nhất 6 ký tự",
+                      {...register("verificationCode", {
+                        required: "OTP không được để trống",
+                        pattern: {
+                          value: /^[0-9]{6}$/,
+                          message: "OTP phải là 6 chữ số",
                         },
                       })}
                       InputProps={{
@@ -216,32 +214,26 @@ const Login = () => {
                           <InputAdornment position="end">
                             <IconButton
                               aria-label={
-                                showPassword
-                                  ? "hide the password"
-                                  : "display the password"
+                                showOtp ? "hide the OTP" : "display the OTP"
                               }
-                              onClick={handleClickShowPassword}
-                              onMouseDown={handleMouseDownPassword}
-                              onMouseUp={handleMouseUpPassword}
+                              onClick={handleClickShowOtp}
+                              onMouseDown={handleMouseDownOtp}
+                              onMouseUp={handleMouseUpOtp}
                               edge="end"
                               disabled={isLoading}
                             >
-                              {showPassword ? (
-                                <VisibilityOff />
-                              ) : (
-                                <Visibility />
-                              )}
+                              {showOtp ? <VisibilityOff /> : <Visibility />}
                             </IconButton>
                           </InputAdornment>
                         ),
                       }}
                     />
+                    {errors.verificationCode && (
+                      <p className={styles.errorMessage}>
+                        {errors.verificationCode.message}
+                      </p>
+                    )}
                   </ThemeProvider>
-                  {errors.password && (
-                    <p className={styles.errorMessage}>
-                      {errors.password.message}
-                    </p>
-                  )}
                 </Stack>
 
                 <Button
@@ -250,7 +242,6 @@ const Login = () => {
                     backgroundColor: "black",
                     color: "white",
                     padding: "10px 24px",
-                    marginTop: "14px",
                     fontSize: "1.2rem",
                     fontWeight: "regular",
                     "&:hover": {
@@ -263,7 +254,7 @@ const Login = () => {
                   {isLoading ? (
                     <CircularProgress size={34} color="inherit" />
                   ) : (
-                    "ĐĂNG NHẬP"
+                    "XÁC NHẬN"
                   )}
                 </Button>
 
@@ -285,28 +276,17 @@ const Login = () => {
               </Stack>
 
               <Stack sx={{ display: "flex", alignItems: "center" }}>
-                <Link className={styles.forgotPassword} to="forgotPassword">
-                  Bạn quên mật khẩu?
-                </Link>
-
-                <span style={{ margin: "12px 0 0 0" }}>
-                  Bạn chưa có tài khoản?
-                  <Link className={styles.createAccount} to="/register">
-                    Tạo tài khoản ngay
-                  </Link>
-                </span>
-
-                <Link className={styles.backToHome} to="/">
-                  Trở về trang chủ
+                <Link className={styles.linkFooter} to="/login">
+                  Trở về đăng nhập
                 </Link>
               </Stack>
             </Grid>
-
             <Grid item lg={6} md={6}>
               <img
                 style={{
                   width: "100%",
-                  height: 630,
+                  height: 500,
+                  backgroundSize: "cover",
                   borderTopRightRadius: 16,
                   borderBottomRightRadius: 16,
                   objectFit: "cover",
@@ -321,4 +301,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPasswordVerify;

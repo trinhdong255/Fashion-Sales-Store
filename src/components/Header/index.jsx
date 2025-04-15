@@ -6,7 +6,7 @@ import HeaderAuthButtons from "./AuthButton";
 import CartButton from "./CartButton";
 import styles from "./index.module.css";
 import NavMenu from "./NavMenu";
-import HeaderSearchBar from "./SearchBar";
+import SearchBar from "./SearchBar";
 
 
 const Header = () => {
@@ -32,7 +32,7 @@ const Header = () => {
               FASHION STORE
             </Link>
 
-            <HeaderSearchBar />
+            <SearchBar />
 
             <Stack direction={"row"}>
               <CartButton />

@@ -7,10 +7,10 @@ export const authApi = baseApi.injectEndpoints({
     // Đăng nhập
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/auth/login",
+        url: "/v1/auth/login",
         method: "POST",
         data: {
-          username: credentials.username,
+          email: credentials.email,
           password: credentials.password,
         },
       }),
@@ -26,6 +26,74 @@ export const authApi = baseApi.injectEndpoints({
           console.error("Login failed:", error);
         }
       },
+    }),
+
+    // Đăng ký
+    register: builder.mutation({
+      query: (credentials) => ({
+        url: "/v1/auth/register",
+        method: "POST",
+        data: {
+          name: credentials.name,
+          email: credentials.email,
+          phone: credentials.phone,
+          password: credentials.password,
+          confirmPassword: credentials.confirmPassword,
+        },
+      }),
+      invalidatesTags: [TAG_KEYS.USER],
+    }),
+
+    // Verify-OTP
+    verifyOtp: builder.mutation({
+      query: (credentials) => ({
+        url: "/v1/auth/register/verify",
+        method: "POST",
+        data: {
+          email: credentials.email,
+          verificationCode: credentials.verificationCode,
+        },
+      }),
+      invalidatesTags: [TAG_KEYS.USER],
+    }),
+
+    // Quên mật khẩu
+    forgotPassword: builder.mutation({
+      query: (credentials) => ({
+        url: "/v1/auth/forgot-password",
+        method: "POST",
+        data: {
+          email: credentials.email,
+        },
+      }),
+      invalidatesTags: [TAG_KEYS.USER],
+    }),
+
+    // Xác thực mật khẩu
+    forgotPasswordVerify: builder.mutation({
+      query: (credentials) => ({
+        url: "/v1/auth/forgot-password/verify-code",
+        method: "POST",
+        data: {
+          email: credentials.email,
+          verificationCode: credentials.verificationCode,
+        },
+      }),
+      invalidatesTags: [TAG_KEYS.USER],
+    }),
+
+    // Đặt lại mật khẩu
+    resetPassword: builder.mutation({
+      query: (credentials) => ({
+        url: "/v1/auth/forgot-password/reset-password",
+        method: "POST",
+        data: {
+          forgotPasswordToken: credentials.forgotPasswordToken,
+          newPassword: credentials.newPassword,
+          confirmPassword: credentials.confirmPassword,
+        },
+      }),
+      invalidatesTags: [TAG_KEYS.USER],
     }),
 
     // Lấy thông tin người dùng hiện tại
@@ -65,6 +133,11 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useRegisterMutation,
+  useVerifyOtpMutation,
+  useForgotPasswordMutation,
+  useForgotPasswordVerifyMutation,
+  useResetPasswordMutation,
   useGetCurrentUserQuery,
   useUpdateUserMutation,
 } = authApi;

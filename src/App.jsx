@@ -23,7 +23,8 @@ import Register from "@/pages/RegisterPage";
 import ShippingMethod from "@/pages/ShippingMethodPage";
 import Support from "@/pages/SupportPage";
 import VerifyAccount from "@/pages/VerifyAccountPage";
-
+import ResetPassword from "./pages/ResetPasswordPage";
+import ForgotPasswordVerify from "./pages/ForgotPassword/shared/ForgotPasswordVerify";
 
 const App = () => {
   return (
@@ -42,6 +43,11 @@ const App = () => {
         <Route path="/login" element={<LoginLayout />}>
           <Route index element={<Login />} />
           <Route path="forgotPassword" element={<ForgotPassword />} />
+          <Route
+            path="forgotPasswordVerify"
+            element={<ForgotPasswordVerify />}
+          />
+          <Route path="resetPassword" element={<ResetPassword />} />
         </Route>
 
         {/* Route SignUp and VerifyAccount */}

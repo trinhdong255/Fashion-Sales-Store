@@ -1,34 +1,35 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Alert,
   Button,
+  CircularProgress,
   Grid,
   IconButton,
   InputAdornment,
+  Snackbar,
   Stack,
   TextField,
   ThemeProvider,
   useTheme,
-  CircularProgress,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import styles from "./index.module.css";
-import { useLoginMutation } from "@/services/api/auth";
-import { setUser } from "@/store/redux/user/reducer";
 import customTheme from "@/components/CustemTheme";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useResetPasswordMutation } from "@/services/api/auth";
+import { setUser } from "@/store/redux/user/reducer";
+import styles from "./index.module.css";
 
-const Login = () => {
+const ResetPassword = () => {
   const outerTheme = useTheme();
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [login, { isLoading }] = useLoginMutation();
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const location = useLocation();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -38,33 +39,32 @@ const Login = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  // Lấy forgotPasswordToken từ state
+  const forgotPasswordToken = location.state?.forgotPasswordToken || "";
 
-  const handleMouseDownPassword = (event) => {
+  const handleClickShowNewPassword = () => setShowNewPassword((show) => !show);
+
+  const handleMouseDownNewPassword = (event) => {
     event.preventDefault();
   };
 
-  const handleMouseUpPassword = (event) => {
+  const handleMouseUpNewPassword = (event) => {
     event.preventDefault();
   };
 
-  const handleShowSnackbar = (success) => {
-    if (success) {
-      setSnackbar({
-        open: true,
-        message: "Đăng nhập thành công",
-        severity: "success",
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: "Đăng nhập thất bại !",
-        severity: "error",
-      });
-    }
+  const handleClickShowConfirmPassword = () =>
+    setShowConfirmPassword((show) => !show);
+
+  const handleMouseDownConfirmPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpConfirmPassword = (event) => {
+    event.preventDefault();
   };
 
   useEffect(() => {
@@ -78,6 +78,22 @@ const Login = () => {
     window.history.replaceState({}, document.title);
   }, [location]);
 
+  const handleShowSnackbar = (success) => {
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: "Đặt lại mật khẩu thành công !",
+        severity: "success",
+      });
+    } else {
+      setSnackbar({
+        open: true,
+        message: "Đặt lại mật khẩu thất bại !",
+        severity: "error",
+      });
+    }
+  };
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
@@ -86,31 +102,29 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await login({
-        email: data?.email,
-        password: data?.password,
+      const response = await resetPassword({
+        forgotPasswordToken: forgotPasswordToken,
+        newPassword: data?.newPassword,
+        confirmPassword: data?.confirmPassword,
       }).unwrap();
 
       if (response) {
-        const userData = {
-          code: response.code,
-          message: response.message,
-          result: {
-            accessToken: response.result.accessToken,
-            refreshToken: response.result.refreshToken,
-            authenticated: response.result.authenticated,
-            email: response.result.email,
+        // const userData = {
+        //   forgotPasswordToken: response.forgotPasswordToken,
+        //   newPassword: response.newPassword,
+        //   confirmPassword: response.confirmPassword,
+        // };
+        // dispatch(setUser(userData));
+        navigate("/login", {
+          state: {
+            message: "Đặt lại mật khẩu thành công !",
+            severity: "success",
           },
-        };
-
-        dispatch(setUser(userData));
-        navigate("/", {
-          state: { message: "Đăng nhập thành công !", severity: "success" },
         });
       }
     } catch (error) {
       handleShowSnackbar(false);
-      console.log("Login failed:", error);
+      console.log("Reset password failed:", error);
     }
   };
 
@@ -144,7 +158,7 @@ const Login = () => {
           sx={{
             backgroundColor: "white",
             width: 800,
-            height: 630,
+            height: 550,
             borderRadius: 4,
             boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
           }}
@@ -158,7 +172,7 @@ const Login = () => {
                   fontWeight: "inherit",
                 }}
               >
-                THÔNG TIN ĐĂNG NHẬP
+                ĐẶT LẠI MẬT KHẨU
               </h2>
 
               <Stack
@@ -166,45 +180,19 @@ const Login = () => {
                 component={"form"}
                 onSubmit={handleSubmit(onSubmit)}
               >
-                {error && <p style={{ color: "red" }}>{error}</p>}
                 <Stack className={styles.formLabelInput}>
-                  <label className={styles.labelInput} htmlFor="email">
-                    Email
+                  <label className={styles.labelInput} htmlFor="newPassword">
+                    Mật khẩu mới
                   </label>
                   <ThemeProvider theme={customTheme(outerTheme)}>
                     <TextField
-                      id="email"
-                      label="Email"
+                      id="newPassword"
+                      label="Mật khẩu mới"
+                      type={showNewPassword ? "text" : "password"}
                       variant="outlined"
+                      sx={{ mb: 1 }}
                       disabled={isLoading}
-                      {...register("email", {
-                        required: "Email không được để trống",
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Email không hợp lệ",
-                        },
-                      })}
-                    />
-                  </ThemeProvider>
-                  {errors.email && (
-                    <p className={styles.errorMessage}>
-                      {errors.email.message}
-                    </p>
-                  )}
-                </Stack>
-
-                <Stack className={styles.formLabelInput}>
-                  <label className={styles.labelInput} htmlFor="password">
-                    Mật khẩu
-                  </label>
-                  <ThemeProvider theme={customTheme(outerTheme)}>
-                    <TextField
-                      id="password"
-                      label="Mật khẩu"
-                      type={showPassword ? "text" : "password"}
-                      variant="outlined"
-                      disabled={isLoading}
-                      {...register("password", {
+                      {...register("newPassword", {
                         required: "Mật khẩu không được để trống",
                         minLength: {
                           value: 6,
@@ -216,17 +204,17 @@ const Login = () => {
                           <InputAdornment position="end">
                             <IconButton
                               aria-label={
-                                showPassword
+                                showNewPassword
                                   ? "hide the password"
                                   : "display the password"
                               }
-                              onClick={handleClickShowPassword}
-                              onMouseDown={handleMouseDownPassword}
-                              onMouseUp={handleMouseUpPassword}
+                              onClick={handleClickShowNewPassword}
+                              onMouseDown={handleMouseDownNewPassword}
+                              onMouseUp={handleMouseUpNewPassword}
                               edge="end"
                               disabled={isLoading}
                             >
-                              {showPassword ? (
+                              {showNewPassword ? (
                                 <VisibilityOff />
                               ) : (
                                 <Visibility />
@@ -237,9 +225,63 @@ const Login = () => {
                       }}
                     />
                   </ThemeProvider>
-                  {errors.password && (
+                  {errors.newPassword && (
                     <p className={styles.errorMessage}>
-                      {errors.password.message}
+                      {errors.newPassword.message}
+                    </p>
+                  )}
+                </Stack>
+
+                <Stack className={styles.formLabelInput}>
+                  <label
+                    className={styles.labelInput}
+                    htmlFor="confirmPassword"
+                  >
+                    Xác nhận mật khẩu
+                  </label>
+                  <ThemeProvider theme={customTheme(outerTheme)}>
+                    <TextField
+                      id="confirmPassword"
+                      label="Xác nhận mật khẩu"
+                      type={showConfirmPassword ? "text" : "password"}
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                      disabled={isLoading}
+                      {...register("confirmPassword", {
+                        required: "Vui lòng xác nhận mật khẩu",
+                        validate: (value) =>
+                          value === watch("newPassword") ||
+                          "Mật khẩu xác nhận không khớp",
+                      })}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label={
+                                showConfirmPassword
+                                  ? "hide the password"
+                                  : "display the password"
+                              }
+                              onClick={handleClickShowConfirmPassword}
+                              onMouseDown={handleMouseDownConfirmPassword}
+                              onMouseUp={handleMouseUpConfirmPassword}
+                              edge="end"
+                              disabled={isLoading}
+                            >
+                              {showConfirmPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </ThemeProvider>
+                  {errors.confirmPassword && (
+                    <p className={styles.errorMessage}>
+                      {errors.confirmPassword.message}
                     </p>
                   )}
                 </Stack>
@@ -263,7 +305,7 @@ const Login = () => {
                   {isLoading ? (
                     <CircularProgress size={34} color="inherit" />
                   ) : (
-                    "ĐĂNG NHẬP"
+                    "ĐẶT LẠI MẬT KHẨU"
                   )}
                 </Button>
 
@@ -283,30 +325,13 @@ const Login = () => {
                   </Alert>
                 </Snackbar>
               </Stack>
-
-              <Stack sx={{ display: "flex", alignItems: "center" }}>
-                <Link className={styles.forgotPassword} to="forgotPassword">
-                  Bạn quên mật khẩu?
-                </Link>
-
-                <span style={{ margin: "12px 0 0 0" }}>
-                  Bạn chưa có tài khoản?
-                  <Link className={styles.createAccount} to="/register">
-                    Tạo tài khoản ngay
-                  </Link>
-                </span>
-
-                <Link className={styles.backToHome} to="/">
-                  Trở về trang chủ
-                </Link>
-              </Stack>
             </Grid>
 
             <Grid item lg={6} md={6}>
               <img
                 style={{
                   width: "100%",
-                  height: 630,
+                  height: 550,
                   borderTopRightRadius: 16,
                   borderBottomRightRadius: 16,
                   objectFit: "cover",
@@ -321,4 +346,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;
