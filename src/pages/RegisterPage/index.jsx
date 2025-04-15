@@ -113,14 +113,14 @@ const Register = () => {
       justifyContent={"center"}
       sx={{
         backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
-        height: "130vh",
+        height: "140vh",
       }}
     >
       <Stack
         sx={{
           backgroundColor: "white",
           width: 1000,
-          height: 850,
+          height: 1000,
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
         }}
@@ -377,7 +377,7 @@ const Register = () => {
             <img
               style={{
                 width: "100%",
-                height: 850,
+                height: 1000,
                 backgroundSize: "cover",
                 borderTopRightRadius: 16,
                 borderBottomRightRadius: 16,
