@@ -25,10 +25,24 @@ import Support from "@/pages/SupportPage";
 import VerifyAccount from "@/pages/VerifyAccountPage";
 import ResetPassword from "./pages/ResetPasswordPage";
 import ForgotPasswordVerify from "./pages/ForgotPassword/shared/ForgotPasswordVerify";
+import AdminLayout from "./layouts/AdminLayout";
+import Admin from "./pages/Admin";
+
+import ThemeProvider from "./context/ThemeProvider";
+import ProductsManagement from "./pages/Admin/shared/ProductsManagement";
+import CategoriesManagement from "./pages/Admin/shared/CategoriesManagement";
+import OrdersManagement from "./pages/Admin/shared/OrdersManagement";
+import UsersManagement from "./pages/Admin/shared/UsersManagement";
+import ChatbotManagement from "./pages/Admin/shared/ChatbotManagement";
+import BranchesManagement from "./pages/Admin/shared/BranchesManagement";
+import PromotionsManagement from "./pages/Admin/shared/PromotionsManagement";
+import PaymentHistoriesManagement from "./pages/Admin/shared/PaymentHistoriesManagement";
+import RolesManagement from "./pages/Admin/shared/RolesManagement";
+import PermissionsManagement from "./pages/Admin/shared/PermissionsManagement";
 
 const App = () => {
   return (
-    <Fragment>
+    <ThemeProvider>
       <ScrollToTop />
       <Routes>
         {/* Route dependencies component Header and Footer */}
@@ -74,8 +88,35 @@ const App = () => {
         </Route>
 
         <Route path="/myOrders" element={<MyOrders />} />
+
+        {/* Route admin */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<Admin />} />
+          <Route path="productsManagement" element={<ProductsManagement />} />
+          <Route
+            path="categoriesManagement"
+            element={<CategoriesManagement />}
+          />
+          <Route path="ordersManagement" element={<OrdersManagement />} />
+          <Route path="usersManagement" element={<UsersManagement />} />
+          <Route path="branchesManagement" element={<BranchesManagement />} />
+          <Route
+            path="promotionsManagement"
+            element={<PromotionsManagement />}
+          />
+          <Route path="rolesManagement" element={<RolesManagement />} />
+          <Route
+            path="permissionsManagement"
+            element={<PermissionsManagement />}
+          />
+          <Route
+            path="paymentHistoriesManagement"
+            element={<PaymentHistoriesManagement />}
+          />
+          <Route path="chatbotManagement" element={<ChatbotManagement />} />
+        </Route>
       </Routes>
-    </Fragment>
+    </ThemeProvider>
   );
 };
 
