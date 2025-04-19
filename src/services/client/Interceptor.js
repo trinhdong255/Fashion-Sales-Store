@@ -1,3 +1,4 @@
+// services/client/Interceptor.js
 import camelcaseKeys from "camelcase-keys";
 
 export const responseInterceptor = (response) => {

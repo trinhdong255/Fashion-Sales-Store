@@ -29,7 +29,8 @@ const userSlice = createSlice({
 
     // Đồng bộ khi lấy thông tin người dùng hiện tại
     builder.addMatcher(
-      authApi.endpoints.getCurrentUser.matchFulfilled,
+      // authApi.endpoints.getCurrentUser.matchFulfilled,
+      authApi.endpoints.getMyInfo.matchFulfilled,
       (state, action) => {
         state.user = action.payload;
       }

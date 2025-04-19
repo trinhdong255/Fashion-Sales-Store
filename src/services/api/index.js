@@ -1,27 +1,60 @@
+// services/api/index.js
 import { createApi } from "@reduxjs/toolkit/query/react";
-
-import mainAxios from "../client";
+import axios from "axios";
 
 // Custom axios base query function for RTK Query
 export const axiosBaseQuery =
   () =>
   async ({ url, method, data, params, headers }) => {
     try {
-      const result = await mainAxios({
+      // Lấy accessToken từ localStorage
+      const token = localStorage.getItem("token");
+      console.log("Access Token:", token);
+
+      // Nếu không có token, không gọi API mà trả về lỗi ngay
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        window.location.href = "/login";
+        return {
+          error: {
+            status: 401,
+            data: { message: "Không tìm thấy token, vui lòng đăng nhập lại" },
+          },
+        };
+      }
+
+      const config = {
         url,
         method,
         data,
         params,
-        headers,
-      });
-      return { data: result };
-    } catch (axiosError) {
-      return {
-        error: {
-          status: axiosError?.status,
-          data: axiosError?.data || axiosError.message,
+        headers: {
+          ...headers,
+          Authorization: `Bearer ${token}`,
         },
+        baseURL: import.meta.env.VITE_API_URL,
       };
+
+      console.log("Request Config:", config);
+
+      const result = await axios(config);
+      return { data: result.data };
+    } catch (axiosError) {
+      const error = {
+        status: axiosError.response?.status,
+        data: axiosError.response?.data || axiosError.message,
+      };
+
+      console.log("API Error:", error);
+
+      // Xử lý lỗi 401 Unauthorized
+      if (error.status === 401) {
+        console.log("Unauthorized, redirecting to login");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+
+      return { error };
     }
   };
 
@@ -30,5 +63,5 @@ export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: axiosBaseQuery(),
   endpoints: () => ({}),
-  tagTypes: ["Product", "User", "Cart"],
+  tagTypes: ["Product", "User", "Cart", "Role", "Categories", "Color", "ProductImage"],
 });

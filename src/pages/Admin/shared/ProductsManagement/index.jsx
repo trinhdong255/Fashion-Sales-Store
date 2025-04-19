@@ -13,57 +13,218 @@ import {
   Select,
   MenuItem,
   Grid,
-  IconButton,
+  CircularProgress,
+  Alert,
+  Snackbar,
   Box,
+  IconButton,
+  Checkbox,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
+import {
+  useListProductsQuery,
+  useAddProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} from "@/services/api/product";
+import { useListCategoriesQuery } from "@/services/api/categories";
+import { useListColorsQuery } from "@/services/api/color";
+import { useListSizesQuery } from "@/services/api/size";
+import { useListImagesQuery, useUploadImageMutation, useDeleteImageMutation } from "@/services/api/productImage";
+import { useGetMyInfoQuery } from "@/services/api/auth";
+import {
+  setColors,
+  setLoading as setColorLoading,
+  setError as setColorError,
+  selectColors,
+  selectLoading as selectColorLoading,
+  selectError as selectColorError,
+} from "@/store/redux/color/reducer";
+import {
+  setImages,
+  setLoading as setImageLoading,
+  setError as setImageError,
+  selectImages,
+  selectLoading as selectImageLoading,
+  selectError as selectImageError,
+} from "@/store/redux/productImage/reducer";
 
 const ProductsManagement = () => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [colors, setColors] = useState([]);
-  const [sizes, setSizes] = useState([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const colors = useSelector(selectColors);
+  const colorLoading = useSelector(selectColorLoading);
+  const colorError = useSelector(selectColorError);
+  const images = useSelector(selectImages);
+  const imageLoading = useSelector(selectImageLoading);
+  const imageError = useSelector(selectImageError);
+
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
-    category: "",
+    price: "",
+    quantity: "",
+    categoryId: "",
     status: "ACTIVE",
-    variants: [{ price: "", quantity: "", color: "", size: "" }],
-    images: [],
+    colorId: "",
+    sizeId: "",
+    imageIds: [],
   });
   const [editProduct, setEditProduct] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const [products, setProducts] = useState([]);
 
   // Lấy dữ liệu từ API
+  const { data: userInfo, error: userError, isLoading: userLoading } = useGetMyInfoQuery();
+  const {
+    data: productsData,
+    isLoading: isFetchingProducts,
+    error: fetchProductsError,
+    isError: isProductsError,
+    refetch: refetchProducts,
+  } = useListProductsQuery(
+    { skip: 0, limit: 20 },
+    { refetchOnMountOrArgChange: true }
+  );
+  const {
+    data: categoriesData,
+    isLoading: isFetchingCategories,
+    error: fetchCategoriesError,
+  } = useListCategoriesQuery();
+  const {
+    data: colorsData,
+    isLoading: isFetchingColors,
+    error: fetchColorsError,
+  } = useListColorsQuery();
+  const {
+    data: sizesData,
+    isLoading: isFetchingSizes,
+    error: fetchSizesError,
+  } = useListSizesQuery({ pageNo: 1, pageSize: 50 });
+  const {
+    data: imagesData,
+    isLoading: isFetchingImages,
+    error: fetchImagesError,
+    refetch: refetchImages,
+  } = useListImagesQuery({ pageNo: 1 });
+
+  // Sử dụng RTK Query mutations
+  const [addProduct] = useAddProductMutation();
+  const [updateProduct] = useUpdateProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
+  const [uploadImage] = useUploadImageMutation();
+  const [deleteImage] = useDeleteImageMutation();
+
+  // Cập nhật products khi productsData thay đổi
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Lấy danh sách sản phẩm
-        const productsRes = await axios.get("http://localhost:3000/products");
-        setProducts(productsRes.data);
+    if (productsData?.result?.items) {
+      const updatedProducts = productsData.result.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        category: item.category || { id: null, name: "N/A" },
+        price: item.price != null ? item.price : null,
+        description: item.description || "",
+        quantity: item.quantity || 0,
+        colors: item.colors || [],
+        sizes: item.sizes || [],
+        productImages: item.productImages || [],
+        status: item.status || "ACTIVE",
+      }));
+      console.log("Updated products:", updatedProducts);
+      setProducts(updatedProducts);
+    }
+  }, [productsData]);
 
-        // Lấy danh sách danh mục
-        const categoriesRes = await axios.get("http://localhost:3000/categories");
-        setCategories(categoriesRes.data);
+  // Buộc refetch khi component mount
+  useEffect(() => {
+    refetchProducts();
+    refetchImages();
+  }, [refetchProducts, refetchImages]);
 
-        // Lấy danh sách màu
-        const colorsRes = await axios.get("http://localhost:3000/colors");
-        setColors(colorsRes.data);
-
-        // Lấy danh sách kích thước
-        const sizesRes = await axios.get("http://localhost:3000/sizes");
-        setSizes(sizesRes.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+  // Xử lý lỗi sản phẩm
+  useEffect(() => {
+    if (fetchProductsError || isProductsError) {
+      const errorMessage = fetchProductsError?.data?.message || fetchProductsError?.error || "Lỗi khi tải sản phẩm";
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+      if (fetchProductsError?.status === 401) {
+        setSnackbar({
+          open: true,
+          message: "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại",
+          severity: "error",
+        });
+        setTimeout(() => navigate("/login"), 2000);
       }
-    };
-    fetchData();
-  }, []);
+    } else if (products.length === 0 && productsData?.result?.items?.length === 0) {
+      setSnackbar({
+        open: true,
+        message: "Hiện tại không có sản phẩm nào.",
+        severity: "info",
+      });
+    }
+  }, [fetchProductsError, isProductsError, productsData, products, navigate]);
+
+  useEffect(() => {
+    dispatch(setColorLoading(isFetchingColors));
+    if (fetchColorsError) {
+      dispatch(setColorError(fetchColorsError?.data?.message || "Lỗi khi tải danh sách màu"));
+      setSnackbar({
+        open: true,
+        message: "Lỗi khi tải danh sách màu: " + (fetchColorsError?.data?.message || "Không xác định"),
+        severity: "error",
+      });
+    } else if (colorsData) {
+      dispatch(setColors(colorsData));
+      dispatch(setColorError(null));
+    }
+  }, [colorsData, isFetchingColors, fetchColorsError, dispatch]);
+
+  useEffect(() => {
+    dispatch(setImageLoading(isFetchingImages));
+    if (fetchImagesError) {
+      const errorMessage = fetchImagesError?.data?.message || "Lỗi khi tải danh sách hình ảnh, vui lòng thử lại hoặc upload hình ảnh mới";
+      dispatch(setImageError(errorMessage));
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    } else if (imagesData) {
+      dispatch(setImages(imagesData));
+      dispatch(setImageError(null));
+    }
+  }, [imagesData, isFetchingImages, fetchImagesError, dispatch]);
+
+  useEffect(() => {
+    if (fetchCategoriesError) {
+      setSnackbar({
+        open: true,
+        message: "Lỗi khi tải danh mục: " + (fetchCategoriesError?.data?.message || "Không xác định"),
+        severity: "error",
+      });
+    }
+    if (fetchSizesError) {
+      setSnackbar({
+        open: true,
+        message: "Lỗi khi tải danh sách kích thước: " + (fetchSizesError?.data?.message || "Không xác định"),
+        severity: "error",
+      });
+    }
+  }, [fetchCategoriesError, fetchSizesError]);
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
@@ -72,14 +233,13 @@ const ProductsManagement = () => {
       field: "category",
       headerName: "Danh mục",
       width: 150,
-      valueGetter: (params) => params.row.category?.name || "",
+      renderCell: (params) => params.row.category?.name || "N/A",
     },
     {
       field: "price",
       headerName: "Giá",
       width: 120,
-      valueGetter: (params) =>
-        params.row.variants?.[0]?.price || "N/A",
+      renderCell: (params) => params.row.price != null ? params.row.price : "N/A",
     },
     {
       field: "actions",
@@ -87,11 +247,10 @@ const ProductsManagement = () => {
       width: 150,
       renderCell: (params) => (
         <>
-          <Button onClick={() => handleEditProduct(params.row)}>Sửa</Button>
-          <Button
-            onClick={() => handleOpenDeleteDialog(params.row.id)}
-            color="error"
-          >
+          <Button variant="text" color="primary" onClick={() => handleEditProduct(params.row)}>
+            Sửa
+          </Button>
+          <Button variant="text" color="error" onClick={() => handleOpenDeleteDialog(params.row.id)}>
             Xóa
           </Button>
         </>
@@ -99,132 +258,165 @@ const ProductsManagement = () => {
     },
   ];
 
-  const handleAddVariant = () => {
-    setNewProduct({
-      ...newProduct,
-      variants: [
-        ...newProduct.variants,
-        { price: "", quantity: "", color: "", size: "" },
-      ],
-    });
-  };
-
-  const handleRemoveVariant = (index) => {
-    setNewProduct({
-      ...newProduct,
-      variants: newProduct.variants.filter((_, i) => i !== index),
-    });
-  };
-
-  const handleVariantChange = (index, field, value) => {
-    const updatedVariants = [...newProduct.variants];
-    updatedVariants[index][field] = value;
-    setNewProduct({ ...newProduct, variants: updatedVariants });
-  };
-
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const imageUrls = files.map((file) => ({
-      fileName: file.name,
-      imageUrl: URL.createObjectURL(file), // Giả lập URL, trong thực tế cần upload lên server
-    }));
-    setNewProduct({ ...newProduct, images: imageUrls });
-  };
-
-  const handleAddProduct = async () => {
-    try {
-      // Chuẩn bị dữ liệu để gửi lên server
-      const productData = {
-        name: newProduct.name,
-        description: newProduct.description,
-        categoryId: newProduct.category,
-        status: newProduct.status,
-        variants: newProduct.variants.map((variant) => ({
-          price: parseFloat(variant.price),
-          quantity: parseInt(variant.quantity),
-          colorId: variant.color,
-          sizeId: variant.size,
-        })),
-        images: newProduct.images.map((image) => ({
-          fileName: image.fileName,
-          imageUrl: image.imageUrl, // Trong thực tế, cần upload file và lấy URL từ server
-        })),
-      };
-
-      await axios.post("http://localhost:3000/products", productData);
-      const productsRes = await axios.get("http://localhost:3000/products");
-      setProducts(productsRes.data);
-      setNewProduct({
-        name: "",
-        description: "",
-        category: "",
-        status: "ACTIVE",
-        variants: [{ price: "", quantity: "", color: "", size: "" }],
-        images: [],
-      });
-      setOpenDialog(false);
-    } catch (error) {
-      console.error("Error adding product:", error);
-    }
-  };
-
   const handleEditProduct = (product) => {
-    setEditProduct(product);
+    console.log("Edit product data:", product);
+    setEditProduct({ ...product });
     setNewProduct({
-      name: product.name,
-      description: product.description,
-      category: product.category?.id || "",
-      status: product.status,
-      variants: product.variants?.length
-        ? product.variants.map((v) => ({
-            price: v.price,
-            quantity: v.quantity,
-            color: v.color?.id || "",
-            size: v.size?.id || "",
-          }))
-        : [{ price: "", quantity: "", color: "", size: "" }],
-      images: product.images || [],
+      name: product.name || "",
+      description: product.description || "",
+      price: product.price?.toString() || "",
+      quantity: product.quantity?.toString() || "",
+      categoryId: product.category?.id || "",
+      status: product.status || "ACTIVE",
+      colorId: product.colors?.[0]?.id || "",
+      sizeId: product.sizes?.[0]?.id || "",
+      imageIds: [],
     });
     setOpenDialog(true);
   };
 
-  const handleUpdateProduct = async () => {
-    try {
-      const productData = {
-        name: newProduct.name,
-        description: newProduct.description,
-        categoryId: newProduct.category,
-        status: newProduct.status,
-        variants: newProduct.variants.map((variant) => ({
-          price: parseFloat(variant.price),
-          quantity: parseInt(variant.quantity),
-          colorId: variant.color,
-          sizeId: variant.size,
-        })),
-        images: newProduct.images.map((image) => ({
-          fileName: image.fileName,
-          imageUrl: image.imageUrl,
-        })),
-      };
+  const handleOpenAddProductDialog = () => {
+    setEditProduct(null);
+    setNewProduct({
+      name: "",
+      description: "",
+      price: "",
+      quantity: "",
+      categoryId: "",
+      status: "ACTIVE",
+      colorId: "",
+      sizeId: "",
+      imageIds: [],
+    });
+    setOpenDialog(true);
+  };
 
-      await axios.put(
-        `http://localhost:3000/products/${editProduct.id}`,
-        productData
-      );
-      const productsRes = await axios.get("http://localhost:3000/products");
-      setProducts(productsRes.data);
-      setEditProduct(null);
-      setNewProduct({
-        name: "",
-        description: "",
-        category: "",
-        status: "ACTIVE",
-        variants: [{ price: "", quantity: "", color: "", size: "" }],
-        images: [],
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setEditProduct(null);
+    setNewProduct({
+      name: "",
+      description: "",
+      price: "",
+      quantity: "",
+      categoryId: "",
+      status: "ACTIVE",
+      colorId: "",
+      sizeId: "",
+      imageIds: [],
+    });
+  };
+
+  const validateProductData = (product) => {
+    const errors = [];
+    console.log("Validating product:", product);
+
+    if (!product.name.trim()) errors.push("Tên sản phẩm không được để trống");
+    if (!product.description.trim()) errors.push("Mô tả sản phẩm không được để trống");
+    if (!product.price || isNaN(parseFloat(product.price))) errors.push("Giá sản phẩm không hợp lệ");
+    if (!product.quantity || isNaN(parseInt(product.quantity))) errors.push("Số lượng sản phẩm không hợp lệ");
+    if (!product.categoryId) errors.push("Danh mục không được để trống");
+    if (!product.colorId) errors.push("Phải chọn một màu");
+    if (!product.sizeId) errors.push("Phải chọn một kích thước");
+    if (!editProduct && product.imageIds.length === 0) errors.push("Phải chọn ít nhất một hình ảnh");
+
+    return errors;
+  };
+
+  const handleAddProduct = async () => {
+    console.log("Sending product for add:", newProduct);
+    console.log("Selected imageIds:", newProduct.imageIds);
+    const errors = validateProductData(newProduct);
+    if (errors.length > 0) {
+      setSnackbar({
+        open: true,
+        message: errors.join(". "),
+        severity: "error",
       });
-      setOpenDialog(false);
+      return;
+    }
+
+    try {
+      const response = await addProduct({
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        quantity: parseInt(newProduct.quantity),
+        categoryId: parseInt(newProduct.categoryId),
+        colorIds: newProduct.colorId ? [Number(newProduct.colorId)] : [],
+        sizeIds: newProduct.sizeId ? [Number(newProduct.sizeId)] : [],
+        imageIds: newProduct.imageIds.map(Number),
+      }).unwrap();
+      console.log("Add response:", response);
+      handleCloseDialog();
+      setSnackbar({
+        open: true,
+        message: "Thêm sản phẩm thành công!",
+        severity: "success",
+      });
+      refetchImages();
+      refetchProducts();
     } catch (error) {
-      console.error("Error updating product:", error);
+      const errorMessage = Array.isArray(error.data?.errors)
+        ? error.data.errors.join(". ")
+        : error.data?.message || "Lỗi khi thêm sản phẩm";
+      console.error("Add error:", error);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  };
+
+  const handleUpdateProduct = async () => {
+    console.log("Sending product for update:", newProduct);
+    const errors = validateProductData(newProduct);
+    if (errors.length > 0) {
+      setSnackbar({
+        open: true,
+        message: errors.join(". "),
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      const payload = {
+        id: editProduct.id,
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        quantity: parseInt(newProduct.quantity),
+        categoryId: parseInt(newProduct.categoryId),
+        colorIds: newProduct.colorId ? [Number(newProduct.colorId)] : [],
+        sizeIds: newProduct.sizeId ? [Number(newProduct.sizeId)] : [],
+      };
+      console.log("Payload sent to updateProduct:", payload);
+      const response = await updateProduct(payload).unwrap();
+      console.log("Update response:", response);
+
+      setSnackbar({
+        open: true,
+        message: "Cập nhật sản phẩm thành công! Lưu ý: Hình ảnh không thể cập nhật do backend thiếu endpoint PUT.",
+        severity: "success",
+      });
+
+      handleCloseDialog();
+      refetchImages();
+      refetchProducts();
+    } catch (error) {
+      const errorMessage = error.status === 404
+        ? "Backend không có endpoint PUT /v1/products/:id. Vui lòng liên hệ team backend!"
+        : error.status === 405
+        ? "Backend không hỗ trợ phương thức PUT. Vui lòng liên hệ team backend!"
+        : Array.isArray(error.data?.errors)
+        ? error.data.errors.join(". ")
+        : error.data?.message || "Lỗi khi cập nhật sản phẩm";
+      console.error("Update error:", error);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
     }
   };
 
@@ -235,15 +427,139 @@ const ProductsManagement = () => {
 
   const handleDeleteProduct = async () => {
     try {
-      await axios.delete(`http://localhost:3000/products/${productToDelete}`);
-      const productsRes = await axios.get("http://localhost:3000/products");
-      setProducts(productsRes.data);
+      await deleteProduct(productToDelete).unwrap();
       setOpenDeleteDialog(false);
       setProductToDelete(null);
+      setSnackbar({
+        open: true,
+        message: "Xóa sản phẩm thành công!",
+        severity: "success",
+      });
+
+      setProducts(products.filter((product) => product.id !== productToDelete));
+      refetchProducts();
     } catch (error) {
-      console.error("Error deleting product:", error);
+      const errorMessage = Array.isArray(error.data?.errors)
+        ? error.data.errors.join(". ")
+        : error.data?.message || "Lỗi khi xóa sản phẩm";
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
     }
   };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleUploadImage = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const response = await uploadImage(file).unwrap();
+      console.log("Upload image response:", response);
+      setSnackbar({
+        open: true,
+        message: "Tải lên hình ảnh thành công!",
+        severity: "success",
+      });
+      refetchImages();
+
+      const newImageId = response.result?.id;
+      if (newImageId) {
+        if (!newProduct.imageIds.includes(newImageId)) {
+          const updatedImageIds = [...newProduct.imageIds, newImageId];
+          setNewProduct({ ...newProduct, imageIds: updatedImageIds });
+        } else {
+          setSnackbar({
+            open: true,
+            message: "Hình ảnh đã được chọn trước đó!",
+            severity: "warning",
+          });
+        }
+      }
+    } catch (error) {
+      const errorMessage = error.error?.data?.message || "Lỗi khi tải lên hình ảnh";
+      console.error("Upload image error:", {
+        status: error.error?.status,
+        data: error.error?.data,
+        message: errorMessage,
+      });
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  };
+
+  const handleDeleteImage = async (imageId, fromCurrent = false) => {
+    const imageExists = imagesData?.some((img) => img.id === imageId);
+
+    if (!imageExists && fromCurrent) {
+      setEditProduct((prev) => ({
+        ...prev,
+        productImages: prev.productImages.filter((img) => img.id !== imageId),
+      }));
+      setSnackbar({
+        open: true,
+        message: "Hình ảnh không tồn tại trong hệ thống, đã xóa khỏi giao diện.",
+        severity: "warning",
+      });
+      return;
+    }
+
+    if (fromCurrent) {
+      setEditProduct((prev) => {
+        const updatedProduct = {
+          ...prev,
+          productImages: prev.productImages.filter((img) => img.id !== imageId),
+        };
+        console.log("Updated editProduct:", updatedProduct);
+        return updatedProduct;
+      });
+    } else {
+      setNewProduct((prev) => ({
+        ...prev,
+        imageIds: prev.imageIds.filter((id) => id !== imageId),
+      }));
+    }
+
+    try {
+      await deleteImage(imageId).unwrap();
+      setSnackbar({
+        open: true,
+        message: "Xóa hình ảnh thành công!",
+        severity: "success",
+      });
+    } catch (error) {
+      const errorMessage = error.data?.message || "Lỗi khi xóa hình ảnh";
+      console.error("Delete image error:", error);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+
+    refetchImages();
+    refetchProducts();
+  };
+
+  const handleSelectImage = (imageId) => {
+    const updatedImageIds = newProduct.imageIds.includes(imageId)
+      ? newProduct.imageIds.filter((id) => id !== imageId)
+      : [...newProduct.imageIds, imageId];
+
+    setNewProduct({ ...newProduct, imageIds: updatedImageIds });
+  };
+
+  if (userLoading || isFetchingProducts || isFetchingCategories || isFetchingColors || isFetchingSizes || isFetchingImages) {
+    return <CircularProgress />;
+  }
 
   return (
     <DashboardLayoutWrapper>
@@ -255,204 +571,284 @@ const ProductsManagement = () => {
         <Grid item xs={12} sm={3}>
           <Button
             variant="contained"
-            onClick={() => setOpenDialog(true)}
+            color="primary"
+            onClick={handleOpenAddProductDialog}
             fullWidth
           >
             Thêm sản phẩm
           </Button>
         </Grid>
       </Grid>
-      <div style={{ height: 400, width: "100%" }}>
-        <DataGrid
-          rows={products}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          disableSelectionOnClick
-        />
-      </div>
 
-      {/* Dialog thêm/sửa sản phẩm */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {editProduct ? "Sửa sản phẩm" : "Thêm sản phẩm"}
-        </DialogTitle>
+      {fetchProductsError ? (
+        <Alert severity="error">{fetchProductsError?.data?.message || "Lỗi khi tải sản phẩm"}</Alert>
+      ) : products.length === 0 ? (
+        <Alert severity="info">Hiện tại không có sản phẩm nào.</Alert>
+      ) : (
+        <div style={{ height: 400, width: "100%" }}>
+          <DataGrid
+            rows={products}
+            columns={columns}
+            getRowId={(row) => row.id}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            disableSelectionOnClick
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: true,
+                  name: true,
+                  category: true,
+                  price: true,
+                  actions: true,
+                },
+              },
+            }}
+            aria-label="Bảng sản phẩm"
+          />
+        </div>
+      )}
+
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        <DialogTitle>{editProduct ? "Sửa sản phẩm" : "Thêm sản phẩm"}</DialogTitle>
         <DialogContent>
           <TextField
             label="Tên"
             value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
+            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
             fullWidth
             sx={{ mt: 2 }}
+            required
           />
           <TextField
             label="Mô tả"
             value={newProduct.description}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, description: e.target.value })
-            }
+            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
             fullWidth
             sx={{ mt: 2 }}
+            required
           />
-          <FormControl fullWidth sx={{ mt: 2 }}>
+          <TextField
+            label="Giá"
+            type="number"
+            value={newProduct.price}
+            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+            fullWidth
+            sx={{ mt: 2 }}
+            required
+          />
+          <TextField
+            label="Số lượng"
+            type="number"
+            value={newProduct.quantity}
+            onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
+            fullWidth
+            sx={{ mt: 2 }}
+            required
+          />
+          <FormControl fullWidth sx={{ mt: 2 }} required>
             <InputLabel>Danh mục</InputLabel>
             <Select
-              value={newProduct.category}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, category: e.target.value })
-              }
+              value={newProduct.categoryId}
+              onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value })}
               label="Danh mục"
             >
-              {categories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </MenuItem>
-              ))}
+              {Array.isArray(categoriesData) ? (
+                categoriesData.map((cat) => (
+                  <MenuItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>Không có danh mục</MenuItem>
+              )}
             </Select>
           </FormControl>
+          <FormControl fullWidth sx={{ mt: 2 }} required>
+            <InputLabel>Màu</InputLabel>
+            <Select
+              value={newProduct.colorId}
+              onChange={(e) => setNewProduct({ ...newProduct, colorId: e.target.value })}
+              label="Màu"
+            >
+              {Array.isArray(colorsData) ? (
+                colorsData.map((color) => (
+                  <MenuItem key={color.id} value={color.id}>
+                    {color.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>Không có màu</MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth sx={{ mt: 2 }} required>
+            <InputLabel>Kích thước</InputLabel>
+            <Select
+              value={newProduct.sizeId}
+              onChange={(e) => setNewProduct({ ...newProduct, sizeId: e.target.value })}
+              label="Kích thước"
+            >
+              {Array.isArray(sizesData) ? (
+                sizesData.map((size) => (
+                  <MenuItem key={size.id} value={size.id}>
+                    {size.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>Không có kích thước</MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Hình ảnh sản phẩm
+          </Typography>
+          {editProduct && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1">Hình ảnh hiện tại:</Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                {editProduct.productImages?.length > 0 ? (
+                  editProduct.productImages.map((image) => (
+                    <Box key={image.id} sx={{ textAlign: "center", position: "relative" }}>
+                      <img
+                        src={image.imageUrl}
+                        alt={image.fileName}
+                        style={{ width: 100, height: 100, objectFit: "cover" }}
+                      />
+                      <IconButton
+                        sx={{ position: "absolute", top: 0, right: 0 }}
+                        color="error"
+                        onClick={() => handleDeleteImage(image.id, true)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                      <Typography variant="caption">{image.fileName}</Typography>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography>Không có hình ảnh hiện tại.</Typography>
+                )}
+              </Box>
+            </Box>
+          )}
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle1">Danh sách hình ảnh có sẵn:</Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              {imagesData && imagesData.length > 0 ? (
+                imagesData.map((image) => (
+                  <Box key={image.id} sx={{ textAlign: "center", position: "relative" }}>
+                    <Checkbox
+                      checked={newProduct.imageIds.includes(image.id)}
+                      onChange={() => handleSelectImage(image.id)}
+                    />
+                    <img
+                      src={image.imageUrl}
+                      alt={image.fileName}
+                      style={{ width: 100, height: 100, objectFit: "cover" }}
+                    />
+                    <Typography variant="caption">{image.fileName}</Typography>
+                  </Box>
+                ))
+              ) : (
+                <Typography>Không có hình ảnh nào trong hệ thống.</Typography>
+              )}
+            </Box>
+            <Typography variant="subtitle1" sx={{ mt: 2 }}>
+              Hình ảnh đã upload:
+            </Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              {newProduct.imageIds.length > 0 && imagesData ? (
+                imagesData
+                  .filter((img) => newProduct.imageIds.includes(img.id))
+                  .map((image) => (
+                    <Box key={image.id} sx={{ textAlign: "center", position: "relative" }}>
+                      <img
+                        src={image.imageUrl}
+                        alt={image.fileName}
+                        style={{ width: 100, height: 100, objectFit: "cover" }}
+                      />
+                      <IconButton
+                        sx={{ position: "absolute", top: 0, right: 0 }}
+                        color="error"
+                        onClick={() => handleDeleteImage(image.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                      <Typography variant="caption">{image.fileName}</Typography>
+                    </Box>
+                  ))
+              ) : (
+                <Typography>Chưa upload hoặc chọn hình ảnh.</Typography>
+              )}
+            </Box>
+            <Button
+              variant="outlined"
+              color="secondary"
+              component="label"
+              sx={{ mt: 2 }}
+              startIcon={<AddPhotoAlternateIcon />}
+            >
+              Tải lên hình ảnh
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleUploadImage}
+              />
+            </Button>
+          </Box>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Trạng thái</InputLabel>
             <Select
               value={newProduct.status}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, status: e.target.value })
-              }
+              onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value })}
               label="Trạng thái"
             >
               <MenuItem value="ACTIVE">ACTIVE</MenuItem>
               <MenuItem value="INACTIVE">INACTIVE</MenuItem>
             </Select>
           </FormControl>
-
-          {/* Product Variants */}
-          <Typography variant="h6" sx={{ mt: 2 }}>
-            Biến thể sản phẩm
-          </Typography>
-          {newProduct.variants.map((variant, index) => (
-            <Box key={index} sx={{ display: "flex", gap: 2, mt: 2, alignItems: "center" }}>
-              <TextField
-                label="Giá"
-                type="number"
-                value={variant.price}
-                onChange={(e) =>
-                  handleVariantChange(index, "price", e.target.value)
-                }
-                sx={{ flex: 1 }}
-              />
-              <TextField
-                label="Số lượng"
-                type="number"
-                value={variant.quantity}
-                onChange={(e) =>
-                  handleVariantChange(index, "quantity", e.target.value)
-                }
-                sx={{ flex: 1 }}
-              />
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel>Màu</InputLabel>
-                <Select
-                  value={variant.color}
-                  onChange={(e) =>
-                    handleVariantChange(index, "color", e.target.value)
-                  }
-                  label="Màu"
-                >
-                  {colors.map((color) => (
-                    <MenuItem key={color.id} value={color.id}>
-                      {color.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel>Kích thước</InputLabel>
-                <Select
-                  value={variant.size}
-                  onChange={(e) =>
-                    handleVariantChange(index, "size", e.target.value)
-                  }
-                  label="Kích thước"
-                >
-                  {sizes.map((size) => (
-                    <MenuItem key={size.id} value={size.id}>
-                      {size.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <IconButton
-                onClick={() => handleRemoveVariant(index)}
-                color="error"
-                disabled={newProduct.variants.length === 1}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          ))}
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={handleAddVariant}
-            sx={{ mt: 2 }}
-          >
-            Thêm biến thể
-          </Button>
-
-          {/* Product Images */}
-          <Typography variant="h6" sx={{ mt: 2 }}>
-            Hình ảnh sản phẩm
-          </Typography>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageUpload}
-            style={{ marginTop: "16px" }}
-          />
-          <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
-            {newProduct.images.map((image, index) => (
-              <img
-                key={index}
-                src={image.imageUrl}
-                alt={image.fileName}
-                style={{ width: 100, height: 100, objectFit: "cover" }}
-              />
-            ))}
-          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+          <Button onClick={handleCloseDialog}>Hủy</Button>
           <Button
             onClick={editProduct ? handleUpdateProduct : handleAddProduct}
             variant="contained"
+            color="primary"
           >
             {editProduct ? "Cập nhật" : "Thêm"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Dialog xác nhận xóa */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
           <Typography>Bạn có chắc chắn muốn xóa sản phẩm này không?</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
-          <Button
-            onClick={handleDeleteProduct}
-            color="error"
-            variant="contained"
-          >
+          <Button variant="outlined" color="primary" onClick={() => setOpenDeleteDialog(false)}>
+            Hủy
+          </Button>
+          <Button variant="contained" color="error" onClick={handleDeleteProduct}>
             Xóa
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DashboardLayoutWrapper>
   );
 };

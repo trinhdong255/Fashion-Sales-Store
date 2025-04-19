@@ -46,12 +46,20 @@ const Admin = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const productsRes = await axios.get("http://localhost:3000/products/count");
-        const categoriesRes = await axios.get("http://localhost:3000/categories/count");
+        const productsRes = await axios.get(
+          "http://localhost:3000/products/count"
+        );
+        const categoriesRes = await axios.get(
+          "http://localhost:3000/categories/count"
+        );
         const usersRes = await axios.get("http://localhost:3000/users/count");
         const ordersRes = await axios.get("http://localhost:3000/orders/count");
-        const pendingOrdersRes = await axios.get("http://localhost:3000/orders/count?status=PENDING");
-        const reviewsRes = await axios.get("http://localhost:3000/reviews/count");
+        const pendingOrdersRes = await axios.get(
+          "http://localhost:3000/orders/count?status=PENDING"
+        );
+        const reviewsRes = await axios.get(
+          "http://localhost:3000/reviews/count"
+        );
 
         setStats({
           products: productsRes.data.count,
@@ -68,7 +76,9 @@ const Admin = () => {
 
     const fetchRevenue = async () => {
       try {
-        const revenueRes = await axios.get("http://localhost:3000/orders/revenue?months=6");
+        const revenueRes = await axios.get(
+          "http://localhost:3000/orders/revenue?months=6"
+        );
         setRevenueData(revenueRes.data);
       } catch (error) {
         console.error("Error fetching revenue data:", error);
@@ -77,7 +87,9 @@ const Admin = () => {
 
     const fetchOrderStatus = async () => {
       try {
-        const statusRes = await axios.get("http://localhost:3000/orders/count-by-status");
+        const statusRes = await axios.get(
+          "http://localhost:3000/orders/count-by-status"
+        );
         setOrderStatusData(statusRes.data);
       } catch (error) {
         console.error("Error fetching order status data:", error);
@@ -181,7 +193,10 @@ const Admin = () => {
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Bar data={orderStatusChartData} options={orderStatusChartOptions} />
+              <Bar
+                data={orderStatusChartData}
+                options={orderStatusChartOptions}
+              />
             </CardContent>
           </Card>
         </Grid>

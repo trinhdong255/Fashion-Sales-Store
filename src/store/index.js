@@ -2,23 +2,22 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { combineReducers } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+import storage from "redux-persist/lib/storage";
 
 import { baseApi } from "@/services/api";
 import cartReducer from "@/store/redux/cart/reducer";
 import orderReducer from "@/store/redux/order/reducer";
 import userReducer from "@/store/redux/user/reducer";
+import categoriesReducer from "@/store/redux/categories/reducer";
+import productReducer from "@/store/redux/product/reducer";
+import colorReducer from "@/store/redux/color/reducer";
+import productImageReducer from "@/store/redux/productImage/reducer";
 
 export const RESET_STATE = "RESET_STATE";
 
-// Configuration for redux-persist
 const persistConfig = {
   key: "root",
   storage,
-  // Optionally, you can whitelist specific reducers to persist
-  // whitelist: ['user'], // only user will be persisted
-  // Or blacklist specific reducers from being persisted
-  // blacklist: ['order'], // order will not be persisted
 };
 
 const appReducer = combineReducers({
@@ -26,37 +25,30 @@ const appReducer = combineReducers({
   order: orderReducer,
   user: userReducer,
   cart: cartReducer,
+  categories: categoriesReducer,
+  product: productReducer,
+  color: colorReducer,
+  productImage: productImageReducer, 
 });
 
-// Combine your reducers
 const rootReducer = (state, action) => {
-  // Clear all data from redux and localStorage when RESET_STATE action is dispatched
   if (action.type === RESET_STATE) {
-    // For redux-persist
     storage.removeItem("persist:root");
-
-    // Return undefined to get reducers' initial state
     return appReducer(undefined, action);
   }
-
   return appReducer(state, action);
 };
 
-// Create a persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const resetStore = () => ({
   type: RESET_STATE,
 });
 
-// Create the store with the persisted reducer
 export const store = configureStore({
   reducer: persistedReducer,
-  // Adding the api middleware enables caching, invalidation, polling,
-  // and other useful features of RTK Query
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // Redux Persist needs this to work properly with Redux Toolkit
       serializableCheck: {
         ignoredActions: [
           "persist/PERSIST",
@@ -67,8 +59,6 @@ export const store = configureStore({
     }).concat(baseApi.middleware),
 });
 
-// Create the persisted store
 export const persistor = persistStore(store);
 
-// optional, but required for refetchOnFocus/refetchOnReconnect behaviors
 setupListeners(store.dispatch);

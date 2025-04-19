@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   AppBar,
@@ -40,52 +40,52 @@ const DashboardLayoutWrapper = ({ children }) => {
     { path: "/admin/dashboard", title: "Tổng quan", icon: <DashboardIcon /> },
     {
       path: "/admin/productsManagement",
-      title: "Quản lý Sản phẩm",
+      title: "Sản phẩm",
       icon: <CategoryIcon />,
     },
     {
       path: "/admin/categoriesManagement",
-      title: "Quản lý Danh mục",
+      title: "Danh mục",
       icon: <CategoryIcon />,
     },
     {
       path: "/admin/usersManagement",
-      title: "Quản lý Người dùng",
+      title: "Người dùng",
       icon: <PeopleIcon />,
     },
     {
       path: "/admin/ordersManagement",
-      title: "Quản lý Đơn hàng",
+      title: "Đơn hàng",
       icon: <ShoppingCartIcon />,
     },
     {
       path: "/admin/rolesManagement",
-      title: "Quản lý Vai trò",
+      title: "Vai trò",
       icon: <PeopleIcon />,
     },
     {
       path: "/admin/permissionsManagement",
-      title: "Quản lý Quyền hạn",
+      title: "Quyền hạn",
       icon: <LockIcon />,
     },
     {
       path: "/admin/paymentHistoriesManagement",
-      title: "Quản lý Lịch sử Thanh toán",
+      title: "Lịch sử Thanh toán",
       icon: <PaymentIcon />,
     },
     {
       path: "/admin/branchesManagement",
-      title: "Quản lý Chi nhánh",
+      title: "Chi nhánh",
       icon: <StoreIcon />,
     },
     {
       path: "/admin/promotionsManagement",
-      title: "Quản lý Khuyến mãi",
+      title: "Khuyến mãi",
       icon: <LocalOfferIcon />,
     },
     {
       path: "/admin/chatbotManagement",
-      title: "Quản lý Chatbot",
+      title: "Chatbot",
       icon: <ChatIcon />,
     },
   ];
@@ -95,21 +95,33 @@ const DashboardLayoutWrapper = ({ children }) => {
       <Toolbar />
       <List>
         {navigationItems.map((item) => (
-          <ListItem
-            button
-            key={item.path}
-            component={Link}
+          <Link
             to={item.path}
-            selected={location.pathname === item.path}
+            key={item.path}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText
-              primary={item.title}
+            <ListItem
               sx={{
-                color: mode === "dark" ? "#ffffff" : "black", // Màu cho title trong sidebar
+                "&:hover": {
+                  backgroundColor: mode === "dark" ? "#424242" : "#f5f5f5",
+                },
+                backgroundColor:
+                  location.pathname === item.path
+                    ? mode === "dark"
+                      ? "#616161"
+                      : "#e0e0e0"
+                    : "transparent",
               }}
-            />
-          </ListItem>
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText
+                primary={item.title}
+                sx={{
+                  color: mode === "dark" ? "#ffffff" : "black",
+                }}
+              />
+            </ListItem>
+          </Link>
         ))}
       </List>
     </div>
@@ -176,7 +188,7 @@ const DashboardLayoutWrapper = ({ children }) => {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
-              backgroundColor: mode === "dark" ? "#212121" : undefined, // Thay đổi màu sidebar khi dark
+              backgroundColor: mode === "dark" ? "#212121" : undefined,
             },
           }}
         >
@@ -189,7 +201,7 @@ const DashboardLayoutWrapper = ({ children }) => {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
-              backgroundColor: mode === "dark" ? "#212121" : undefined, // Thay đổi màu sidebar khi dark
+              backgroundColor: mode === "dark" ? "#212121" : undefined,
             },
           }}
           open
@@ -203,7 +215,7 @@ const DashboardLayoutWrapper = ({ children }) => {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          backgroundColor: mode === "dark" ? "#000000" : undefined, // Đảm bảo nền main dark
+          backgroundColor: mode === "dark" ? "#000000" : undefined,
         }}
       >
         <Toolbar />

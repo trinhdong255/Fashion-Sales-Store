@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
-import { useLoginMutation } from "@/services/api/auth";
+import { useLoginMutation, useGetMyInfoQuery } from "@/services/api/auth";
 import { setUser } from "@/store/redux/user/reducer";
 import customTheme from "@/components/CustemTheme";
 
@@ -25,21 +25,31 @@ const Login = () => {
   const outerTheme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const location = useLocation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // or 'error'
+    severity: "success",
   });
+  const [userData, setUserData] = useState(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const {
+    data: myInfo,
+    isLoading: isMyInfoLoading,
+    error: myInfoError,
+    refetch: refetchMyInfo,
+  } = useGetMyInfoQuery(undefined, {
+    skip: !userData,
+  });
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -51,20 +61,13 @@ const Login = () => {
     event.preventDefault();
   };
 
-  const handleShowSnackbar = (success) => {
-    if (success) {
-      setSnackbar({
-        open: true,
-        message: "Đăng nhập thành công",
-        severity: "success",
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: "Đăng nhập thất bại !",
-        severity: "error",
-      });
-    }
+  const handleShowSnackbar = (success, message = "") => {
+    setSnackbar({
+      open: true,
+      message:
+        message || (success ? "Đăng nhập thành công" : "Đăng nhập thất bại !"),
+      severity: success ? "success" : "error",
+    });
   };
 
   useEffect(() => {
@@ -77,6 +80,38 @@ const Login = () => {
     }
     window.history.replaceState({}, document.title);
   }, [location]);
+
+  useEffect(() => {
+    if (myInfoError) {
+      // Xử lý lỗi khi gọi /v1/auth/myInfo
+      handleShowSnackbar(false, "Không thể lấy thông tin người dùng!");
+      return;
+    }
+
+    if (myInfo && userData) {
+      const role = myInfo?.result?.roles?.[0]?.name || "USER";
+      const updatedUserData = {
+        ...userData,
+        result: {
+          ...userData.result,
+          role: role,
+        },
+      };
+
+      dispatch(setUser(updatedUserData));
+
+      // Hiển thị thông báo thành công trước khi điều hướng
+      handleShowSnackbar(true);
+
+      setTimeout(() => {
+        if (role === "ADMIN") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      }, 1500);
+    }
+  }, [myInfo, myInfoError, userData, dispatch, navigate]);
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -92,7 +127,9 @@ const Login = () => {
       }).unwrap();
 
       if (response) {
-        const userData = {
+        localStorage.setItem("accessToken", response.result.accessToken);
+
+        const newUserData = {
           code: response.code,
           message: response.message,
           result: {
@@ -103,12 +140,11 @@ const Login = () => {
           },
         };
 
-        dispatch(setUser(userData));
-        navigate("/", {
-          state: { message: "Đăng nhập thành công !", severity: "success" },
-        });
+        setUserData(newUserData);
+        refetchMyInfo(); // Gọi /v1/auth/myInfo sau khi đăng nhập thành công
       }
     } catch (error) {
+      // Chỉ hiển thị "Đăng nhập thất bại !" nếu lỗi từ login (đăng nhập sai)
       handleShowSnackbar(false);
       console.log("Login failed:", error);
     }
@@ -176,7 +212,7 @@ const Login = () => {
                       id="email"
                       label="Email"
                       variant="outlined"
-                      disabled={isLoading}
+                      disabled={isLoginLoading || isMyInfoLoading}
                       {...register("email", {
                         required: "Email không được để trống",
                         pattern: {
@@ -203,7 +239,7 @@ const Login = () => {
                       label="Mật khẩu"
                       type={showPassword ? "text" : "password"}
                       variant="outlined"
-                      disabled={isLoading}
+                      disabled={isLoginLoading || isMyInfoLoading}
                       {...register("password", {
                         required: "Mật khẩu không được để trống",
                         minLength: {
@@ -224,7 +260,7 @@ const Login = () => {
                               onMouseDown={handleMouseDownPassword}
                               onMouseUp={handleMouseUpPassword}
                               edge="end"
-                              disabled={isLoading}
+                              disabled={isLoginLoading || isMyInfoLoading}
                             >
                               {showPassword ? (
                                 <VisibilityOff />
@@ -258,30 +294,14 @@ const Login = () => {
                     },
                   }}
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoginLoading || isMyInfoLoading}
                 >
-                  {isLoading ? (
+                  {isLoginLoading || isMyInfoLoading ? (
                     <CircularProgress size={34} color="inherit" />
                   ) : (
                     "ĐĂNG NHẬP"
                   )}
                 </Button>
-
-                <Snackbar
-                  open={snackbar.open}
-                  autoHideDuration={3000}
-                  onClose={handleCloseSnackbar}
-                  anchorOrigin={{ vertical: "right", horizontal: "right" }}
-                >
-                  <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    variant="filled"
-                    sx={{ width: "100%", p: "10px 20px" }}
-                  >
-                    {snackbar.message}
-                  </Alert>
-                </Snackbar>
               </Stack>
 
               <Stack sx={{ display: "flex", alignItems: "center" }}>
