@@ -12,18 +12,24 @@ import {
   Box,
   IconButton,
   Switch,
+  Menu,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import CategoryIcon from "@mui/icons-material/Category";
-import PeopleIcon from "@mui/icons-material/People";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import ChatIcon from "@mui/icons-material/Chat";
-import MenuIcon from "@mui/icons-material/Menu";
-import StoreIcon from "@mui/icons-material/Store";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import PaymentIcon from "@mui/icons-material/Payment";
-import LockIcon from "@mui/icons-material/Lock";
 import { useTheme } from "/src/context/ThemeProvider";
+import {
+  Chat,
+  Height,
+  Inventory,
+  LocalOffer,
+  Lock,
+  Palette,
+  Payment,
+  People,
+  Place,
+  Store,
+} from "@mui/icons-material";
 
 const drawerWidth = 240;
 
@@ -41,7 +47,17 @@ const DashboardLayoutWrapper = ({ children }) => {
     {
       path: "/admin/productsManagement",
       title: "Sản phẩm",
-      icon: <CategoryIcon />,
+      icon: <Inventory />,
+    },
+    {
+      path: "/admin/colorsManagement",
+      title: "Màu sắc",
+      icon: <Palette />,
+    },
+    {
+      path: "/admin/sizesManagement",
+      title: "Kích thước",
+      icon: <Height />,
     },
     {
       path: "/admin/categoriesManagement",
@@ -51,7 +67,22 @@ const DashboardLayoutWrapper = ({ children }) => {
     {
       path: "/admin/usersManagement",
       title: "Người dùng",
-      icon: <PeopleIcon />,
+      icon: <People />,
+    },
+    {
+      path: "/admin/wardsManagement",
+      title: "Phường / xã",
+      icon: <Place />,
+    },
+    {
+      path: "/admin/districtsManagement",
+      title: "Quận / huyện",
+      icon: <Place />,
+    },
+    {
+      path: "/admin/provincesManagement",
+      title: "Tỉnh / thành phố",
+      icon: <Place />,
     },
     {
       path: "/admin/ordersManagement",
@@ -61,32 +92,32 @@ const DashboardLayoutWrapper = ({ children }) => {
     {
       path: "/admin/rolesManagement",
       title: "Vai trò",
-      icon: <PeopleIcon />,
+      icon: <People />,
     },
     {
       path: "/admin/permissionsManagement",
       title: "Quyền hạn",
-      icon: <LockIcon />,
+      icon: <Lock />,
     },
     {
       path: "/admin/paymentHistoriesManagement",
       title: "Lịch sử Thanh toán",
-      icon: <PaymentIcon />,
+      icon: <Payment />,
     },
     {
       path: "/admin/branchesManagement",
       title: "Chi nhánh",
-      icon: <StoreIcon />,
+      icon: <Store />,
     },
     {
       path: "/admin/promotionsManagement",
       title: "Khuyến mãi",
-      icon: <LocalOfferIcon />,
+      icon: <LocalOffer />,
     },
     {
       path: "/admin/chatbotManagement",
       title: "Chatbot",
-      icon: <ChatIcon />,
+      icon: <Chat />,
     },
   ];
 
@@ -145,7 +176,7 @@ const DashboardLayoutWrapper = ({ children }) => {
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { sm: "none" } }}
           >
-            <MenuIcon />
+            <Menu />
           </IconButton>
           <Typography
             variant="h6"

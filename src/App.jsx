@@ -39,6 +39,11 @@ import PromotionsManagement from "./pages/Admin/shared/PromotionsManagement";
 import PaymentHistoriesManagement from "./pages/Admin/shared/PaymentHistoriesManagement";
 import RolesManagement from "./pages/Admin/shared/RolesManagement";
 import PermissionsManagement from "./pages/Admin/shared/PermissionsManagement";
+import ColorsManagement from "./pages/Admin/shared/ColorsManagement";
+import SizesManagement from "./pages/Admin/shared/SizesManagement";
+import WardsManagement from "./pages/Admin/shared/WardsManagement";
+import DistrictsManagement from "./pages/Admin/shared/DistrictsManagement";
+import ProvincesManagement from "./pages/Admin/shared/ProvincesManagement";
 
 const App = () => {
   return (
@@ -93,6 +98,11 @@ const App = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Admin />} />
           <Route path="productsManagement" element={<ProductsManagement />} />
+          <Route path="colorsManagement" element={<ColorsManagement />} />
+          <Route path="sizesManagement" element={<SizesManagement />} />
+          <Route path="wardsManagement" element={<WardsManagement />} />
+          <Route path="districtsManagement" element={<DistrictsManagement />} />
+          <Route path="provincesManagement" element={<ProvincesManagement />} />
           <Route
             path="categoriesManagement"
             element={<CategoriesManagement />}

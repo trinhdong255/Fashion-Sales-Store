@@ -2,18 +2,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import axios from "axios";
 
-// Custom axios base query function for RTK Query
 export const axiosBaseQuery =
   () =>
   async ({ url, method, data, params, headers }) => {
     try {
-      // Lấy accessToken từ localStorage
       const token = localStorage.getItem("token");
-      console.log("Access Token:", token);
-
-      // Nếu không có token, không gọi API mà trả về lỗi ngay
       if (!token) {
-        console.log("No token found, redirecting to login");
         window.location.href = "/login";
         return {
           error: {
@@ -35,9 +29,17 @@ export const axiosBaseQuery =
         baseURL: import.meta.env.VITE_API_URL,
       };
 
-      console.log("Request Config:", config);
-
       const result = await axios(config);
+
+      if (result.status >= 400) {
+        return {
+          error: {
+            status: result.status,
+            data: result.data,
+          },
+        };
+      }
+
       return { data: result.data };
     } catch (axiosError) {
       const error = {
@@ -45,11 +47,7 @@ export const axiosBaseQuery =
         data: axiosError.response?.data || axiosError.message,
       };
 
-      console.log("API Error:", error);
-
-      // Xử lý lỗi 401 Unauthorized
       if (error.status === 401) {
-        console.log("Unauthorized, redirecting to login");
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
@@ -58,10 +56,24 @@ export const axiosBaseQuery =
     }
   };
 
-// Create base API with shared configuration
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: axiosBaseQuery(),
   endpoints: () => ({}),
-  tagTypes: ["Product", "User", "Cart", "Role", "Categories", "Color", "ProductImage"],
+  tagTypes: [
+    "User",
+    "Product",
+    "ProductImage",
+    "Color",
+    "Size",
+    "Cart",
+    "Role",
+    "Categories",
+    "Ward",
+    "District",
+    "Province",
+    "Order",
+    "OrderItem",
+    "Promotion",
+  ],
 });

@@ -1,17 +1,17 @@
-// services/api/color.js
 import { baseApi } from "./index";
+import { TAG_KEYS } from "/src/constants/tagKeys.js";
 
 export const colorApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listColors: builder.query({
       query: () => ({
         url: `/v1/colors`,
+        method: "GET",
       }),
-      providesTags: ["Colors"],
-      transformResponse: (response) => {
-        // Trích xuất mảng colors từ response.result.items, đảm bảo là mảng
-        return Array.isArray(response.result?.items) ? response.result.items : [];
-      },
+      providesTags: [TAG_KEYS.COLOR],
+      transformResponse: (response) => ({
+        items: Array.isArray(response.result?.items) ? response.result.items : [],
+      }),
     }),
     addColor: builder.mutation({
       query: (color) => ({
@@ -19,7 +19,7 @@ export const colorApi = baseApi.injectEndpoints({
         method: "POST",
         data: color,
       }),
-      invalidatesTags: ["Colors"],
+      invalidatesTags: [TAG_KEYS.COLOR],
     }),
     updateColor: builder.mutation({
       query: ({ id, ...color }) => ({
@@ -27,14 +27,21 @@ export const colorApi = baseApi.injectEndpoints({
         method: "PUT",
         data: color,
       }),
-      invalidatesTags: ["Colors"],
+      invalidatesTags: [TAG_KEYS.COLOR],
     }),
     deleteColor: builder.mutation({
       query: (id) => ({
         url: `/v1/colors/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Colors"],
+      invalidatesTags: [TAG_KEYS.COLOR],
+    }),
+    getColorById: builder.query({
+      query: (id) => ({
+        url: `/v1/colors/${id}`,
+        method: "GET",
+      }),
+      providesTags: [TAG_KEYS.COLOR],
     }),
   }),
 });
@@ -44,4 +51,5 @@ export const {
   useAddColorMutation,
   useUpdateColorMutation,
   useDeleteColorMutation,
+  useGetColorByIdQuery,
 } = colorApi;
