@@ -28,7 +28,7 @@ const appReducer = combineReducers({
   categories: categoriesReducer,
   product: productReducer,
   color: colorReducer,
-  productImage: productImageReducer, 
+  productImage: productImageReducer,
 });
 
 const rootReducer = (state, action) => {

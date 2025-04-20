@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Typography,
@@ -13,44 +13,51 @@ import {
   Select,
   MenuItem,
   Grid,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import axios from "axios";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
+import {
+  useListPromotionsQuery,
+  useAddPromotionMutation,
+  useUpdatePromotionMutation,
+  useDeletePromotionMutation,
+} from "@/services/api/promotion";
 
 const PromotionsManagement = () => {
-  const [promotions, setPromotions] = useState([]);
+  const { data, isLoading, error } = useListPromotionsQuery();
+  const [addPromotion] = useAddPromotionMutation();
+  const [updatePromotion] = useUpdatePromotionMutation();
+  const [deletePromotion] = useDeletePromotionMutation();
+
   const [newPromotion, setNewPromotion] = useState({
-    title: "",
+    code: "",
     description: "",
-    discount_percent: "",
-    start_date: "",
-    end_date: "",
-    status: "ACTIVE",
+    discountPercent: "",
+    startDate: "",
+    endDate: "",
   });
   const [editPromotion, setEditPromotion] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
-  // Lấy danh sách khuyến mãi
-  useEffect(() => {
-    const fetchPromotions = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/promotions");
-        setPromotions(response.data);
-      } catch (error) {
-        console.error("Error fetching promotions:", error);
-      }
-    };
-    fetchPromotions();
-  }, []);
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
-    { field: "title", headerName: "Tiêu đề", width: 150 },
-    { field: "discount_percent", headerName: "Giảm giá (%)", width: 120 },
-    { field: "start_date", headerName: "Ngày bắt đầu", width: 150 },
-    { field: "end_date", headerName: "Ngày kết thúc", width: 150 },
+    { field: "code", headerName: "Mã khuyến mãi", width: 150 },
+    { field: "description", headerName: "Mô tả", width: 200 },
+    { field: "discountPercent", headerName: "Giảm giá (%)", width: 120 },
+    { field: "startDate", headerName: "Ngày bắt đầu", width: 150 },
+    { field: "endDate", headerName: "Ngày kết thúc", width: 150 },
     {
       field: "actions",
       headerName: "Hành động",
@@ -73,34 +80,39 @@ const PromotionsManagement = () => {
     try {
       const promotionData = {
         ...newPromotion,
-        discount_percent: parseFloat(newPromotion.discount_percent),
+        discountPercent: parseFloat(newPromotion.discountPercent),
       };
-      await axios.post("http://localhost:3000/promotions", promotionData);
-      const response = await axios.get("http://localhost:3000/promotions");
-      setPromotions(response.data);
+      await addPromotion(promotionData).unwrap();
       setNewPromotion({
-        title: "",
+        code: "",
         description: "",
-        discount_percent: "",
-        start_date: "",
-        end_date: "",
-        status: "ACTIVE",
+        discountPercent: "",
+        startDate: "",
+        endDate: "",
       });
       setOpenDialog(false);
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "Thêm khuyến mãi thành công!",
+      });
     } catch (error) {
-      console.error("Error adding promotion:", error);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: "Lỗi khi thêm khuyến mãi: " + (error.data?.message || error.message),
+      });
     }
   };
 
   const handleEditPromotion = (promotion) => {
     setEditPromotion(promotion);
     setNewPromotion({
-      title: promotion.title,
+      code: promotion.code,
       description: promotion.description || "",
-      discount_percent: promotion.discount_percent,
-      start_date: promotion.start_date,
-      end_date: promotion.end_date,
-      status: promotion.status,
+      discountPercent: promotion.discountPercent,
+      startDate: promotion.startDate,
+      endDate: promotion.endDate,
     });
     setOpenDialog(true);
   };
@@ -109,26 +121,29 @@ const PromotionsManagement = () => {
     try {
       const promotionData = {
         ...newPromotion,
-        discount_percent: parseFloat(newPromotion.discount_percent),
+        discountPercent: parseFloat(newPromotion.discountPercent),
       };
-      await axios.put(
-        `http://localhost:3000/promotions/${editPromotion.id}`,
-        promotionData
-      );
-      const response = await axios.get("http://localhost:3000/promotions");
-      setPromotions(response.data);
+      await updatePromotion({ id: editPromotion.id, ...promotionData }).unwrap();
       setEditPromotion(null);
       setNewPromotion({
-        title: "",
+        code: "",
         description: "",
-        discount_percent: "",
-        start_date: "",
-        end_date: "",
-        status: "ACTIVE",
+        discountPercent: "",
+        startDate: "",
+        endDate: "",
       });
       setOpenDialog(false);
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "Cập nhật khuyến mãi thành công!",
+      });
     } catch (error) {
-      console.error("Error updating promotion:", error);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: "Lỗi khi cập nhật khuyến mãi: " + (error.data?.message || error.message),
+      });
     }
   };
 
@@ -139,20 +154,29 @@ const PromotionsManagement = () => {
 
   const handleDeletePromotion = async () => {
     try {
-      await axios.delete(`http://localhost:3000/promotions/${promotionToDelete}`);
-      const response = await axios.get("http://localhost:3000/promotions");
-      setPromotions(response.data);
+      await deletePromotion(promotionToDelete).unwrap();
       setOpenDeleteDialog(false);
       setPromotionToDelete(null);
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "Xóa khuyến mãi thành công!",
+      });
     } catch (error) {
-      console.error("Error deleting promotion:", error);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: "Lỗi khi xóa khuyến mãi: " + (error.data?.message || error.message),
+      });
     }
   };
+
+  const rows = data?.items || [];
 
   return (
     <DashboardLayoutWrapper>
       <Typography variant="h5" gutterBottom>
-        Quản lý Khuyến mãi
+        Quản lý khuyến mãi
       </Typography>
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={9}></Grid>
@@ -166,13 +190,22 @@ const PromotionsManagement = () => {
           </Button>
         </Grid>
       </Grid>
+      {error && (
+        <Typography color="error" gutterBottom>
+          Lỗi khi tải dữ liệu: {error.data?.message || "Không thể kết nối đến server"}
+        </Typography>
+      )}
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={promotions}
+          rows={rows}
           columns={columns}
           pageSize={5}
-          rowsPerPageOptions={[5]}
+          rowsPerPageOptions={[5, 10, 20]}
           disableSelectionOnClick
+          loading={isLoading}
+          localeText={{
+            noRowsLabel: "Không có dữ liệu",
+          }}
         />
       </div>
 
@@ -183,10 +216,10 @@ const PromotionsManagement = () => {
         </DialogTitle>
         <DialogContent>
           <TextField
-            label="Tiêu đề"
-            value={newPromotion.title}
+            label="Mã khuyến mãi"
+            value={newPromotion.code}
             onChange={(e) =>
-              setNewPromotion({ ...newPromotion, title: e.target.value })
+              setNewPromotion({ ...newPromotion, code: e.target.value })
             }
             fullWidth
             sx={{ mt: 2 }}
@@ -203,11 +236,11 @@ const PromotionsManagement = () => {
           <TextField
             label="Giảm giá (%)"
             type="number"
-            value={newPromotion.discount_percent}
+            value={newPromotion.discountPercent}
             onChange={(e) =>
               setNewPromotion({
                 ...newPromotion,
-                discount_percent: e.target.value,
+                discountPercent: e.target.value,
               })
             }
             fullWidth
@@ -216,9 +249,9 @@ const PromotionsManagement = () => {
           <TextField
             label="Ngày bắt đầu"
             type="date"
-            value={newPromotion.start_date}
+            value={newPromotion.startDate}
             onChange={(e) =>
-              setNewPromotion({ ...newPromotion, start_date: e.target.value })
+              setNewPromotion({ ...newPromotion, startDate: e.target.value })
             }
             fullWidth
             sx={{ mt: 2 }}
@@ -227,34 +260,19 @@ const PromotionsManagement = () => {
           <TextField
             label="Ngày kết thúc"
             type="date"
-            value={newPromotion.end_date}
+            value={newPromotion.endDate}
             onChange={(e) =>
-              setNewPromotion({ ...newPromotion, end_date: e.target.value })
+              setNewPromotion({ ...newPromotion, endDate: e.target.value })
             }
             fullWidth
             sx={{ mt: 2 }}
             InputLabelProps={{ shrink: true }}
           />
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Trạng thái</InputLabel>
-            <Select
-              value={newPromotion.status}
-              onChange={(e) =>
-                setNewPromotion({ ...newPromotion, status: e.target.value })
-              }
-              label="Trạng thái"
-            >
-              <MenuItem value="ACTIVE">ACTIVE</MenuItem>
-              <MenuItem value="INACTIVE">INACTIVE</MenuItem>
-            </Select>
-          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
           <Button
-            onClick={
-              editPromotion ? handleUpdatePromotion : handleAddPromotion
-            }
+            onClick={editPromotion ? handleUpdatePromotion : handleAddPromotion}
             variant="contained"
           >
             {editPromotion ? "Cập nhật" : "Thêm"}
@@ -263,27 +281,32 @@ const PromotionsManagement = () => {
       </Dialog>
 
       {/* Dialog xác nhận xóa */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
-          <Typography>
-            Bạn có chắc chắn muốn xóa khuyến mãi này không?
-          </Typography>
+          <Typography>Bạn có chắc chắn muốn xóa khuyến mãi này không?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
-          <Button
-            onClick={handleDeletePromotion}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={handleDeletePromotion} color="error" variant="contained">
             Xóa
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DashboardLayoutWrapper>
   );
 };
