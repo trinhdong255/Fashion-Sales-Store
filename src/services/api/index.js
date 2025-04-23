@@ -1,4 +1,3 @@
-// services/api/index.js
 import { createApi } from "@reduxjs/toolkit/query/react";
 import axios from "axios";
 
@@ -29,9 +28,18 @@ export const axiosBaseQuery =
         baseURL: import.meta.env.VITE_API_URL,
       };
 
+      if (data instanceof FormData) {
+        delete config.headers["Content-Type"];
+      }
+
+      console.log("Axios request config:", config);
+      console.log("Full request URL:", `${config.baseURL}${config.url}`);
+
       const result = await axios(config);
 
       if (result.status >= 400) {
+        console.log("Axios response error:", result);
+        console.log("Server received path:", result.data?.path || "N/A");
         return {
           error: {
             status: result.status,
@@ -40,12 +48,15 @@ export const axiosBaseQuery =
         };
       }
 
+      console.log("Axios response success:", result.data);
       return { data: result.data };
     } catch (axiosError) {
       const error = {
         status: axiosError.response?.status,
         data: axiosError.response?.data || axiosError.message,
       };
+
+      console.error("Axios error:", error);
 
       if (error.status === 401) {
         localStorage.removeItem("token");
@@ -63,6 +74,7 @@ export const baseApi = createApi({
   tagTypes: [
     "User",
     "Product",
+    "ProductVariant",
     "ProductImage",
     "Color",
     "Size",

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// layouts/DashboardLayout/index.jsx
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   AppBar,
@@ -21,6 +22,7 @@ import { useTheme } from "/src/context/ThemeProvider";
 import {
   Chat,
   Height,
+  Image,
   Inventory,
   LocalOffer,
   Lock,
@@ -47,6 +49,16 @@ const DashboardLayoutWrapper = ({ children }) => {
     {
       path: "/admin/productsManagement",
       title: "Sản phẩm",
+      icon: <Inventory />,
+    },
+    {
+      path: "/admin/productImagesManagement",
+      title: "Hình ảnh sản phẩm",
+      icon: <Image />,
+    },
+    {
+      path: "/admin/productVariantsManagement",
+      title: "Biến thể sản phẩm",
       icon: <Inventory />,
     },
     {

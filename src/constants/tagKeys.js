@@ -2,6 +2,7 @@
 export const TAG_KEYS = {
   USER: "User",
   PRODUCT: "Product",
+  PRODUCT_VARIANT: "ProductVariant",
   PRODUCT_IMAGE: "ProductImage",
   COLOR: "Color",
   SIZE: "Size",

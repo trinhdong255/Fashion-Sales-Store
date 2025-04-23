@@ -44,6 +44,8 @@ import SizesManagement from "./pages/Admin/shared/SizesManagement";
 import WardsManagement from "./pages/Admin/shared/WardsManagement";
 import DistrictsManagement from "./pages/Admin/shared/DistrictsManagement";
 import ProvincesManagement from "./pages/Admin/shared/ProvincesManagement";
+import ProductImagesManagement from "./pages/Admin/shared/ProductImagesManagement";
+import ProductVariantsManagement from "./pages/Admin/shared/ProductVariantsManagement";
 
 const App = () => {
   return (
@@ -98,6 +100,14 @@ const App = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Admin />} />
           <Route path="productsManagement" element={<ProductsManagement />} />
+          <Route
+            path="productImagesManagement"
+            element={<ProductImagesManagement />}
+          />
+          <Route
+            path="productVariantsManagement"
+            element={<ProductVariantsManagement />}
+          />
           <Route path="colorsManagement" element={<ColorsManagement />} />
           <Route path="sizesManagement" element={<SizesManagement />} />
           <Route path="wardsManagement" element={<WardsManagement />} />

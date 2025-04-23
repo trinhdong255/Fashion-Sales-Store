@@ -6,11 +6,10 @@ export const productImageApi = baseApi.injectEndpoints({
     uploadImage: builder.mutation({
       query: (file) => {
         const formData = new FormData();
-        // Use 'fileImage' as the key, since Postman was successful with this key
+        formData.append("Content-Type", file.type);
         formData.append("fileImage", file);
-        
-        // Log FormData entries for debugging
-        console.log("FormData entries:"); 
+
+        console.log("FormData entries:");
         for (let [key, value] of formData.entries()) {
           console.log(`${key}:`, value);
         }
@@ -22,16 +21,26 @@ export const productImageApi = baseApi.injectEndpoints({
         };
       },
       invalidatesTags: [TAG_KEYS.PRODUCT_IMAGE],
+      onQueryStarted: async (arg, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("Upload image success:", data);
+        } catch (error) {
+          console.error("Upload image error:", {
+            status: error.error?.status,
+            data: error.error?.data,
+            message: error.error?.data?.message || error.error?.data?.error,
+            originalError: error,
+          });
+        }
+      },
     }),
 
     listImages: builder.query({
-      query: (params) => {
-        const { pageNo = 1 } = params || {};
-        return {
-          url: `/v1/file/all`,
-          params: { pageNo },
-        };
-      },
+      query: () => ({
+        url: `/v1/file/all`,
+        method: "GET",
+      }),
       providesTags: [TAG_KEYS.PRODUCT_IMAGE],
       transformResponse: (response) => {
         console.log("Raw images response:", response);
