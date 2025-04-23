@@ -1,3 +1,4 @@
+// services/api/color.js
 import { baseApi } from "./index";
 import { TAG_KEYS } from "/src/constants/tagKeys.js";
 
@@ -10,7 +11,7 @@ export const colorApi = baseApi.injectEndpoints({
       }),
       providesTags: [TAG_KEYS.COLOR],
       transformResponse: (response) => ({
-        items: Array.isArray(response.result?.items) ? response.result.items : [],
+        items: Array.isArray(response.result?.items) ? response.result.items : response.result || [],
       }),
     }),
     addColor: builder.mutation({

@@ -100,7 +100,8 @@ const PromotionsManagement = () => {
       setSnackbar({
         open: true,
         severity: "error",
-        message: "Lỗi khi thêm khuyến mãi: " + (error.data?.message || error.message),
+        message:
+          "Lỗi khi thêm khuyến mãi: " + (error.data?.message || error.message),
       });
     }
   };
@@ -123,7 +124,10 @@ const PromotionsManagement = () => {
         ...newPromotion,
         discountPercent: parseFloat(newPromotion.discountPercent),
       };
-      await updatePromotion({ id: editPromotion.id, ...promotionData }).unwrap();
+      await updatePromotion({
+        id: editPromotion.id,
+        ...promotionData,
+      }).unwrap();
       setEditPromotion(null);
       setNewPromotion({
         code: "",
@@ -142,7 +146,9 @@ const PromotionsManagement = () => {
       setSnackbar({
         open: true,
         severity: "error",
-        message: "Lỗi khi cập nhật khuyến mãi: " + (error.data?.message || error.message),
+        message:
+          "Lỗi khi cập nhật khuyến mãi: " +
+          (error.data?.message || error.message),
       });
     }
   };
@@ -166,7 +172,8 @@ const PromotionsManagement = () => {
       setSnackbar({
         open: true,
         severity: "error",
-        message: "Lỗi khi xóa khuyến mãi: " + (error.data?.message || error.message),
+        message:
+          "Lỗi khi xóa khuyến mãi: " + (error.data?.message || error.message),
       });
     }
   };
@@ -192,7 +199,8 @@ const PromotionsManagement = () => {
       </Grid>
       {error && (
         <Typography color="error" gutterBottom>
-          Lỗi khi tải dữ liệu: {error.data?.message || "Không thể kết nối đến server"}
+          Lỗi khi tải dữ liệu:{" "}
+          {error.data?.message || "Không thể kết nối đến server"}
         </Typography>
       )}
       <div style={{ height: 400, width: "100%" }}>
@@ -281,14 +289,23 @@ const PromotionsManagement = () => {
       </Dialog>
 
       {/* Dialog xác nhận xóa */}
-      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+      >
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
-          <Typography>Bạn có chắc chắn muốn xóa khuyến mãi này không?</Typography>
+          <Typography>
+            Bạn có chắc chắn muốn xóa khuyến mãi này không?
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
-          <Button onClick={handleDeletePromotion} color="error" variant="contained">
+          <Button
+            onClick={handleDeletePromotion}
+            color="error"
+            variant="contained"
+          >
             Xóa
           </Button>
         </DialogActions>

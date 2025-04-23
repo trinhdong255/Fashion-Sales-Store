@@ -1,3 +1,4 @@
+// services/api/size.js
 import { baseApi } from "./index";
 import { TAG_KEYS } from "/src/constants/tagKeys.js";
 
@@ -11,7 +12,7 @@ export const sizeApi = baseApi.injectEndpoints({
       }),
       providesTags: [TAG_KEYS.SIZE],
       transformResponse: (response) => ({
-        items: Array.isArray(response.result?.items) ? response.result.items : [],
+        items: Array.isArray(response.result?.items) ? response.result.items : response.result || [],
       }),
     }),
   }),

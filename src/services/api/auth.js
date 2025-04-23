@@ -20,6 +20,7 @@ export const authApi = baseApi.injectEndpoints({
           // Lưu accessToken vào localStorage
           if (data?.result?.accessToken) {
             localStorage.setItem("token", data.result.accessToken);
+            console.log("Token saved:", data.result.accessToken); // Log token để debug
           }
         } catch (error) {
           console.error("Login failed:", error);
