@@ -1,3 +1,4 @@
+// pages/ChangePassword/index.jsx
 import { Container, Grid, Stack } from "@mui/material";
 
 import AccountSideBar from "@/components/AccountSideBar";
