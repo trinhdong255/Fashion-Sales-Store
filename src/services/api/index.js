@@ -5,9 +5,21 @@ export const axiosBaseQuery =
   () =>
   async ({ url, method, data, params, headers }) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        window.location.href = "/login";
+      // Danh sách các endpoint không yêu cầu token
+      const publicEndpoints = [
+        "/v1/auth/login",
+        "/v1/auth/register",
+        "/v1/auth/register/verify",
+        "/v1/auth/forgot-password",
+        "/v1/auth/forgot-password/verify-code",
+        "/v1/auth/forgot-password/reset-password",
+      ];
+
+      const token = localStorage.getItem("accessToken");
+      console.log(`Token trước khi gửi request (${url}):`, token);
+
+      // Chỉ kiểm tra token nếu endpoint không nằm trong danh sách public
+      if (!publicEndpoints.includes(url) && !token) {
         return {
           error: {
             status: 401,
@@ -23,7 +35,8 @@ export const axiosBaseQuery =
         params,
         headers: {
           ...headers,
-          Authorization: `Bearer ${token}`,
+          // Chỉ thêm Authorization header nếu có token
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         baseURL: import.meta.env.VITE_API_URL,
       };
@@ -58,14 +71,22 @@ export const axiosBaseQuery =
 
       console.error("Axios error:", error);
 
-      if (error.status === 401) {
-        localStorage.removeItem("token");
+      // Chỉ xóa token và chuyển hướng nếu lỗi là do token không hợp lệ
+      if (
+        error.status === 401 &&
+        (error.data?.message === "Không tìm thấy token, vui lòng đăng nhập lại" ||
+          error.data?.message?.includes("Invalid token"))
+      ) {
+        console.log("Xóa token do lỗi 401:", error.data?.message);
+        localStorage.removeItem("accessToken");
         window.location.href = "/login";
       }
 
       return { error };
     }
   };
+
+  
 
 export const baseApi = createApi({
   reducerPath: "api",
