@@ -14,17 +14,14 @@ import {
 } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
 import { useLoginMutation, useGetMyInfoQuery } from "@/services/api/auth";
-import { setUser } from "@/store/redux/user/reducer";
 import customTheme from "@/components/CustemTheme";
 
 const Login = () => {
   const outerTheme = useTheme();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -46,9 +43,8 @@ const Login = () => {
     data: myInfo,
     isLoading: isMyInfoLoading,
     error: myInfoError,
-    refetch: refetchMyInfo,
   } = useGetMyInfoQuery(undefined, {
-    skip: !userData,
+    skip: !userData || !localStorage.getItem("accessToken"),
   });
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -83,24 +79,28 @@ const Login = () => {
 
   useEffect(() => {
     if (myInfoError) {
-      // Xử lý lỗi khi gọi /v1/auth/myInfo
       handleShowSnackbar(false, "Không thể lấy thông tin người dùng!");
       return;
     }
 
     if (myInfo && userData) {
       const role = myInfo?.result?.roles?.[0]?.name || "USER";
+
+      // Lưu user vào localStorage để đồng bộ với các trang khác (nếu cần)
       const updatedUserData = {
-        ...userData,
+        code: myInfo.code,
+        message: myInfo.message,
         result: {
           ...userData.result,
-          role: role,
+          id: myInfo.result?.id,
+          name: myInfo.result?.name,
+          email: myInfo.result?.email,
+          roles: myInfo.result?.roles,
         },
       };
+      localStorage.setItem("user", JSON.stringify(updatedUserData));
+      console.log("User saved to localStorage:", updatedUserData);
 
-      dispatch(setUser(updatedUserData));
-
-      // Hiển thị thông báo thành công trước khi điều hướng
       handleShowSnackbar(true);
 
       setTimeout(() => {
@@ -111,7 +111,7 @@ const Login = () => {
         }
       }, 1500);
     }
-  }, [myInfo, myInfoError, userData, dispatch, navigate]);
+  }, [myInfo, myInfoError, userData, navigate]);
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -128,6 +128,14 @@ const Login = () => {
 
       if (response) {
         localStorage.setItem("accessToken", response.result.accessToken);
+        console.log("Token saved in onSubmit:", response.result.accessToken);
+
+        const savedToken = localStorage.getItem("accessToken");
+        if (!savedToken) {
+          throw new Error("Không thể lưu token vào localStorage");
+        }
+
+        console.log("Token verified after save:", savedToken);
 
         const newUserData = {
           code: response.code,
@@ -141,10 +149,8 @@ const Login = () => {
         };
 
         setUserData(newUserData);
-        refetchMyInfo(); // Gọi /v1/auth/myInfo sau khi đăng nhập thành công
       }
     } catch (error) {
-      // Chỉ hiển thị "Đăng nhập thất bại !" nếu lỗi từ login (đăng nhập sai)
       handleShowSnackbar(false);
       console.log("Login failed:", error);
     }

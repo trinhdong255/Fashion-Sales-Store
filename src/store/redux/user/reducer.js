@@ -1,4 +1,3 @@
-// store/redux/user/reducer.js
 import { createSlice } from "@reduxjs/toolkit";
 import { authApi } from "@/services/api/auth";
 
@@ -23,16 +22,48 @@ const userSlice = createSlice({
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled,
       (state, action) => {
-        state.user = action.payload;
+        state.user = {
+          code: action.payload.code,
+          message: action.payload.message,
+          result: {
+            accessToken: action.payload.result.accessToken,
+            refreshToken: action.payload.result.refreshToken,
+            authenticated: action.payload.result.authenticated,
+            email: action.payload.result.email,
+          },
+        };
       }
     );
 
     // Đồng bộ khi lấy thông tin người dùng hiện tại
     builder.addMatcher(
-      // authApi.endpoints.getCurrentUser.matchFulfilled,
       authApi.endpoints.getMyInfo.matchFulfilled,
       (state, action) => {
-        state.user = action.payload;
+        if (state.user) {
+          state.user = {
+            ...state.user,
+            code: action.payload.code,
+            message: action.payload.message,
+            result: {
+              ...state.user.result,
+              id: action.payload.result?.id,
+              name: action.payload.result?.name,
+              email: action.payload.result?.email,
+              roles: action.payload.result?.roles,
+            },
+          };
+        } else {
+          state.user = {
+            code: action.payload.code,
+            message: action.payload.message,
+            result: {
+              id: action.payload.result?.id,
+              name: action.payload.result?.name,
+              email: action.payload.result?.email,
+              roles: action.payload.result?.roles,
+            },
+          };
+        }
       }
     );
 
@@ -40,7 +71,31 @@ const userSlice = createSlice({
     builder.addMatcher(
       authApi.endpoints.updateUser.matchFulfilled,
       (state, action) => {
-        state.user = action.payload;
+        if (state.user) {
+          state.user = {
+            ...state.user,
+            code: action.payload.code,
+            message: action.payload.message,
+            result: {
+              ...state.user.result,
+              id: action.payload.result?.id,
+              name: action.payload.result?.name,
+              email: action.payload.result?.email,
+              roles: action.payload.result?.roles,
+            },
+          };
+        } else {
+          state.user = {
+            code: action.payload.code,
+            message: action.payload.message,
+            result: {
+              id: action.payload.result?.id,
+              name: action.payload.result?.name,
+              email: action.payload.result?.email,
+              roles: action.payload.result?.roles,
+            },
+          };
+        }
       }
     );
   },

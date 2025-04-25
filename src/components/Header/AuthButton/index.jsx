@@ -1,4 +1,3 @@
-// HeaderAuthButtons.js
 import {
   Stack,
   Typography,
@@ -9,12 +8,12 @@ import {
   Avatar,
   Divider,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-
-import { resetStore } from "@/store";
-import { selectUser } from "@/store/redux/user/reducer";
+import { clearUser, selectUser } from "@/store/redux/user/reducer";
+import { baseApi } from "@/services/api";
+import storage from "redux-persist/lib/storage";
 
 const AuthButton = () => {
   const navigate = useNavigate();
@@ -34,9 +33,26 @@ const AuthButton = () => {
   };
 
   const handleLogout = () => {
-    dispatch(resetStore());
+    // Xóa accessToken và user khỏi localStorage
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+
+    // Xóa dữ liệu persist:root để redux-persist không khôi phục trạng thái cũ
+    storage.removeItem("persist:root");
+
+    // Xóa user khỏi Redux store
+    dispatch(clearUser());
+
+    // Xóa toàn bộ cache của RTK Query
+    dispatch(baseApi.util.resetApiState());
+
     handleMenuClose();
     navigate("/");
+
+    // Không cần reload trang, React Router sẽ xử lý việc chuyển hướng
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 100);
   };
 
   return (
@@ -49,9 +65,9 @@ const AuthButton = () => {
             onClick={handleMenuOpen}
             sx={{ cursor: "pointer" }}
           >
-            <Avatar src={storedUser.avatarUrl} alt={storedUser.result.email} />
+            <Avatar src={storedUser.avatarUrl} alt={storedUser.email || "User"} />
             <Typography sx={{ marginLeft: "5px" }}>
-              {storedUser.result.email}
+              {storedUser.email || "Người dùng"}
             </Typography>
           </Stack>
 

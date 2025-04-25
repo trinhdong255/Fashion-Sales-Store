@@ -19,7 +19,7 @@ export const authApi = baseApi.injectEndpoints({
           const { data } = await queryFulfilled;
           // Lưu accessToken vào localStorage
           if (data?.result?.accessToken) {
-            localStorage.setItem("token", data.result.accessToken);
+            localStorage.setItem("accessToken", data.result.accessToken);
             console.log("Token saved:", data.result.accessToken); // Log token để debug
           }
         } catch (error) {
@@ -106,25 +106,32 @@ export const authApi = baseApi.injectEndpoints({
 
     // Cập nhật thông tin người dùng
     updateUser: builder.mutation({
-      query: (id, credentials) => ({
-        url: `/users/${id}`,
-        method: "PUT",
-        data: {
-          image: credentials?.image,
-          username: credentials?.username,
-          firstName: credentials?.firstName,
-          lastName: credentials?.lastName,
-          email: credentials?.email,
-          phone: credentials?.phone,
-          gender: credentials?.gender,
-          birthDate: {
-            date: credentials?.birthDate.date,
-            month: credentials?.birthDate.month,
-            year: credentials?.birthDate.year,
+      query: ({ id, ...credentials }) => {
+        // Chuyển đổi birthDate thành định dạng YYYY-MM-DD
+        const dob =
+          credentials.birthDate?.year &&
+          credentials.birthDate?.month &&
+          credentials.birthDate?.date
+            ? `${credentials.birthDate.year}-${String(
+                credentials.birthDate.month
+              ).padStart(2, "0")}-${String(credentials.birthDate.date).padStart(
+                2,
+                "0"
+              )}`
+            : undefined;
+
+        return {
+          url: `/v1/users/${id}`,
+          method: "PUT",
+          body: {
+            name: credentials.name,
+            avatarUrl: credentials.image, // Đổi image thành avatarUrl
+            dob: dob, // Gửi dob thay vì birthDate
+            gender: credentials.gender,
+            roles: [], // Backend yêu cầu roles, gửi mảng rỗng nếu không có
           },
-          address: credentials?.address,
-        },
-      }),
+        };
+      },
       invalidatesTags: [TAG_KEYS.USER],
     }),
   }),
