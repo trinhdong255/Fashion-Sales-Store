@@ -84,8 +84,6 @@ const Login = () => {
     }
 
     if (myInfo && userData) {
-      const role = myInfo?.result?.roles?.[0]?.name || "USER";
-
       // Lưu user vào localStorage để đồng bộ với các trang khác (nếu cần)
       const updatedUserData = {
         code: myInfo.code,
@@ -95,7 +93,6 @@ const Login = () => {
           id: myInfo.result?.id,
           name: myInfo.result?.name,
           email: myInfo.result?.email,
-          roles: myInfo.result?.roles,
         },
       };
       localStorage.setItem("user", JSON.stringify(updatedUserData));
@@ -103,12 +100,9 @@ const Login = () => {
 
       handleShowSnackbar(true);
 
+      // Điều hướng về trang chủ sau khi đăng nhập thành công
       setTimeout(() => {
-        if (role === "ADMIN") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/");
-        }
+        navigate("/");
       }, 1500);
     }
   }, [myInfo, myInfoError, userData, navigate]);

@@ -13,6 +13,7 @@ export const axiosBaseQuery =
         "/v1/auth/forgot-password",
         "/v1/auth/forgot-password/verify-code",
         "/v1/auth/forgot-password/reset-password",
+        "/v1/categories", // Thêm endpoint này vào danh sách công khai
       ];
 
       const token = localStorage.getItem("accessToken");
@@ -35,8 +36,8 @@ export const axiosBaseQuery =
         params,
         headers: {
           ...headers,
-          // Chỉ thêm Authorization header nếu có token
-          ...(token && { Authorization: `Bearer ${token}` }),
+          // Chỉ thêm Authorization header nếu có token và endpoint không công khai
+          ...(token && !publicEndpoints.includes(url) && { Authorization: `Bearer ${token}` }),
         },
         baseURL: import.meta.env.VITE_API_URL,
       };
@@ -85,8 +86,6 @@ export const axiosBaseQuery =
       return { error };
     }
   };
-
-  
 
 export const baseApi = createApi({
   reducerPath: "api",

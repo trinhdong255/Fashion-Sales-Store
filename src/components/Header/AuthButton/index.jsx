@@ -48,11 +48,6 @@ const AuthButton = () => {
 
     handleMenuClose();
     navigate("/");
-
-    // Không cần reload trang, React Router sẽ xử lý việc chuyển hướng
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, 100);
   };
 
   return (

@@ -17,30 +17,15 @@ import styles from "./index.module.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import { useListProductsQuery } from "@/services/api/product";
+import { useListCategoriesQuery } from "@/services/api/categories";
 
 const navCategories = [
   {
     title: "SẢN PHẨM BÁN CHẠY",
-    description: [
-      "ÁO THUN",
-      "ÁO SƠ MI",
-      "ÁO KHOÁC",
-      "QUẦN DÀI",
-      "QUẦN SHORTS",
-      "PHỤ KIỆN",
-    ],
     showButton: true,
   },
   {
     title: "SẢN PHẨM MỚI NHẤT",
-    description: [
-      "ÁO THUN",
-      "ÁO SƠ MI",
-      "ÁO KHOÁC",
-      "QUẦN DÀI",
-      "QUẦN SHORTS",
-      "PHỤ KIỆN",
-    ],
     showButton: true,
   },
 ];
@@ -48,7 +33,11 @@ const navCategories = [
 const SwiperProducts = () => {
   const navigate = useNavigate();
 
+  // Fetch products
   const { data: dataProducts } = useListProductsQuery();
+
+  // Fetch categories
+  const { data: categories, isLoading: isCategoriesLoading, isError, error } = useListCategoriesQuery();
 
   const handleClick = () => {
     navigate("/listProducts");
@@ -70,13 +59,19 @@ const SwiperProducts = () => {
           <Stack className={styles.topSellingProducts}>
             <h3>{category.title}</h3>
             <nav className={styles.navigationTopSellingProducts}>
-              <ul>
-                {category.description.map((item, index) => (
-                  <li key={index}>
-                    <Link to="#">{item}</Link>
-                  </li>
-                ))}
-              </ul>
+              {isCategoriesLoading ? (
+                <p>Đang tải danh mục...</p>
+              ) : isError ? (
+                <p>Lỗi khi tải danh mục: {error?.message || "Không thể tải dữ liệu"}</p>
+              ) : (
+                <ul>
+                  {(categories || []).map((item) => (
+                    <li key={item.id}>
+                      <Link to="#">{item.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </nav>
           </Stack>
 
