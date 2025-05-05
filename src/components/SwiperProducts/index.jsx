@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -17,7 +17,7 @@ import styles from "./index.module.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import { useListProductsQuery } from "@/services/api/product";
-import { useListCategoriesQuery } from "@/services/api/categories";
+import { useListCategoriesForUserQuery } from "@/services/api/categories";
 
 const navCategories = [
   {
@@ -36,8 +36,30 @@ const SwiperProducts = () => {
   // Fetch products
   const { data: dataProducts } = useListProductsQuery();
 
-  // Fetch categories
-  const { data: categories, isLoading: isCategoriesLoading, isError, error } = useListCategoriesQuery();
+  // Fetch categories, ép refetch
+  const { 
+    data: categories, 
+    isLoading: isCategoriesLoading, 
+    isError, 
+    error,
+    isFetching,
+    refetch,
+  } = useListCategoriesForUserQuery({
+    refetchOnMountOrArgChange: true,
+    forceRefetch: true, // Ép refetch bỏ qua cache
+  });
+
+  // Log để debug
+  useEffect(() => {
+    console.log("Current categories in cache:", categories);
+    console.log("Is fetching:", isFetching);
+  }, [categories, isFetching]);
+
+  // Refetch thủ công khi component mount
+  useEffect(() => {
+    console.log("Component mounted, triggering refetch...");
+    refetch();
+  }, [refetch]);
 
   const handleClick = () => {
     navigate("/listProducts");
@@ -65,7 +87,7 @@ const SwiperProducts = () => {
                 <p>Lỗi khi tải danh mục: {error?.message || "Không thể tải dữ liệu"}</p>
               ) : (
                 <ul>
-                  {(categories || []).map((item) => (
+                  {(categories || []).filter(item => item.status === "ACTIVE").map((item) => (
                     <li key={item.id}>
                       <Link to="#">{item.name}</Link>
                     </li>

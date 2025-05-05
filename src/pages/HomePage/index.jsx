@@ -10,6 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import styles from "./index.module.css";
 import { useEffect, useState } from "react";
+import { useListCategoriesForUserQuery } from "@/services/api/categories";
 
 const slides = [
   "/src/assets/images/backgroundFashions/backgroundHomePage.jpg",
@@ -18,14 +19,15 @@ const slides = [
   "/src/assets/images/backgroundFashions/backgroundHomePage-3.jpg",
 ];
 
-const categories = [
-  { src: "/src/assets/images/categories/T-shirt.jpg", title: "ÁO THUN" },
-  { src: "/src/assets/images/categories/Shirt.jpg", title: "ÁO SƠ MI" },
-  { src: "/src/assets/images/categories/Jacket.jpg", title: "ÁO KHOÁC" },
-  { src: "/src/assets/images/categories/Trouser.jpg", title: "QUẦN DÀI" },
-  { src: "/src/assets/images/categories/Shorts.jpg", title: "QUẦN SHORTS" },
-  { src: "/src/assets/images/categories/Accessories.jpg", title: "PHỤ KIỆN" },
-];
+// Ánh xạ giữa tên danh mục và đường dẫn ảnh
+const categoryImageMap = {
+  "ÁO THUN": "/src/assets/images/categories/T-shirt.jpg",
+  "ÁO SƠ MI": "/src/assets/images/categories/Shirt.jpg",
+  "ÁO KHOÁC": "/src/assets/images/categories/Jacket.jpg",
+  "QUẦN DÀI": "/src/assets/images/categories/Trouser.jpg",
+  "QUẦN SHORTS": "/src/assets/images/categories/Shorts.jpg",
+  "PHỤ KIỆN": "/src/assets/images/categories/Accessories.jpg",
+};
 
 const Home = () => {
   const location = useLocation();
@@ -34,6 +36,26 @@ const Home = () => {
     message: "",
     severity: "success",
   });
+  const {
+    data: categories,
+    isFetching,
+    refetch,
+  } = useListCategoriesForUserQuery({
+    refetchOnMountOrArgChange: true,
+    forceRefetch: true, // Ép refetch bỏ qua cache
+  });
+
+  // Log để debug
+  useEffect(() => {
+    console.log("Current categories in cache:", categories);
+    console.log("Is fetching:", isFetching);
+  }, [categories, isFetching]);
+
+  // Refetch thủ công khi component mount
+  useEffect(() => {
+    console.log("Component mounted, triggering refetch...");
+    refetch();
+  }, [refetch]);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -49,6 +71,9 @@ const Home = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+
+  // Lọc danh mục có status: ACTIVE
+  const activeCategories = (categories || []).filter(item => item.status === "ACTIVE");
 
   return (
     <>
@@ -99,7 +124,7 @@ const Home = () => {
 
       <Container maxWidth="lg">
         <Grid container spacing={12}>
-          {categories.map((item, index) => (
+          {activeCategories.map((item) => (
             <Grid
               sx={{
                 marginTop: 6,
@@ -113,20 +138,20 @@ const Home = () => {
               lg={4}
               sm={6}
               xs={12}
-              key={index}
+              key={item.id}
             >
               <Link to="/listProducts">
                 <Stack className={styles.wrapperImg}>
                   <img
                     className={styles.mediaImg}
-                    src={item.src}
-                    alt={item.title}
+                    src={categoryImageMap[item.name] || "/src/assets/images/categories/default.jpg"}
+                    alt={item.name}
                   />
                   <Stack className={styles.contentImg}>
                     <h2
                       style={{ fontSize: 32, fontWeight: 500, color: "white" }}
                     >
-                      {item.title}
+                      {item.name}
                     </h2>
                   </Stack>
                 </Stack>
