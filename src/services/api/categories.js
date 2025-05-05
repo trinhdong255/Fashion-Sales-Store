@@ -21,5 +21,5 @@ export const categoryApi = baseApi.injectEndpoints({
 });
 
 export const {
-  listCategoriesForUser,
+  useListCategoriesForUserQuery,
 } = categoryApi;
