@@ -13,7 +13,8 @@ export const axiosBaseQuery =
         "/v1/auth/forgot-password",
         "/v1/auth/forgot-password/verify-code",
         "/v1/auth/forgot-password/reset-password",
-        "/v1/categories", // Thêm endpoint này vào danh sách công khai
+        "/v1/categories", 
+        "/v1/products",
       ];
 
       const token = localStorage.getItem("accessToken");

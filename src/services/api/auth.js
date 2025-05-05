@@ -28,6 +28,36 @@ export const authApi = baseApi.injectEndpoints({
       },
     }),
 
+    // Đăng xuất
+    logout: builder.mutation({
+      query: (credentials) => {
+        if (!credentials.accessToken) {
+          throw new Error("accessToken is required for logout");
+        }
+
+        return {
+          url: "/v1/auth/logout",
+          method: "POST",
+          data: {
+            accessToken: credentials.accessToken,
+          },
+        };
+      },
+      invalidatesTags: [TAG_KEYS.USER],
+      onQueryStarted: async (arg, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          // Xóa accessToken khỏi localStorage
+          if (data?.result?.accessToken) {
+            localStorage.removeItem("accessToken");
+            console.log("Token removed:", data.result.accessToken); // Log token để debug
+          }
+        } catch (error) {
+          console.error("Logout failed:", error);
+        }
+      },
+    }),
+
     // Đăng ký
     register: builder.mutation({
       query: (credentials) => ({
@@ -139,6 +169,7 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useLogoutMutation,
   useRegisterMutation,
   useVerifyOtpMutation,
   useForgotPasswordMutation,
