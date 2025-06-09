@@ -7,7 +7,7 @@ A Vite-powered web application for a fashion sales store.
 ### Prerequisites
 
 - Node.js (v14.x or later)
-- npm or yarn
+- npm
 
 ### Installation
 
