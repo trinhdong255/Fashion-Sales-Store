@@ -5,7 +5,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Footer from "../../components/Footer";
@@ -92,61 +92,70 @@ const ProductDetails = () => {
   }
 
   return (
-    <>
-      <Header />
-      <Container maxWidth="lg">
-        <Stack sx={{ m: "80px 0" }}>
-          <Grid container spacing={4}>
-            <Grid item xl={6} lg={6}>
-              <ProductImage products={product} loading={isLoading} />
+    <Fragment>
+      <header>
+        <Header />
+      </header>
+      <main>
+        <Container maxWidth="lg">
+          <Stack sx={{ m: "80px 0" }}>
+            <Grid container spacing={4}>
+              <Grid item xl={6} lg={6}>
+                <ProductImage products={product} loading={isLoading} />
+              </Grid>
+
+              <Grid item xl={6} lg={6}>
+                <ProductTitle products={product} loading={isLoading} />
+
+                <Stack
+                  direction={"row"}
+                  alignItems={"center"}
+                  sx={{ m: "30px 0" }}
+                >
+                  <ProductPrice products={product} loading={isLoading} />
+                </Stack>
+
+                <ProductStockKeepingUnit
+                  products={product}
+                  loading={isLoading}
+                />
+                <ProductBrand />
+                <ProductColorSection
+                  products={product}
+                  loading={isLoading}
+                  colors={colors}
+                  handleSelectColor={handleSelectColor}
+                />
+                <ProductQuantitySelection
+                  products={product}
+                  loading={isLoading}
+                  quantity={quantity}
+                  handleIncreaseQuantity={handleIncreaseQuantity}
+                  handleDecreaseQuantity={handleDecreaseQuantity}
+                />
+                <ProductSizeSelection
+                  products={product}
+                  loading={isLoading}
+                  sizes={sizes}
+                  buttonOptionSizes={buttonOptionSizes}
+                  handleSelectSize={handleSelectSize}
+                />
+                <ProductActions
+                  products={product}
+                  loading={isLoading}
+                  selectedQuantity={quantity}
+                  selectedColor={colors}
+                  selectedSize={sizes}
+                />
+              </Grid>
             </Grid>
-
-            <Grid item xl={6} lg={6}>
-              <ProductTitle products={product} loading={isLoading} />
-
-              <Stack
-                direction={"row"}
-                alignItems={"center"}
-                sx={{ m: "30px 0" }}
-              >
-                <ProductPrice products={product} loading={isLoading} />
-              </Stack>
-
-              <ProductStockKeepingUnit products={product} loading={isLoading} />
-              <ProductBrand />
-              <ProductColorSection
-                products={product}
-                loading={isLoading}
-                colors={colors}
-                handleSelectColor={handleSelectColor}
-              />
-              <ProductQuantitySelection
-                products={product}
-                loading={isLoading}
-                quantity={quantity}
-                handleIncreaseQuantity={handleIncreaseQuantity}
-                handleDecreaseQuantity={handleDecreaseQuantity}
-              />
-              <ProductSizeSelection
-                products={product}
-                loading={isLoading}
-                sizes={sizes}
-                buttonOptionSizes={buttonOptionSizes}
-                handleSelectSize={handleSelectSize}
-              />
-              <ProductActions
-                products={product}
-                loading={isLoading}
-                selectedQuantity={quantity}
-                selectedColor={colors}
-                selectedSize={sizes}
-              />
-            </Grid>
-          </Grid>
-        </Stack>
-      </Container>
-      <Footer />
-    </>
+          </Stack>
+        </Container>
+      </main>
+      <footer>
+        <Footer />
+      </footer>
+    </Fragment>
   );
 };
 

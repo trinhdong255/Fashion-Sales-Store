@@ -13,7 +13,7 @@ import {
   useTheme,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
@@ -116,155 +116,160 @@ const VerifyAccount = () => {
   };
 
   return (
-    <Stack
-      alignItems={"center"}
-      justifyContent={"center"}
-      sx={{
-        backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
-        height: "100vh",
-      }}
-    >
+    <section>
       <Stack
+        alignItems={"center"}
+        justifyContent={"center"}
         sx={{
-          backgroundColor: "white",
-          width: 800,
-          height: 450,
-          borderRadius: 4,
-          boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
+          backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
+          height: "100vh",
         }}
       >
-        <Grid container>
-          <Grid item lg={6} md={6}>
-            <h2
-              style={{
-                textAlign: "center",
-                margin: "46px 0 20px 0",
-                fontWeight: "inherit",
-              }}
-            >
-              XÁC THỰC TÀI KHOẢN
-            </h2>
-            <Stack
-              sx={{ padding: "0px 36px" }}
-              component={"form"}
-              onSubmit={handleSubmit(onSubmit)}
-            >
-              {/* Hiển thị email dưới dạng text */}
-              <Stack sx={{ mb: 2 }}>
-                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                  Email:
-                </Typography>
-                <Typography variant="body1">{email}</Typography>
-              </Stack>
-
-              {/* Hiển thị lỗi nếu có */}
-              {error && (
-                <Typography color="error" sx={{ mb: 2 }}>
-                  {error}
-                </Typography>
-              )}
-
-              <Stack className={styles.formLabelInput}>
-                <label className={styles.labelInput} htmlFor="verificationCode">
-                  Xác thực OTP
-                </label>
-                <ThemeProvider theme={customTheme(outerTheme)}>
-                  <TextField
-                    id="verificationCode"
-                    label="Xác thực OTP"
-                    type={showOtp ? "text" : "password"}
-                    variant="outlined"
-                    disabled={isLoading}
-                    {...register("verificationCode", {
-                      required: "OTP không được để trống",
-                      pattern: {
-                        value: /^[0-9]{6}$/,
-                        message: "OTP phải là 6 chữ số",
-                      },
-                    })}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label={
-                              showOtp ? "hide the OTP" : "display the OTP"
-                            }
-                            onClick={handleClickShowOtp}
-                            onMouseDown={handleMouseDownOtp}
-                            onMouseUp={handleMouseUpOtp}
-                            edge="end"
-                            disabled={isLoading}
-                          >
-                            {showOtp ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {errors.verificationCode && (
-                    <p className={styles.errorMessage}>
-                      {errors.verificationCode.message}
-                    </p>
-                  )}
-                </ThemeProvider>
-              </Stack>
-
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "black",
-                  color: "white",
-                  padding: "10px 24px",
-                  marginTop: "14px",
-                  fontSize: "1.2rem",
-                  fontWeight: "regular",
-                  "&:hover": {
-                    backgroundColor: "#333",
-                  },
+        <Stack
+          sx={{
+            backgroundColor: "white",
+            width: 800,
+            height: 450,
+            borderRadius: 4,
+            boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          <Grid container>
+            <Grid item lg={6} md={6}>
+              <h2
+                style={{
+                  textAlign: "center",
+                  margin: "46px 0 20px 0",
+                  fontWeight: "inherit",
                 }}
-                type="submit"
-                disabled={isLoading}
               >
-                {isLoading ? (
-                  <CircularProgress size={34} color="inherit" />
-                ) : (
-                  "XÁC NHẬN"
+                XÁC THỰC TÀI KHOẢN
+              </h2>
+              <Stack
+                sx={{ padding: "0px 36px" }}
+                component={"form"}
+                onSubmit={handleSubmit(onSubmit)}
+              >
+                {/* Hiển thị email dưới dạng text */}
+                <Stack sx={{ mb: 2 }}>
+                  <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                    Email:
+                  </Typography>
+                  <Typography variant="body1">{email}</Typography>
+                </Stack>
+
+                {/* Hiển thị lỗi nếu có */}
+                {error && (
+                  <Typography color="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Typography>
                 )}
-              </Button>
 
-              <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "right", horizontal: "right" }}
-              >
-                <Alert
-                  onClose={handleCloseSnackbar}
-                  severity={snackbar.severity}
-                  variant="filled"
-                  sx={{ width: "100%", p: "10px 20px" }}
+                <Stack className={styles.formLabelInput}>
+                  <label
+                    className={styles.labelInput}
+                    htmlFor="verificationCode"
+                  >
+                    Xác thực OTP
+                  </label>
+                  <ThemeProvider theme={customTheme(outerTheme)}>
+                    <TextField
+                      id="verificationCode"
+                      label="Xác thực OTP"
+                      type={showOtp ? "text" : "password"}
+                      variant="outlined"
+                      disabled={isLoading}
+                      {...register("verificationCode", {
+                        required: "OTP không được để trống",
+                        pattern: {
+                          value: /^[0-9]{6}$/,
+                          message: "OTP phải là 6 chữ số",
+                        },
+                      })}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label={
+                                showOtp ? "hide the OTP" : "display the OTP"
+                              }
+                              onClick={handleClickShowOtp}
+                              onMouseDown={handleMouseDownOtp}
+                              onMouseUp={handleMouseUpOtp}
+                              edge="end"
+                              disabled={isLoading}
+                            >
+                              {showOtp ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    {errors.verificationCode && (
+                      <p className={styles.errorMessage}>
+                        {errors.verificationCode.message}
+                      </p>
+                    )}
+                  </ThemeProvider>
+                </Stack>
+
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "black",
+                    color: "white",
+                    padding: "10px 24px",
+                    marginTop: "14px",
+                    fontSize: "1.2rem",
+                    fontWeight: "regular",
+                    "&:hover": {
+                      backgroundColor: "#333",
+                    },
+                  }}
+                  type="submit"
+                  disabled={isLoading}
                 >
-                  {snackbar.message}
-                </Alert>
-              </Snackbar>
-            </Stack>
-          </Grid>
+                  {isLoading ? (
+                    <CircularProgress size={34} color="inherit" />
+                  ) : (
+                    "XÁC NHẬN"
+                  )}
+                </Button>
 
-          <Grid item lg={6} md={6}>
-            <img
-              style={{
-                width: "100%",
-                height: 450,
-                borderTopRightRadius: 16,
-                borderBottomRightRadius: 16,
-                objectFit: "cover",
-              }}
-              src="/src/assets/images/backgroundFashions/background-login.jpg"
-            />
+                <Snackbar
+                  open={snackbar.open}
+                  autoHideDuration={3000}
+                  onClose={handleCloseSnackbar}
+                  anchorOrigin={{ vertical: "right", horizontal: "right" }}
+                >
+                  <Alert
+                    onClose={handleCloseSnackbar}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{ width: "100%", p: "10px 20px" }}
+                  >
+                    {snackbar.message}
+                  </Alert>
+                </Snackbar>
+              </Stack>
+            </Grid>
+
+            <Grid item lg={6} md={6}>
+              <img
+                style={{
+                  width: "100%",
+                  height: 450,
+                  borderTopRightRadius: 16,
+                  borderBottomRightRadius: 16,
+                  objectFit: "cover",
+                }}
+                src="/src/assets/images/backgroundFashions/background-login.jpg"
+              />
+            </Grid>
           </Grid>
-        </Grid>
+        </Stack>
       </Stack>
-    </Stack>
+    </section>
   );
 };
 

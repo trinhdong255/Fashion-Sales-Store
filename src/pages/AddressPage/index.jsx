@@ -6,32 +6,34 @@ import AddressInform from "./shared/AddressInform";
 
 const Address = () => {
   return (
-    <Container maxWidth="lg">
-      <Stack sx={{ m: "80px 0" }}>
-        <Grid container>
-          <Grid item xl={3} lg={3}>
-            <AccountSideBar />
-          </Grid>
+    <section>
+      <Container maxWidth="lg">
+        <Stack sx={{ m: "80px 0" }}>
+          <Grid container>
+            <Grid item xl={3} lg={3}>
+              <AccountSideBar />
+            </Grid>
 
-          <Grid item xl={9} lg={9}>
-            <h1
-              style={{
-                fontWeight: "500",
-                width: "100%",
-                margin: 0,
-                textAlign: "center",
-              }}
-            >
-              ĐỊA CHỈ
-            </h1>
+            <Grid item xl={9} lg={9}>
+              <h1
+                style={{
+                  fontWeight: "500",
+                  width: "100%",
+                  margin: 0,
+                  textAlign: "center",
+                }}
+              >
+                ĐỊA CHỈ
+              </h1>
 
-            <Stack alignItems={"center"}>
-              <AddressInform />
-            </Stack>
+              <Stack alignItems={"center"}>
+                <AddressInform />
+              </Stack>
+            </Grid>
           </Grid>
-        </Grid>
-      </Stack>
-    </Container>
+        </Stack>
+      </Container>
+    </section>
   );
 };
 

@@ -2,7 +2,6 @@ import {
   Alert,
   Button,
   CircularProgress,
-  createTheme,
   Grid,
   IconButton,
   InputAdornment,
@@ -18,7 +17,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import styles from "../index.module.css";
 import customTheme from "@/components/CustemTheme";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForgotPasswordVerifyMutation } from "@/services/api/auth";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
@@ -121,7 +120,7 @@ const ForgotPasswordVerify = () => {
   };
 
   return (
-    <Fragment>
+    <section>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -297,7 +296,7 @@ const ForgotPasswordVerify = () => {
           </Grid>
         </Stack>
       </Stack>
-    </Fragment>
+    </section>
   );
 };
 

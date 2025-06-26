@@ -19,7 +19,7 @@ const Support = () => {
   const outerTheme = useTheme();
 
   return (
-    <>
+    <section>
       <WallpaperRepresentative
         titleHeader="Chúng tôi có thể giúp gì cho bạn ?"
         searchSupport={
@@ -107,7 +107,7 @@ const Support = () => {
           </Box>
         </Stack>
       </Container>
-    </>
+    </section>
   );
 };
 

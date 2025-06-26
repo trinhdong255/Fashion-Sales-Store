@@ -1,6 +1,7 @@
 import { Container, Grid, Stack } from "@mui/material";
 
 import styles from "./index.module.css";
+import { Fragment } from "react";
 
 const Footer = () => {
   const footerData = [
@@ -43,12 +44,12 @@ const Footer = () => {
     },
     {
       title: "Theo dõi",
-      links: ["Facebook", "LinkedIn", "Instagram", "X"]
+      links: ["Facebook", "LinkedIn", "Instagram", "X"],
     },
   ];
 
   return (
-    <Stack className={styles.footer}>
+    <section>
       <Container maxWidth="lg">
         <Grid container spacing={10}>
           {footerData.map((value, index) => (
@@ -68,7 +69,7 @@ const Footer = () => {
         </Grid>
       </Container>
 
-      <span
+      <p
         style={{
           textAlign: "center",
           fontSize: 16,
@@ -79,8 +80,8 @@ const Footer = () => {
         }}
       >
         Copyright @2025 by Fashion Store. All Rights Reserved.
-      </span>
-    </Stack>
+      </p>
+    </section>
   );
 };
 

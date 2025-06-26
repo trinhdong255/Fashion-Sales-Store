@@ -50,7 +50,7 @@ const Contact = () => {
   const outerTheme = useTheme();
 
   return (
-    <>
+    <section>
       <WallpaperRepresentative titleHeader="Liên hệ" />
 
       <Container maxWidth="lg">
@@ -144,7 +144,7 @@ const Contact = () => {
           </Grid>
         </Grid>
       </Container>
-    </>
+    </section>
   );
 };
 

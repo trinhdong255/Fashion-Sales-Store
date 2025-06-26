@@ -12,7 +12,7 @@ import {
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import customTheme from "@/components/CustemTheme";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -109,12 +109,12 @@ const ResetPassword = () => {
       }).unwrap();
 
       if (response) {
-        // const userData = {
-        //   forgotPasswordToken: response.forgotPasswordToken,
-        //   newPassword: response.newPassword,
-        //   confirmPassword: response.confirmPassword,
-        // };
-        // dispatch(setUser(userData));
+        const userData = {
+          forgotPasswordToken: response.forgotPasswordToken,
+          newPassword: response.newPassword,
+          confirmPassword: response.confirmPassword,
+        };
+        dispatch(setUser(userData));
         navigate("/login", {
           state: {
             message: "Đặt lại mật khẩu thành công !",
@@ -129,7 +129,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <Fragment>
+    <section>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -342,7 +342,7 @@ const ResetPassword = () => {
           </Grid>
         </Stack>
       </Stack>
-    </Fragment>
+    </section>
   );
 };
 
