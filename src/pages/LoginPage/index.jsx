@@ -1,51 +1,45 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
-  Grid,
   IconButton,
   InputAdornment,
   Stack,
   TextField,
   ThemeProvider,
   useTheme,
-  CircularProgress,
   Snackbar,
   Alert,
+  Grid,
+  CircularProgress,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
-import { useLoginMutation, useGetMyInfoQuery } from "@/services/api/auth";
+import { useLoginMutation } from "@/services/api/auth";
 import customTheme from "@/components/CustemTheme";
+import { useLazyGetMyInfoQuery } from "../../services/api/auth";
+import { useSelector } from "react-redux";
+import { selectUser } from "@/store/redux/user/reducer";
 
 const Login = () => {
   const outerTheme = useTheme();
   const navigate = useNavigate();
-  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
-  const [userData, setUserData] = useState(null);
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [triggerMyInfo, { data }] = useLazyGetMyInfoQuery();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  const {
-    data: myInfo,
-    isLoading: isMyInfoLoading,
-    error: myInfoError,
-  } = useGetMyInfoQuery(undefined, {
-    skip: !userData || !localStorage.getItem("accessToken"),
-  });
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -66,54 +60,11 @@ const Login = () => {
     });
   };
 
-  useEffect(() => {
-    if (location.state?.message) {
-      setSnackbar({
-        open: true,
-        message: location.state.message || "",
-        severity: location.state.severity || "success",
-      });
-    }
-    window.history.replaceState({}, document.title);
-  }, [location]);
-
-  useEffect(() => {
-    if (myInfoError) {
-      handleShowSnackbar(false, "Không thể lấy thông tin người dùng!");
-      return;
-    }
-
-    if (myInfo && userData) {
-      // Lưu user vào localStorage để đồng bộ với các trang khác (nếu cần)
-      const updatedUserData = {
-        code: myInfo.code,
-        message: myInfo.message,
-        result: {
-          ...userData.result,
-          id: myInfo.result?.id,
-          name: myInfo.result?.name,
-          email: myInfo.result?.email,
-        },
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUserData));
-      console.log("User saved to localStorage:", updatedUserData);
-
-      handleShowSnackbar(true);
-
-      // Điều hướng về trang chủ sau khi đăng nhập thành công
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
-    }
-  }, [myInfo, myInfoError, userData, navigate]);
-
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const onSubmit = async (data) => {
-    setError("");
-
+  const handleLogin = async (data) => {
     try {
       const response = await login({
         email: data?.email,
@@ -121,37 +72,31 @@ const Login = () => {
       }).unwrap();
 
       if (response) {
-        localStorage.setItem("accessToken", response.result.accessToken);
-        console.log("Token saved in onSubmit:", response.result.accessToken);
+        const role = response?.result?.roles?.[0]?.name;
+        if (!role) throw new Error("Không thể xác định vai trò người dùng.");
+        if (role === "ADMIN")
+          throw new Error("Tài khoản ADMIN không thể đăng nhập.");
 
-        const savedToken = localStorage.getItem("accessToken");
-        if (!savedToken) {
-          throw new Error("Không thể lưu token vào localStorage");
+        if (role === "USER") {
+          handleShowSnackbar(true, "Đăng nhập thành công!");
+          setTimeout(() => navigate("/"), 1000);
         }
 
-        console.log("Token verified after save:", savedToken);
+        localStorage.setItem("accessToken", response?.result?.accessToken);
+        localStorage.setItem("refreshToken", response?.result?.refreshToken);
 
-        const newUserData = {
-          code: response.code,
-          message: response.message,
-          result: {
-            accessToken: response.result.accessToken,
-            refreshToken: response.result.refreshToken,
-            authenticated: response.result.authenticated,
-            email: response.result.email,
-          },
-        };
-
-        setUserData(newUserData);
+        await triggerMyInfo();
       }
     } catch (error) {
-      handleShowSnackbar(false);
+      const messageError =
+        error?.message || error?.data?.message || "Đăng nhập thất bại !";
+      handleShowSnackbar(false, messageError);
       console.log("Login failed:", error);
     }
   };
 
   return (
-    <Fragment>
+    <section>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -200,7 +145,7 @@ const Login = () => {
               <Stack
                 sx={{ padding: "0px 36px" }}
                 component={"form"}
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(handleLogin)}
               >
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 <Stack className={styles.formLabelInput}>
@@ -212,7 +157,7 @@ const Login = () => {
                       id="email"
                       label="Email"
                       variant="outlined"
-                      disabled={isLoginLoading || isMyInfoLoading}
+                      disabled={isLoginLoading}
                       {...register("email", {
                         required: "Email không được để trống",
                         pattern: {
@@ -239,7 +184,7 @@ const Login = () => {
                       label="Mật khẩu"
                       type={showPassword ? "text" : "password"}
                       variant="outlined"
-                      disabled={isLoginLoading || isMyInfoLoading}
+                      disabled={isLoginLoading}
                       {...register("password", {
                         required: "Mật khẩu không được để trống",
                         minLength: {
@@ -260,7 +205,7 @@ const Login = () => {
                               onMouseDown={handleMouseDownPassword}
                               onMouseUp={handleMouseUpPassword}
                               edge="end"
-                              disabled={isLoginLoading || isMyInfoLoading}
+                              disabled={isLoginLoading}
                             >
                               {showPassword ? (
                                 <VisibilityOff />
@@ -294,9 +239,9 @@ const Login = () => {
                     },
                   }}
                   type="submit"
-                  disabled={isLoginLoading || isMyInfoLoading}
+                  disabled={isLoginLoading}
                 >
-                  {isLoginLoading || isMyInfoLoading ? (
+                  {isLoginLoading ? (
                     <CircularProgress size={34} color="inherit" />
                   ) : (
                     "ĐĂNG NHẬP"
@@ -331,13 +276,13 @@ const Login = () => {
                   borderBottomRightRadius: 16,
                   objectFit: "cover",
                 }}
-                src="/src/assets/images/backgroundFashions/background-login.jpg"
+                src="/src/assets/images/background-fashions/background-login.jpg"
               />
             </Grid>
           </Grid>
         </Stack>
       </Stack>
-    </Fragment>
+    </section>
   );
 };
 

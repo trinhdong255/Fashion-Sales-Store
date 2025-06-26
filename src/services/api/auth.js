@@ -1,34 +1,38 @@
+import { setUser } from "@/store/redux/user/reducer";
 import { baseApi } from "./index";
 import { TAG_KEYS } from "@/constants/tagKeys";
+import { setAuth } from "@/store/redux/auth/reducer";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Đăng nhập
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/v1/auth/login",
+        url: "/v1/public/auth/login",
         method: "POST",
         data: {
           email: credentials.email,
           password: credentials.password,
         },
       }),
-      invalidatesTags: [TAG_KEYS.USER],
-      onQueryStarted: async (arg, { queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled;
-          // Lưu accessToken vào localStorage
-          if (data?.result?.accessToken) {
-            localStorage.setItem("accessToken", data.result.accessToken);
-            console.log("Token saved:", data.result.accessToken); // Log token để debug
-          }
-        } catch (error) {
-          console.error("Login failed:", error);
-        }
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+
+        const authData = {
+          accessToken: data?.result?.accessToken,
+          refreshToken: data.result?.refreshToken,
+          authenticated: data?.result?.authenticated,
+          email: data?.result?.email,
+          roles: data?.result?.roles,
+        };
+
+        dispatch(setAuth(authData));
+        console.log("authData", authData);
+
+        console.log("queryFulfilled", data);
       },
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
-    // Đăng xuất
     logout: builder.mutation({
       query: (credentials) => {
         if (!credentials.accessToken) {
@@ -36,32 +40,19 @@ export const authApi = baseApi.injectEndpoints({
         }
 
         return {
-          url: "/v1/auth/logout",
+          url: "/v1/private/auth/logout",
           method: "POST",
           data: {
             accessToken: credentials.accessToken,
           },
         };
       },
-      invalidatesTags: [TAG_KEYS.USER],
-      onQueryStarted: async (arg, { queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled;
-          // Xóa accessToken khỏi localStorage
-          if (data?.result?.accessToken) {
-            localStorage.removeItem("accessToken");
-            console.log("Token removed:", data.result.accessToken); // Log token để debug
-          }
-        } catch (error) {
-          console.error("Logout failed:", error);
-        }
-      },
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
-    // Đăng ký
     register: builder.mutation({
       query: (credentials) => ({
-        url: "/v1/auth/register",
+        url: "/v1/public/auth/register",
         method: "POST",
         data: {
           name: credentials.name,
@@ -74,48 +65,44 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: [TAG_KEYS.USER],
     }),
 
-    // Verify-OTP
     verifyOtp: builder.mutation({
       query: (credentials) => ({
-        url: "/v1/auth/register/verify",
+        url: "/v1/public/auth/register/verify",
         method: "POST",
         data: {
           email: credentials.email,
           verificationCode: credentials.verificationCode,
         },
       }),
-      invalidatesTags: [TAG_KEYS.USER],
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
-    // Quên mật khẩu
     forgotPassword: builder.mutation({
       query: (credentials) => ({
-        url: "/v1/auth/forgot-password",
+        url: "/v1/public/auth/forgot-password",
         method: "POST",
         data: {
           email: credentials.email,
         },
       }),
-      invalidatesTags: [TAG_KEYS.USER],
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
-    // Xác thực mật khẩu
     forgotPasswordVerify: builder.mutation({
       query: (credentials) => ({
-        url: "/v1/auth/forgot-password/verify-code",
+        url: "/v1/public/auth/forgot-password/verify-code",
         method: "POST",
         data: {
           email: credentials.email,
           verificationCode: credentials.verificationCode,
         },
       }),
-      invalidatesTags: [TAG_KEYS.USER],
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
-    // Đặt lại mật khẩu
     resetPassword: builder.mutation({
       query: (credentials) => ({
-        url: "/v1/auth/forgot-password/reset-password",
+        url: "/v1/public/auth/forgot-password/reset-password",
         method: "POST",
         data: {
           forgotPasswordToken: credentials.forgotPasswordToken,
@@ -123,46 +110,47 @@ export const authApi = baseApi.injectEndpoints({
           confirmPassword: credentials.confirmPassword,
         },
       }),
-      invalidatesTags: [TAG_KEYS.USER],
+      invalidatesTags: [TAG_KEYS.AUTH],
+    }),
+
+    changePassword: builder.mutation({
+      query: ({ oldPassword, newPassword, confirmPassword }) => ({
+        url: "/v1/private/auth/change-password",
+        method: "POST",
+        data: {
+          oldPassword,
+          newPassword,
+          confirmPassword,
+        },
+      }),
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
     getMyInfo: builder.query({
       query: () => ({
-        url: "/v1/auth/myInfo",
-        method: "GET",
+        url: "/v1/private/auth/myInfo",
       }),
-      providesTags: [TAG_KEYS.USER],
-    }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("getMyInfo data:", data);
 
-    // Cập nhật thông tin người dùng
-    updateUser: builder.mutation({
-      query: ({ id, ...credentials }) => {
-        // Chuyển đổi birthDate thành định dạng YYYY-MM-DD
-        const dob =
-          credentials.birthDate?.year &&
-          credentials.birthDate?.month &&
-          credentials.birthDate?.date
-            ? `${credentials.birthDate.year}-${String(
-                credentials.birthDate.month
-              ).padStart(2, "0")}-${String(credentials.birthDate.date).padStart(
-                2,
-                "0"
-              )}`
-            : undefined;
-
-        return {
-          url: `/v1/users/${id}`,
-          method: "PUT",
-          body: {
-            name: credentials.name,
-            avatarUrl: credentials.image, // Đổi image thành avatarUrl
-            dob: dob, // Gửi dob thay vì birthDate
-            gender: credentials.gender,
-            roles: [], // Backend yêu cầu roles, gửi mảng rỗng nếu không có
-          },
-        };
+          dispatch(
+            setUser({
+              id: data?.result?.id || null,
+              name: data?.result?.name || null,
+              email: data?.result?.email || null,
+              avatarUrl: data?.result?.avatarUrl || null,
+              dob: data?.result?.dob || null,
+              gender: data?.result?.gender || null,
+            })
+          );
+          console.log("setUser dispatched with:", data?.result);
+        } catch (error) {
+          console.error("getMyInfo failed:", error);
+        }
       },
-      invalidatesTags: [TAG_KEYS.USER],
+      providesTags: [TAG_KEYS.AUTH],
     }),
   }),
 });
@@ -175,6 +163,7 @@ export const {
   useForgotPasswordMutation,
   useForgotPasswordVerifyMutation,
   useResetPasswordMutation,
+  useChangePasswordMutation,
   useGetMyInfoQuery,
-  useUpdateUserMutation,
+  useLazyGetMyInfoQuery,
 } = authApi;
