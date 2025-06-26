@@ -1,22 +1,33 @@
-import { Stack } from "@mui/material";
-import PropTypes from "prop-types";
+/* eslint-disable react/prop-types */
+import { Box } from "@mui/material";
+import backgroundFashion from "/src/assets/images/background-fashions/background-fashion.png";
 
 const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
   return (
-    <Stack position={"relative"}>
-      <img
-        style={{ width: "100%", height: "100%" }}
-        src="/src/assets/images/backgroundFashions/background-fashion.jpg"
-        alt="Background Fashion"
-      />
-      <Stack
-        position={"absolute"}
-        alignItems={"center"}
-        justifyContent={"center"}
+    <Box
+      sx={{
+        position: "relative",
+        height: "500px",
+        backgroundImage: `url(${backgroundFashion})`,
+        backgroundAttachment: "fixed",
+        // backgroundPosition:"center",
+        backgroundSize: "100%"
+      }}
+    >
+      <Box
         sx={{
+          content: '""',
+          position: "absolute",
+          left: 0,
+          bottom: 0,
+          right: 0,
+          top: 0,
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           width: "100%",
-          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <h1
@@ -30,15 +41,9 @@ const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
         </h1>
 
         {searchSupport}
-      </Stack>
-    </Stack>
+      </Box>
+    </Box>
   );
-};
-
-// Checking datatype is correct or not
-WallpaperRepresentative.propTypes = {
-  titleHeader: PropTypes.string.isRequired,
-  searchSupport: PropTypes.element,
 };
 
 export default WallpaperRepresentative;
