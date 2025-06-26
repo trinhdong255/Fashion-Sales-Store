@@ -1,6 +1,3 @@
-import { useChangePasswordMutation } from "@/services/api/changePassword";
-import { useGetMyInfoQuery } from "@/services/api/auth";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -13,9 +10,14 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  useChangePasswordMutation,
+  useGetMyInfoQuery,
+} from "@/services/api/auth";
 
 const ChangePasswordInform = () => {
   const navigate = useNavigate();
@@ -303,7 +305,7 @@ const ChangePasswordInform = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert
           onClose={handleCloseSnackbar}
