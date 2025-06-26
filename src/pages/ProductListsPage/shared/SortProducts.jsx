@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import SortOptions from "./SortOptions";
 import {
-  useListProductsQuery,
+  useListProductsForUserQuery,
   useSearchProductsQuery,
 } from "@/services/api/product";
 
@@ -31,7 +31,7 @@ const SortProducts = ({ searchTerm, onLoadingChange }) => {
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
   // Gọi API dựa trên searchTerm
-  const listQuery = useListProductsQuery(
+  const listQuery = useListProductsForUserQuery(
     { skip, limit: ITEMS_PER_PAGE },
     { skip: !!searchTerm }
   );

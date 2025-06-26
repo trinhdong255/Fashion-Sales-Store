@@ -11,22 +11,23 @@ import { Link, useLocation } from "react-router-dom";
 import styles from "./index.module.css";
 import { useEffect, useState } from "react";
 import { useListCategoriesForUserQuery } from "@/services/api/categories";
+import BrandVideo from "./shared/BrandVideo";
 
 const slides = [
-  "/src/assets/images/backgroundFashions/backgroundHomePage.jpg",
-  "/src/assets/images/backgroundFashions/backgroundHomePage-1.jpg",
-  "/src/assets/images/backgroundFashions/backgroundHomePage-2.jpg",
-  "/src/assets/images/backgroundFashions/backgroundHomePage-3.jpg",
+  "/src/assets/images/background-fashions/banner-fashion.jpg",
+  "/src/assets/images/background-fashions/banner-fashion-1.jpg",
+  "/src/assets/images/background-fashions/banner-fashion-2.jpg",
+  "/src/assets/images/background-fashions/banner-fashion-3.jpg",
+  "/src/assets/images/background-fashions/banner-fashion-4.jpg",
 ];
 
-// Ánh xạ giữa tên danh mục và đường dẫn ảnh
 const categoryImageMap = {
-  "ÁO THUN": "/src/assets/images/categories/T-shirt.jpg",
-  "ÁO SƠ MI": "/src/assets/images/categories/Shirt.jpg",
-  "ÁO KHOÁC": "/src/assets/images/categories/Jacket.jpg",
-  "QUẦN DÀI": "/src/assets/images/categories/Trouser.jpg",
-  "QUẦN SHORTS": "/src/assets/images/categories/Shorts.jpg",
-  "PHỤ KIỆN": "/src/assets/images/categories/Accessories.jpg",
+  "Áo thun": "/src/assets/images/categories/T-shirt.jpg",
+  "Áo sơ mi": "/src/assets/images/categories/Shirt.jpg",
+  "Áo khoác": "/src/assets/images/categories/Jacket.jpg",
+  "Quần dài": "/src/assets/images/categories/Trouser.jpg",
+  "Quần shorts": "/src/assets/images/categories/Shorts.jpg",
+  "Phụ kiện": "/src/assets/images/categories/Accessories.jpg",
 };
 
 const Home = () => {
@@ -36,26 +37,12 @@ const Home = () => {
     message: "",
     severity: "success",
   });
-  const {
-    data: categories,
-    isFetching,
-    refetch,
-  } = useListCategoriesForUserQuery({
+  const { data, isFetching, refetch } = useListCategoriesForUserQuery({
+    page: 0,
+    size: 10, // Match the API response size
     refetchOnMountOrArgChange: true,
-    forceRefetch: true, // Ép refetch bỏ qua cache
+    forceRefetch: true,
   });
-
-  // Log để debug
-  useEffect(() => {
-    console.log("Current categories in cache:", categories);
-    console.log("Is fetching:", isFetching);
-  }, [categories, isFetching]);
-
-  // Refetch thủ công khi component mount
-  useEffect(() => {
-    console.log("Component mounted, triggering refetch...");
-    refetch();
-  }, [refetch]);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -72,12 +59,13 @@ const Home = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Lọc danh mục có status: ACTIVE
-  const activeCategories = (categories || []).filter(item => item.status === "ACTIVE");
+  // Ensure activeCategories is an array from the transformed data
+  const activeCategories = Array.isArray(data) ? data.filter(item => item.status === "ACTIVE") : [];
+
+  if (isFetching || !data) return null;
 
   return (
-    <>
-      {/* Show message when login successfully */}
+    <section>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -98,29 +86,34 @@ const Home = () => {
         slidesPerView={1}
         spaceBetween={30}
         centeredSlides={true}
-        autoplay={{
-          delay: 5000,
-          disableOnInteraction: true,
-        }}
+        autoplay={{ delay: 5000, disableOnInteraction: true }}
         pagination={{ clickable: true }}
         navigation={true}
         modules={[Autoplay, Pagination, Navigation]}
-        style={{ width: "100%", height: "94vh" }}
+        style={{ width: "100%", height: 700, color: "#fff" }}
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
             <img
-              style={{
-                objectFit: "cover",
-                height: "100%",
-                width: "100%",
-              }}
+              style={{ objectFit: "cover", height: "100%", width: "100%" }}
               src={slide}
               alt={`Slide ${index + 1}`}
             />
           </SwiperSlide>
         ))}
       </Swiper>
+
+      <div style={{ textAlign: "center", margin: "100px 0", padding: "100px", backgroundColor: "#f9f9f9" }}>
+        <h2 style={{ fontSize: "2rem", marginBottom: "24px" }}>
+          Hãy tận hưởng tuổi trẻ của bạn!
+        </h2>
+        <p
+          style={{ maxWidth: "600px", margin: "auto", color: "var(--text-color)" }}
+        >
+          Fashion Store là nơi cung cấp thời trang hiện đại dành cho giới trẻ,
+          mang đến trải nghiệm mua sắm tiện lợi và phong cách nổi bật mỗi ngày.
+        </p>
+      </div>
 
       <Container maxWidth="lg">
         <Grid container spacing={12}>
@@ -148,9 +141,7 @@ const Home = () => {
                     alt={item.name}
                   />
                   <Stack className={styles.contentImg}>
-                    <h2
-                      style={{ fontSize: 32, fontWeight: 500, color: "white" }}
-                    >
+                    <h2 style={{ fontSize: 32, fontWeight: 500, color: "white" }}>
                       {item.name}
                     </h2>
                   </Stack>
@@ -162,7 +153,8 @@ const Home = () => {
 
         <SwiperProducts />
       </Container>
-    </>
+      <BrandVideo />
+    </section>
   );
 };
 

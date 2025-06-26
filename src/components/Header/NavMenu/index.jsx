@@ -17,27 +17,19 @@ const NavMenu = () => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  // Fetch categories, ép refetch
-  const { 
-    data: categories, 
-    isFetching,
-    refetch,
-  } = useListCategoriesForUserQuery({
-    refetchOnMountOrArgChange: true,
-    forceRefetch: true, // Ép refetch bỏ qua cache
-  });
 
-  // Log để debug
-    useEffect(() => {
-      console.log("Current categories in cache:", categories);
-      console.log("Is fetching:", isFetching);
-    }, [categories, isFetching]);
-  
-    // Refetch thủ công khi component mount
-    useEffect(() => {
-      console.log("Component mounted, triggering refetch...");
-      refetch();
-    }, [refetch]);
+  // Fetch categories with default page and size
+  const { data, isFetching, refetch } = useListCategoriesForUserQuery({
+    page: 0,
+    size: 10, // Match the API response size
+    refetchOnMountOrArgChange: true,
+    forceRefetch: true,
+  });
+  console.log("dataCategories", data);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -47,8 +39,10 @@ const NavMenu = () => {
     setAnchorEl(null);
   };
 
-  // Lọc danh mục có status: ACTIVE
-  const activeCategories = (categories || []).filter(item => item.status === "ACTIVE");
+  // Ensure activeCategories is an array from the transformed data
+  const activeCategories = Array.isArray(data) ? data.filter(item => item.status === "ACTIVE") : [];
+
+  if (isFetching || !data) return null;
 
   return (
     <>
@@ -59,9 +53,7 @@ const NavMenu = () => {
         }}
         showLabels
         value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
+        onChange={(event, newValue) => setValue(newValue)}
       >
         <BottomNavigationAction
           sx={{
@@ -140,7 +132,7 @@ const NavMenu = () => {
       </BottomNavigation>
 
       <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-        {activeCategories.map((category, index) => (
+        {activeCategories.map((category) => (
           <MenuItem
             sx={{ padding: 2 }}
             onClick={handleMenuClose}

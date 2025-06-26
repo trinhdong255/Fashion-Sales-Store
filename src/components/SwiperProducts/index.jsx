@@ -16,63 +16,38 @@ import styles from "./index.module.css";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import { useListProductsQuery } from "@/services/api/product";
 import { useListCategoriesForUserQuery } from "@/services/api/categories";
+import { useListProductsForUserQuery } from "@/services/api/product";
 
 const navCategories = [
-  {
-    title: "SẢN PHẨM BÁN CHẠY",
-    showButton: true,
-  },
-  {
-    title: "SẢN PHẨM MỚI NHẤT",
-    showButton: true,
-  },
+  { title: "SẢN PHẨM BÁN CHẠY", showButton: true },
+  { title: "SẢN PHẨM MỚI NHẤT", showButton: true },
 ];
 
 const SwiperProducts = () => {
   const navigate = useNavigate();
 
   // Fetch products
-  const { data: dataProducts } = useListProductsQuery();
-
-  // Fetch categories, ép refetch
-  const { 
-    data: categories, 
-    isLoading: isCategoriesLoading, 
-    isError, 
-    error,
-    isFetching,
-    refetch,
-  } = useListCategoriesForUserQuery({
+  const { data: dataProducts, isLoading: isProductsLoading } = useListProductsForUserQuery({
     refetchOnMountOrArgChange: true,
-    forceRefetch: true, // Ép refetch bỏ qua cache
+    forceRefetch: true,
   });
 
-  // Log để debug
-  useEffect(() => {
-    console.log("Current categories in cache:", categories);
-    console.log("Is fetching:", isFetching);
-  }, [categories, isFetching]);
-
-  // Refetch thủ công khi component mount
-  useEffect(() => {
-    console.log("Component mounted, triggering refetch...");
-    refetch();
-  }, [refetch]);
+  // Fetch categories with explicit page and size
+  const { data: dataCategories, isLoading: isCategoriesLoading, isError, error } = useListCategoriesForUserQuery({
+    page: 0,
+    size: 10, // Match the API response size
+    refetchOnMountOrArgChange: true,
+    forceRefetch: true,
+  });
+  console.log("dataCategories", dataCategories);
 
   const handleClick = () => {
     navigate("/listProducts");
   };
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    // Cleanup function
-    return () => {
-      controller.abort();
-    };
-  }, []);
+  // Ensure activeCategories is an array from the transformed data
+  const activeCategories = Array.isArray(dataCategories) ? dataCategories.filter(item => item.status === "ACTIVE") : [];
 
   return (
     <>
@@ -87,7 +62,7 @@ const SwiperProducts = () => {
                 <p>Lỗi khi tải danh mục: {error?.message || "Không thể tải dữ liệu"}</p>
               ) : (
                 <ul>
-                  {(categories || []).filter(item => item.status === "ACTIVE").map((item) => (
+                  {activeCategories.map((item) => (
                     <li key={item.id}>
                       <Link to="#">{item.name}</Link>
                     </li>
@@ -103,69 +78,64 @@ const SwiperProducts = () => {
             slidesPerGroup={1}
             spaceBetween={30}
             centeredSlides={true}
-            autoplay={{
-              delay: 3000,
-              disableOnInteraction: true,
-            }}
+            autoplay={{ delay: 3000, disableOnInteraction: true }}
             navigation={true}
             modules={[Autoplay, Pagination, Navigation]}
-            style={{
-              margin: "50px 0",
-            }}
+            style={{ "--swiper-navigation-color": "#f5f5f5", minHeight: 500, marginBottom: "20px" }}
           >
-            {(dataProducts?.products || []).map((product) => (
-              <SwiperSlide key={product.id}>
-                <Card onClick={() => navigate(`/productDetails/${product.id}`)}>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      height="300"
-                      image={product.thumbnail}
-                      alt={product.title}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h6" component="div">
-                        {product.title}
-                      </Typography>
-                      <Typography gutterBottom variant="body2" component="div">
-                        Rating: {product.rating}
-                      </Typography>
-                      <Typography
-                        gutterBottom
-                        variant="body1"
-                        component="div"
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "text.secondary",
-                            textDecoration: "line-through",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          ${product.price}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "text.primary",
-                            fontSize: "1.2rem",
-                            marginLeft: "10px",
-                          }}
-                        >
-                          ${product.price}
-                        </Typography>
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
+            {isProductsLoading ? (
+              <SwiperSlide>
+                <Typography>Đang tải sản phẩm...</Typography>
               </SwiperSlide>
-            ))}
+            ) : (
+              (dataProducts?.items || []).map((product) => (
+                <SwiperSlide key={product.id}>
+                  <Card onClick={() => navigate(`/productDetails/${product.id}`)}>
+                    <CardActionArea sx={{ minHeight: "100%" }}>
+                      <CardMedia
+                        component="img"
+                        height="300"
+                        width="100%"
+                        image={product.images?.[0]?.imageUrl}
+                        alt={product.name}
+                        loading="lazy"
+                      />
+                      <CardContent sx={{ minHeight: "100%" }}>
+                        <Typography
+                          sx={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 2,
+                            overflow: "hidden",
+                          }}
+                          gutterBottom
+                          variant="h6"
+                          component="div"
+                        >
+                          {product.name}
+                        </Typography>
+                        <Typography gutterBottom variant="body2" component="div">
+                          Đã bán: {product.soldQuantity || 0}
+                        </Typography>
+                        <Typography
+                          gutterBottom
+                          variant="body1"
+                          component="div"
+                          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "text.primary", fontSize: "1.2rem" }}
+                          >
+                            {product.price?.toLocaleString("vi-VN")} VNĐ
+                          </Typography>
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </SwiperSlide>
+              ))
+            )}
           </Swiper>
 
           {category.showButton && (

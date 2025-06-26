@@ -5,7 +5,7 @@ export const categoryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listCategoriesForUser: builder.query({
       query: () => ({
-        url: "/v1/categories",
+        url: "/v1/public/categories",
         method: "GET",
       }),
       transformResponse: (response) => {
@@ -13,13 +13,11 @@ export const categoryApi = baseApi.injectEndpoints({
         return response.result?.items || [];
       },
       providesTags: [TAG_KEYS.CATEGORIES],
-      // Refetch khi page mount hoặc focus 
+      // Refetch khi page mount hoặc focus
       keepUnusedDataFor: 60,
       refetchOnMountOrArgChange: true,
     }),
   }),
 });
 
-export const {
-  useListCategoriesForUserQuery,
-} = categoryApi;
+export const { useListCategoriesForUserQuery } = categoryApi;
