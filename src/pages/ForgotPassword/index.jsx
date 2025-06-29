@@ -1,31 +1,28 @@
 import {
   Alert,
+  Box,
   Button,
   CircularProgress,
   Grid,
   Snackbar,
-  Stack,
   TextField,
   ThemeProvider,
   useTheme,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-
-import styles from "./index.module.css";
 import customTheme from "@/components/CustemTheme";
 import { useState } from "react";
 import { useForgotPasswordMutation } from "@/services/api/auth";
 
 const ForgotPassword = () => {
   const outerTheme = useTheme();
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // or 'error'
+    severity: "success",
   });
 
   const {
@@ -34,123 +31,101 @@ const ForgotPassword = () => {
     formState: { errors },
   } = useForm();
 
-  const handleShowSnackbar = (success) => {
-    if (success) {
-      setSnackbar({
-        open: true,
-        message: "Đã xác nhận email !",
-        severity: "success",
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: "Xác nhận email thất bại !",
-        severity: "error",
-      });
-    }
+  const handleShowSnackbar = (success, message) => {
+    setSnackbar({
+      open: true,
+      message:
+        message ||
+        (success ? "Xác nhận email thành công !" : "Xác nhận email thất bại !"),
+      severity: success ? "success" : "error",
+    });
   };
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const onSubmit = async (data) => {
-    setError("");
-
+  const handleForgotPassword = async (data) => {
     try {
       const response = await forgotPassword({
         email: data?.email,
       }).unwrap();
+      console.log("response", response);
 
       if (response) {
-        navigate("/login/forgotPasswordVerify", {
-          state: {
-            message: "Đã xác nhận email !",
-            severity: "success",
-            email: data.email, // Đảm bảo email được truyền ở đây
-          },
+        handleShowSnackbar(true);
+        navigate("/forgot-password/forgot-password-verify", {
+          state: { email: data.email },
         });
       }
     } catch (error) {
-      handleShowSnackbar(false);
-      console.log("Register failed:", error);
+      const messageError =
+        error?.message || error?.data?.message || "Xác nhận email thất bại !";
+      handleShowSnackbar(false, messageError);
+      console.log("Verify account failed:", error);
     }
   };
 
   return (
-    <section>
-      <Stack
+    <section
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f0f0f0",
+      }}
+    >
+      <Box
+        display={"flex"}
         alignItems={"center"}
         justifyContent={"center"}
-        sx={{
-          backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
-          height: "100vh",
-        }}
+        minHeight="100vh"
       >
-        <Stack
+        <Grid
+          container
           sx={{
+            width: "100%",
+            maxWidth: 1000,
+            px: 3,
+            py: 6,
             backgroundColor: "white",
-            width: 800,
-            height: 450,
-            borderRadius: 4,
-            boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
+            borderRadius: 2,
+            boxShadow: 1,
           }}
         >
-          <Grid container>
-            <Grid item lg={6} md={6}>
-              <h2
-                style={{
-                  textAlign: "center",
-                  margin: "46px 0 0 0",
-                  fontWeight: "inherit",
-                }}
-              >
-                QUÊN MẬT KHẨU
-              </h2>
+          <Grid size={{ xs: 6, md: 6 }}>
+            <Box sx={{ m: "0 50px" }}>
+              <h1 style={{ margin: 0 }}>Quên mật khẩu</h1>
 
-              <p
-                style={{
-                  textAlign: "center",
-                  margin: "16px 0 0 0",
-                }}
-              >
-                Chúng tôi sẽ gửi email đến bạn để đặt lại mật khẩu.
+              <p style={{ margin: "40px 0", fontSize: "1.1rem" }}>
+                Nhập email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt
+                lại mật khẩu.
               </p>
 
-              <Stack
-                sx={{ padding: "0px 36px" }}
-                component={"form"}
-                onSubmit={handleSubmit(onSubmit)}
-              >
-                <Stack className={styles.formLabelInput}>
-                  <label className={styles.labelInput} htmlFor="email">
-                    Email
-                  </label>
-                  <ThemeProvider theme={customTheme(outerTheme)}>
-                    <TextField
-                      id="email"
-                      label="Email"
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                      disabled={isLoading}
-                      {...register("email", {
-                        required: "Email không được để trống",
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Email không hợp lệ",
-                        },
-                      })}
-                    />
-                  </ThemeProvider>
-                  {errors.email && (
-                    <p className={styles.errorMessage}>
-                      {errors.email.message}
-                    </p>
-                  )}
-                </Stack>
+              <form onSubmit={handleSubmit(handleForgotPassword)}>
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="email"
+                    label="Email"
+                    variant="outlined"
+                    disabled={isLoading}
+                    fullWidth
+                    sx={{ mb: 4 }}
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                    {...register("email", {
+                      required: "Email không được để trống",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Email không hợp lệ",
+                      },
+                    })}
+                  />
+                </ThemeProvider>
 
                 <Button
                   variant="contained"
+                  fullWidth
                   sx={{
                     backgroundColor: "black",
                     color: "white",
@@ -167,49 +142,61 @@ const ForgotPassword = () => {
                   {isLoading ? (
                     <CircularProgress size={34} color="inherit" />
                   ) : (
-                    "XÁC NHẬN EMAIL"
+                    "Xác nhận email"
                   )}
                 </Button>
+              </form>
+            </Box>
 
-                <Snackbar
-                  open={snackbar.open}
-                  autoHideDuration={3000}
-                  onClose={handleCloseSnackbar}
-                  anchorOrigin={{ vertical: "right", horizontal: "right" }}
-                >
-                  <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    variant="filled"
-                    sx={{ width: "100%", p: "10px 20px" }}
-                  >
-                    {snackbar.message}
-                  </Alert>
-                </Snackbar>
-              </Stack>
-
-              <Stack sx={{ display: "flex", alignItems: "center" }}>
-                <Link className={styles.linkFooter} to="/login">
-                  Trở về đăng nhập
-                </Link>
-              </Stack>
-            </Grid>
-            <Grid item lg={6} md={6}>
-              <img
+            <Box
+              display={"flex"}
+              flexDirection={"column"}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
+              <Link
                 style={{
-                  width: "100%",
-                  height: 450,
-                  backgroundSize: "cover",
-                  borderTopRightRadius: 16,
-                  borderBottomRightRadius: 16,
-                  objectFit: "cover",
+                  textDecoration: "none",
+                  color: "black",
+                  fontWeight: 500,
+                  fontSize: "1.1rem",
+                  marginTop: 36,
                 }}
-                src="/src/assets/images/backgroundFashions/background-login.jpg"
-              />
-            </Grid>
+                to="/login"
+              >
+                Trở về đăng nhập
+              </Link>
+            </Box>
           </Grid>
-        </Stack>
-      </Stack>
+          <Grid size={{ xs: 6, md: 6 }}>
+            <img
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: 8,
+                objectFit: "cover",
+              }}
+              src="/src/assets/images/background-fashions/background-form.jpg"
+            />
+          </Grid>
+        </Grid>
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "right", horizontal: "right" }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbar.severity}
+            variant="filled"
+            sx={{ width: "100%", p: "10px 20px" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
     </section>
   );
 };

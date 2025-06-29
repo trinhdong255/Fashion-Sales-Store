@@ -1,6 +1,7 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Alert,
+  Box,
   Button,
   CircularProgress,
   Grid,
@@ -19,13 +20,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useResetPasswordMutation } from "@/services/api/auth";
 import { setUser } from "@/store/redux/user/reducer";
-import styles from "./index.module.css";
 
 const ResetPassword = () => {
   const outerTheme = useTheme();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -99,8 +98,6 @@ const ResetPassword = () => {
   };
 
   const onSubmit = async (data) => {
-    setError("");
-
     try {
       const response = await resetPassword({
         forgotPasswordToken: forgotPasswordToken,
@@ -111,16 +108,12 @@ const ResetPassword = () => {
       if (response) {
         const userData = {
           forgotPasswordToken: response.forgotPasswordToken,
+          email: response.email,
           newPassword: response.newPassword,
           confirmPassword: response.confirmPassword,
         };
         dispatch(setUser(userData));
-        navigate("/login", {
-          state: {
-            message: "Đặt lại mật khẩu thành công !",
-            severity: "success",
-          },
-        });
+        navigate("/login");
       }
     } catch (error) {
       handleShowSnackbar(false);
@@ -129,165 +122,127 @@ const ResetPassword = () => {
   };
 
   return (
-    <section>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "right", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%", p: "10px 20px" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
-      <Stack
-        alignItems={"center"}
-        justifyContent={"center"}
-        sx={{
-          backgroundImage: "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
-          height: "100vh",
-        }}
-      >
-        <Stack
+    <section
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f0f0f0",
+      }}
+    >
+      <Box display="flex" alignItems="center" minHeight="100vh">
+        <Grid
+          container
           sx={{
+            width: "100%",
+            maxWidth: 1000,
+            px: 3,
+            py: 6,
             backgroundColor: "white",
-            width: 800,
-            height: 550,
-            borderRadius: 4,
-            boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
+            borderRadius: 2,
+            boxShadow: 1,
           }}
         >
-          <Grid container>
-            <Grid item lg={6} md={6}>
-              <h2
-                style={{
-                  textAlign: "center",
-                  margin: "46px 0 20px 0",
-                  fontWeight: "inherit",
-                }}
-              >
-                ĐẶT LẠI MẬT KHẨU
-              </h2>
+          <Grid size={{ xs: 6, md: 6 }}>
+            <Box sx={{ m: "0 50px" }}>
+              <h1 style={{ margin: 0 }}>Đặt lại mật khẩu</h1>
 
-              <Stack
-                sx={{ padding: "0px 36px" }}
-                component={"form"}
-                onSubmit={handleSubmit(onSubmit)}
-              >
-                <Stack className={styles.formLabelInput}>
-                  <label className={styles.labelInput} htmlFor="newPassword">
-                    Mật khẩu mới
-                  </label>
-                  <ThemeProvider theme={customTheme(outerTheme)}>
-                    <TextField
-                      id="newPassword"
-                      label="Mật khẩu mới"
-                      type={showNewPassword ? "text" : "password"}
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                      disabled={isLoading}
-                      {...register("newPassword", {
-                        required: "Mật khẩu không được để trống",
-                        minLength: {
-                          value: 6,
-                          message: "Mật khẩu phải có ít nhất 6 ký tự",
-                        },
-                      })}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              aria-label={
-                                showNewPassword
-                                  ? "hide the password"
-                                  : "display the password"
-                              }
-                              onClick={handleClickShowNewPassword}
-                              onMouseDown={handleMouseDownNewPassword}
-                              onMouseUp={handleMouseUpNewPassword}
-                              edge="end"
-                              disabled={isLoading}
-                            >
-                              {showNewPassword ? (
-                                <VisibilityOff />
-                              ) : (
-                                <Visibility />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </ThemeProvider>
-                  {errors.newPassword && (
-                    <p className={styles.errorMessage}>
-                      {errors.newPassword.message}
-                    </p>
-                  )}
-                </Stack>
+              <p style={{ margin: "20px 0", fontSize: "1.1rem" }}>
+                Vui lòng nhập mật khẩu mới.
+              </p>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="newPassword"
+                    label="Mật khẩu mới"
+                    fullWidth
+                    type={showNewPassword ? "text" : "password"}
+                    variant="outlined"
+                    sx={{ mt: 4, mb: 4 }}
+                    disabled={isLoading}
+                    error={!!errors.newPassword}
+                    helperText={errors.newPassword?.message}
+                    {...register("newPassword", {
+                      required: "Mật khẩu không được để trống",
+                      minLength: {
+                        value: 6,
+                        message: "Mật khẩu phải có ít nhất 6 ký tự",
+                      },
+                    })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showNewPassword
+                                ? "hide the password"
+                                : "display the password"
+                            }
+                            onClick={handleClickShowNewPassword}
+                            onMouseDown={handleMouseDownNewPassword}
+                            onMouseUp={handleMouseUpNewPassword}
+                            edge="end"
+                            disabled={isLoading}
+                          >
+                            {showNewPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </ThemeProvider>
 
-                <Stack className={styles.formLabelInput}>
-                  <label
-                    className={styles.labelInput}
-                    htmlFor="confirmPassword"
-                  >
-                    Xác nhận mật khẩu
-                  </label>
-                  <ThemeProvider theme={customTheme(outerTheme)}>
-                    <TextField
-                      id="confirmPassword"
-                      label="Xác nhận mật khẩu"
-                      type={showConfirmPassword ? "text" : "password"}
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                      disabled={isLoading}
-                      {...register("confirmPassword", {
-                        required: "Vui lòng xác nhận mật khẩu",
-                        validate: (value) =>
-                          value === watch("newPassword") ||
-                          "Mật khẩu xác nhận không khớp",
-                      })}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              aria-label={
-                                showConfirmPassword
-                                  ? "hide the password"
-                                  : "display the password"
-                              }
-                              onClick={handleClickShowConfirmPassword}
-                              onMouseDown={handleMouseDownConfirmPassword}
-                              onMouseUp={handleMouseUpConfirmPassword}
-                              edge="end"
-                              disabled={isLoading}
-                            >
-                              {showConfirmPassword ? (
-                                <VisibilityOff />
-                              ) : (
-                                <Visibility />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </ThemeProvider>
-                  {errors.confirmPassword && (
-                    <p className={styles.errorMessage}>
-                      {errors.confirmPassword.message}
-                    </p>
-                  )}
-                </Stack>
+                <ThemeProvider theme={customTheme(outerTheme)}>
+                  <TextField
+                    id="confirmPassword"
+                    label="Xác nhận mật khẩu"
+                    variant="outlined"
+                    fullWidth
+                    type={showConfirmPassword ? "text" : "password"}
+                    sx={{ mb: 1 }}
+                    disabled={isLoading}
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
+                    {...register("confirmPassword", {
+                      required: "Vui lòng xác nhận mật khẩu",
+                      validate: (value) =>
+                        value === watch("newPassword") ||
+                        "Mật khẩu xác nhận không khớp",
+                    })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showConfirmPassword
+                                ? "hide the password"
+                                : "display the password"
+                            }
+                            onClick={handleClickShowConfirmPassword}
+                            onMouseDown={handleMouseDownConfirmPassword}
+                            onMouseUp={handleMouseUpConfirmPassword}
+                            edge="end"
+                            disabled={isLoading}
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </ThemeProvider>
 
                 <Button
                   variant="contained"
+                  fullWidth
                   sx={{
                     backgroundColor: "black",
                     color: "white",
@@ -305,43 +260,42 @@ const ResetPassword = () => {
                   {isLoading ? (
                     <CircularProgress size={34} color="inherit" />
                   ) : (
-                    "ĐẶT LẠI MẬT KHẨU"
+                    "Đặt lại mật khẩu"
                   )}
                 </Button>
-
-                <Snackbar
-                  open={snackbar.open}
-                  autoHideDuration={3000}
-                  onClose={handleCloseSnackbar}
-                  anchorOrigin={{ vertical: "right", horizontal: "right" }}
-                >
-                  <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    variant="filled"
-                    sx={{ width: "100%", p: "10px 20px" }}
-                  >
-                    {snackbar.message}
-                  </Alert>
-                </Snackbar>
-              </Stack>
-            </Grid>
-
-            <Grid item lg={6} md={6}>
-              <img
-                style={{
-                  width: "100%",
-                  height: 550,
-                  borderTopRightRadius: 16,
-                  borderBottomRightRadius: 16,
-                  objectFit: "cover",
-                }}
-                src="/src/assets/images/backgroundFashions/background-login.jpg"
-              />
-            </Grid>
+              </form>
+            </Box>
           </Grid>
-        </Stack>
-      </Stack>
+
+          <Grid size={{ xs: 6, md: 6 }}>
+            <img
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: 8,
+                objectFit: "cover",
+              }}
+              src="/src/assets/images/background-fashions/background-form.jpg"
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%", p: "10px 20px" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </section>
   );
 };

@@ -1,8 +1,9 @@
-import { Container, Grid, Stack } from "@mui/material";
+import { Box, CircularProgress, Container, Grid, Stack } from "@mui/material";
 
 import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 
 import styles from "./index.module.css";
+import { useGetListBranchesQuery } from "@/services/api/branches";
 
 const contents = [
   {
@@ -12,7 +13,7 @@ const contents = [
     secondLineAboutUs:
       "Ngày nay, Fashion Store hợp tác với các nhà sản xuất và hỗ trợ các hoạt động thương mại công bằng để mang đến thời trang bền vững, phong cách cho những người tiêu dùng trên toàn thế giới.",
     thirdLineAboutUs:
-      "Bạn có thắc mắc gì không? Hãy cho chúng tôi biết tại địa chỉ cửa hàng Ho Chi Minh City, Viet Nam hoặc gọi cho chúng tôi theo số 125-711-811 | 125-668-886",
+      "Bạn có thắc mắc gì không? Hãy ghé qua tại các chi nhánh sau:",
   },
   {
     titleMissionUs: "Nhiệm vụ của chúng tôi",
@@ -28,13 +29,30 @@ const contents = [
 ];
 
 const About = () => {
+  const {
+    data: dataBranches,
+    isLoading: isLoadingBranches,
+    error: isErrorBranches,
+  } = useGetListBranchesQuery({
+    refetchOnMountOrArgChange: true,
+  });
+  console.log("dataBranches", dataBranches);
+
+  if (isLoadingBranches)
+    return (
+      <Box display={"flex"}>
+        <CircularProgress />
+      </Box>
+    );
+  if (isErrorBranches) return <div>Error loading branches</div>;
+
   return (
     <section>
       <WallpaperRepresentative titleHeader="Về chúng tôi" />
 
       <Container maxWidth="lg">
         <Grid container sx={{ m: "80px 0" }} alignItems={"center"}>
-          <Grid item lg={8}>
+          <Grid size={{ lg: 8, md: 8, sm: 12 }}>
             {contents.map((content, index) => (
               <Stack sx={{ marginRight: 8 }} key={index}>
                 <h2 style={{ fontSize: "2rem", fontWeight: "500" }}>
@@ -45,9 +63,24 @@ const About = () => {
                 <p className={styles.content}>{content.thirdLineAboutUs}</p>
               </Stack>
             ))}
+            {dataBranches && (
+              <Stack sx={{ marginRight: 8 }}>
+                <ul>
+                  {dataBranches?.result?.items.map((branch) => (
+                    <li
+                      key={branch.id}
+                      style={{ margin: "10px 0", color: "var(--text-color)" }}
+                    >
+                      {branch.name} - {branch.location} (Số điện thoại:{" "}
+                      {branch.phone})
+                    </li>
+                  ))}
+                </ul>
+              </Stack>
+            )}
           </Grid>
 
-          <Grid item lg={4}>
+          <Grid size={{ lg: 4, md: 4, sm: 12 }}>
             <Stack className={styles.contentImg}>
               <img
                 src="/src/assets/images/about-us/our-story.jpg"
@@ -58,7 +91,7 @@ const About = () => {
         </Grid>
 
         <Grid container sx={{ m: "80px 0" }} alignItems={"center"}>
-          <Grid item lg={4}>
+          <Grid size={{ lg: 4 }}>
             <Stack className={styles.contentImg}>
               <img
                 src="/src/assets/images/about-us/our-mission.jpg"
@@ -67,7 +100,7 @@ const About = () => {
             </Stack>
           </Grid>
 
-          <Grid item lg={8}>
+          <Grid size={{ lg: 8 }}>
             {contents.map((content, index) => (
               <Stack sx={{ marginLeft: 8 }} key={index}>
                 <h2 style={{ fontSize: "2rem", fontWeight: "500", margin: 0 }}>
