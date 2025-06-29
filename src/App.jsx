@@ -6,9 +6,8 @@ import ChangePassword from "./pages/ChangePassword";
 import Profile from "./pages/ProfilePage";
 
 import ScrollToTop from "@/components/ScrollToTop";
-import LoginLayout from "@/layouts/LoginLayout";
+import ForgotPasswordLayout from "@/layouts/ForgotPasswordLayout";
 import MainLayout from "@/layouts/MainLayout";
-import ProductListsLayout from "@/layouts/ProductListsLayout";
 import About from "@/pages/AboutPage";
 import Contact from "@/pages/ContactPage";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -25,7 +24,7 @@ import VerifyAccount from "@/pages/VerifyAccountPage";
 import ResetPassword from "./pages/ResetPasswordPage";
 import ForgotPasswordVerify from "./pages/ForgotPassword/shared/ForgotPasswordVerify";
 import ThemeProvider from "./context/ThemeProvider";
-
+import ProductListsLayout from "./layouts/ProductListsLayout";
 
 const App = () => {
   return (
@@ -40,22 +39,20 @@ const App = () => {
           <Route path="about" element={<About />} />
         </Route>
 
-        {/* Route Login */}
-        <Route path="/login" element={<LoginLayout />}>
-          <Route index element={<Login />} />
-          <Route path="forgotPassword" element={<ForgotPassword />} />
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/forgot-password" element={<ForgotPasswordLayout />}>
+          <Route index element={<ForgotPassword />} />
           <Route
-            path="forgotPasswordVerify"
+            path="forgot-password-verify"
             element={<ForgotPasswordVerify />}
           />
-          <Route path="resetPassword" element={<ResetPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
         </Route>
 
-        {/* Route SignUp and VerifyAccount */}
         <Route path="/register" element={<Register />} />
-        <Route path="/verifyAccount" element={<VerifyAccount />} />
+        <Route path="/register/verify-account" element={<VerifyAccount />} />
 
-        {/* Route List Products */}
         <Route path="/listProducts" element={<ProductListsLayout />}>
           <Route index element={<ProductLists />} />
         </Route>
@@ -64,7 +61,6 @@ const App = () => {
         <Route path="/shippingMethod" element={<ShippingMethod />} />
         <Route path="/orderConfirmation" element={<OrderConfirmation />} />
 
-        {/* Route user */}
         <Route path="/accountInform" element={<AccountInform />}>
           <Route path="/accountInform/profile" element={<Profile />} />
           <Route
