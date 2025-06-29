@@ -5,14 +5,10 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 import { baseApi } from "@/services/api";
+import authReducer from "@/store/redux/auth/reducer";
+import userReducer from "@/store/redux/user/reducer";
 import cartReducer from "@/store/redux/cart/reducer";
 import orderReducer from "@/store/redux/order/reducer";
-import userReducer from "@/store/redux/user/reducer";
-import categoriesReducer from "@/store/redux/categories/reducer";
-import productReducer from "@/store/redux/product/reducer";
-import productVariantReducer from "@/store/redux/productVariant/reducer";
-import productImageReducer from "@/store/redux/productImage/reducer";
-import colorReducer from "@/store/redux/color/reducer";
 
 export const RESET_STATE = "RESET_STATE";
 
@@ -23,14 +19,10 @@ const persistConfig = {
 
 const appReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
-  order: orderReducer,
+  auth: authReducer,
   user: userReducer,
+  order: orderReducer,
   cart: cartReducer,
-  categories: categoriesReducer,
-  product: productReducer,
-  productVariant: productVariantReducer,
-  productImage: productImageReducer,
-  color: colorReducer,
 });
 
 const rootReducer = (state, action) => {
