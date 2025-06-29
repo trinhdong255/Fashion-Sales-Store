@@ -53,7 +53,7 @@ const Footer = () => {
       <Container maxWidth="lg">
         <Grid container spacing={10}>
           {footerData.map((value, index) => (
-            <Grid item xs={6} sm={6} md={3} key={index} sx={{ pb: 12 }}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }} key={index} sx={{ pb: 12 }}>
               <h3 className={styles.footerTitle}>{value.title}</h3>
               <ul style={{ listStyleType: "none", paddingTop: 32 }}>
                 {value.links.map((valueLink, linkIndex) => (

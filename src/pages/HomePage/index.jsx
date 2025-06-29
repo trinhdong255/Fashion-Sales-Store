@@ -60,7 +60,9 @@ const Home = () => {
   };
 
   // Ensure activeCategories is an array from the transformed data
-  const activeCategories = Array.isArray(data) ? data.filter(item => item.status === "ACTIVE") : [];
+  const activeCategories = Array.isArray(data)
+    ? data.filter((item) => item.status === "ACTIVE")
+    : [];
 
   if (isFetching || !data) return null;
 
@@ -103,12 +105,23 @@ const Home = () => {
         ))}
       </Swiper>
 
-      <div style={{ textAlign: "center", margin: "100px 0", padding: "100px", backgroundColor: "#f9f9f9" }}>
+      <div
+        style={{
+          textAlign: "center",
+          margin: "100px 0",
+          padding: "100px",
+          backgroundColor: "#f9f9f9",
+        }}
+      >
         <h2 style={{ fontSize: "2rem", marginBottom: "24px" }}>
           Hãy tận hưởng tuổi trẻ của bạn!
         </h2>
         <p
-          style={{ maxWidth: "600px", margin: "auto", color: "var(--text-color)" }}
+          style={{
+            maxWidth: "600px",
+            margin: "auto",
+            color: "var(--text-color)",
+          }}
         >
           Fashion Store là nơi cung cấp thời trang hiện đại dành cho giới trẻ,
           mang đến trải nghiệm mua sắm tiện lợi và phong cách nổi bật mỗi ngày.
@@ -126,22 +139,23 @@ const Home = () => {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              item
-              xl={4}
-              lg={4}
-              sm={6}
-              xs={12}
+              size={{ xl: 4, lg: 4, sm: 6, xs: 12 }}
               key={item.id}
             >
               <Link to="/listProducts">
                 <Stack className={styles.wrapperImg}>
                   <img
                     className={styles.mediaImg}
-                    src={categoryImageMap[item.name] || "/src/assets/images/categories/default.jpg"}
+                    src={
+                      categoryImageMap[item.name] ||
+                      "/src/assets/images/categories/default.jpg"
+                    }
                     alt={item.name}
                   />
                   <Stack className={styles.contentImg}>
-                    <h2 style={{ fontSize: 32, fontWeight: 500, color: "white" }}>
+                    <h2
+                      style={{ fontSize: 32, fontWeight: 500, color: "white" }}
+                    >
                       {item.name}
                     </h2>
                   </Stack>
