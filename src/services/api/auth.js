@@ -57,12 +57,11 @@ export const authApi = baseApi.injectEndpoints({
         data: {
           name: credentials.name,
           email: credentials.email,
-          phone: credentials.phone,
           password: credentials.password,
           confirmPassword: credentials.confirmPassword,
         },
       }),
-      invalidatesTags: [TAG_KEYS.USER],
+      invalidatesTags: [TAG_KEYS.AUTH],
     }),
 
     verifyOtp: builder.mutation({
