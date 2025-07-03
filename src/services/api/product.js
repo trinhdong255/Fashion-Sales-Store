@@ -7,16 +7,8 @@ export const productApi = baseApi.injectEndpoints({
       query: () => ({
         url: `/v1/public/products`,
         method: "GET",
-        params: { status: "ACTIVE" },
       }),
       providesTags: [TAG_KEYS.PRODUCT],
-      transformResponse: (response) => ({
-        items: Array.isArray(response.result?.items)
-          ? response.result.items
-          : [],
-      }),
-      keepUnusedDataFor: 60,
-      refetchOnMountOrArgChange: true,
     }),
 
     searchProducts: builder.query({
