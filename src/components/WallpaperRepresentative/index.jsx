@@ -10,7 +10,7 @@ const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
         height: "500px",
         backgroundImage: `url(${backgroundFashion})`,
         backgroundAttachment: "fixed",
-        // backgroundPosition:"center",
+        backgroundRepeat: "no-repeat",
         backgroundSize: "100%"
       }}
     >
